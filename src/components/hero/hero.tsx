@@ -145,7 +145,7 @@ export function Hero() {
             <Eye className="w-4 h-4" />
             View My Work
           </a>
-          <a href="/resume.pdf" download id="download-cv" className="btn-secondary w-full sm:w-auto">
+          <a href="/Wahab_Resume.pdf" download id="download-cv" className="btn-secondary w-full sm:w-auto">
             <Download className="w-4 h-4" />
             Download Resume
           </a>
