@@ -4,23 +4,33 @@ import { About } from "@/components/about/about";
 import { Skills } from "@/components/skills/skills";
 import { Projects } from "@/components/projects/projects";
 import { Timeline } from "@/components/timeline/timeline";
-import { Contact } from "@/components/contact/contact";
+import { BentoContact } from "@/components/contact/bento-contact";
 import { Footer } from "@/components/footer/footer";
 import { BackToTop } from "@/components/ui/back-to-top";
 
 export default function Home() {
   return (
     <main className="relative">
-      {/* Noise texture overlay */}
-      <div className="noise-overlay" aria-hidden="true" />
-
       <Navbar />
+
+      {/* 1. Big landing hero */}
       <Hero />
+
+      {/* 2. Who am I — terminal whoami */}
       <About />
+
+      {/* 3. Technical toolbox — file tree */}
       <Skills />
+
+      {/* 4. Featured projects */}
       <Projects />
+
+      {/* 5. Experience timeline */}
       <Timeline />
-      <Contact />
+
+      {/* 6. Bento contact grid — at the very end */}
+      <BentoContact />
+
       <Footer />
       <BackToTop />
     </main>

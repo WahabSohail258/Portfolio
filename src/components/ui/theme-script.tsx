@@ -1,12 +1,11 @@
-// This component injects a script that runs before React hydration
-// to set the correct theme, preventing flash of wrong colors.
+// Runs before React hydration to set correct theme (prevents flash)
 export function ThemeScript() {
   const script = `
     (function() {
       try {
         var saved = localStorage.getItem('theme');
         var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        var theme = saved || (prefersDark ? 'dark' : 'light');
+        var theme = saved || (prefersDark ? 'dark' : 'dark'); // default dark
         document.documentElement.setAttribute('data-theme', theme);
       } catch(e) {}
     })();

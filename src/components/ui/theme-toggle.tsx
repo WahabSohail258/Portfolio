@@ -5,7 +5,7 @@ import { Sun, Moon } from "lucide-react";
 import { motion } from "framer-motion";
 
 export function ThemeToggle() {
-  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [theme, setTheme] = useState<"light" | "dark">("dark");
 
   useEffect(() => {
     const saved = localStorage.getItem("theme") as "light" | "dark" | null;
@@ -28,14 +28,15 @@ export function ThemeToggle() {
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
       aria-label="Toggle theme"
+      title={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
       style={{
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        width: 38,
-        height: 38,
+        width: 36,
+        height: 36,
         borderRadius: 8,
-        border: "1.5px solid var(--border)",
+        border: "1px solid var(--border)",
         background: "var(--card)",
         color: "var(--foreground-muted)",
         cursor: "pointer",
@@ -43,7 +44,7 @@ export function ThemeToggle() {
         transition: "all 0.2s ease",
       }}
     >
-      {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
+      {theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}
     </motion.button>
   );
 }

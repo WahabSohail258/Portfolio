@@ -1,136 +1,109 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
+import { ChevronRight, ChevronDown, Folder, FolderOpen } from "lucide-react";
 
-// Tech items for the scrolling marquee rows
-const row1 = [
-  { name: "Python", icon: "devicon-python-plain colored" },
-  { name: "C++", icon: "devicon-cplusplus-plain colored" },
-  { name: "TypeScript", icon: "devicon-typescript-plain colored" },
-  { name: "JavaScript", icon: "devicon-javascript-plain colored" },
-  { name: "Bash", icon: "devicon-bash-plain" },
-  { name: "SQL", icon: "devicon-postgresql-plain colored" },
-  { name: "TensorFlow", icon: "devicon-tensorflow-original colored" },
-  { name: "PyTorch", icon: "devicon-pytorch-original colored" },
-  { name: "OpenCV", icon: "devicon-opencv-plain colored" },
-  { name: "Scikit-learn", icon: "devicon-scikitlearn-plain colored" },
-];
+interface FileItem {
+  name: string;
+  ext: string;
+  color: string;
+  symbol?: string;
+}
 
-const row2 = [
-  { name: "React", icon: "devicon-react-original colored" },
-  { name: "Next.js", icon: "devicon-nextjs-plain" },
-  { name: "FastAPI", icon: "devicon-fastapi-plain colored" },
-  { name: "Flask", icon: "devicon-flask-original" },
-  { name: "Node.js", icon: "devicon-nodejs-plain colored" },
-  { name: "Docker", icon: "devicon-docker-plain colored" },
-  { name: "Linux", icon: "devicon-linux-plain" },
-  { name: "Git", icon: "devicon-git-plain colored" },
-  { name: "Raspberry Pi", icon: "devicon-raspberrypi-plain colored" },
-  { name: "MongoDB", icon: "devicon-mongodb-plain colored" },
-];
+interface FolderItem {
+  name: string;
+  files: FileItem[];
+}
 
-const categories = [
+const tree: FolderItem[] = [
   {
-    tag: "Languages",
-    items: [
-      { name: "Python", level: 95, color: "#3776AB" },
-      { name: "C / C++", level: 80, color: "#00599C" },
-      { name: "TypeScript", level: 75, color: "#3178C6" },
-      { name: "JavaScript", level: 78, color: "#F7DF1E" },
-      { name: "Bash / Shell", level: 70, color: "#4EAA25" },
-      { name: "SQL", level: 72, color: "#336791" },
+    name: "programming-languages",
+    files: [
+      { name: "python", ext: ".py", color: "#3776AB", symbol: "🔷" },
+      { name: "c", ext: ".c", color: "#A8B9CC", symbol: "🔹" },
+      { name: "cplusplus", ext: ".cpp", color: "#00599C", symbol: "🔷" },
+      { name: "typescript", ext: ".ts", color: "#3178C6", symbol: "🔷" },
+      { name: "javascript", ext: ".js", color: "#F7DF1E", symbol: "○" },
+      { name: "bash", ext: ".sh", color: "#4EAA25", symbol: "·" },
+      { name: "sql", ext: ".sql", color: "#336791", symbol: "○" },
     ],
   },
   {
-    tag: "AI & ML",
-    items: [
-      { name: "TensorFlow / Keras", level: 85, color: "#FF6F00" },
-      { name: "PyTorch", level: 80, color: "#EE4C2C" },
-      { name: "OpenCV", level: 88, color: "#5C3EE8" },
-      { name: "Scikit-learn", level: 82, color: "#F7931E" },
-      { name: "YOLOv8", level: 85, color: "#00FFFF" },
-      { name: "MediaPipe", level: 80, color: "#0F9D58" },
+    name: "ai-machine-learning",
+    files: [
+      { name: "tensorflow", ext: ".ts", color: "#FF6F00", symbol: "🔷" },
+      { name: "pytorch", ext: ".ts", color: "#EE4C2C", symbol: "🔷" },
+      { name: "scikit-learn", ext: ".ts", color: "#F7931E", symbol: "🔷" },
+      { name: "deep-learning", ext: ".ts", color: "#a78bfa", symbol: "🔷" },
+      { name: "computer-vision", ext: ".ts", color: "#5C3EE8", symbol: "🔷" },
+      { name: "yolov8", ext: ".ts", color: "#00FFFF", symbol: "🔷" },
+      { name: "mediapipe", ext: ".ts", color: "#0F9D58", symbol: "🔷" },
     ],
   },
   {
-    tag: "Tools & Systems",
-    items: [
-      { name: "Linux / Raspberry Pi", level: 85, color: "#FCC624" },
-      { name: "Docker", level: 75, color: "#2496ED" },
-      { name: "FastAPI / Flask", level: 82, color: "#009688" },
-      { name: "React / Next.js", level: 75, color: "#61DAFB" },
-      { name: "Git / GitHub", level: 88, color: "#F05032" },
-      { name: "MongoDB / PostgreSQL", level: 72, color: "#47A248" },
+    name: "frameworks",
+    files: [
+      { name: "react", ext: ".tsx", color: "#61DAFB", symbol: "🔷" },
+      { name: "nextjs", ext: ".tsx", color: "#cdd6f4", symbol: "🔷" },
+      { name: "fastapi", ext: ".py", color: "#009688", symbol: "🔷" },
+      { name: "flask", ext: ".py", color: "#cdd6f4", symbol: "🔷" },
+      { name: "nodejs", ext: ".js", color: "#339933", symbol: "🔷" },
+    ],
+  },
+  {
+    name: "tools-and-systems",
+    files: [
+      { name: "docker", ext: ".sh", color: "#2496ED", symbol: "🔷" },
+      { name: "linux", ext: ".sh", color: "#FCC624", symbol: "·" },
+      { name: "raspberry-pi", ext: ".sh", color: "#C51A4A", symbol: "·" },
+      { name: "git", ext: ".sh", color: "#F05032", symbol: "·" },
+      { name: "cuda", ext: ".cu", color: "#76b900", symbol: "Σ" },
+      { name: "mongodb", ext: ".js", color: "#47A248", symbol: "○" },
+      { name: "postgresql", ext: ".sql", color: "#336791", symbol: "○" },
     ],
   },
 ];
 
-function MarqueeRow({ items, direction }: { items: typeof row1; direction: "left" | "right" }) {
-  const doubled = [...items, ...items]; // duplicate for seamless loop
+function FileTreeItem({ file }: { file: FileItem }) {
   return (
-    <div style={{ overflow: "hidden", width: "100%", position: "relative" }}>
-      {/* Fade edges */}
+    <div
+      className="file-tree-item"
+      style={{ paddingLeft: "2rem" }}
+      title={file.name + file.ext}
+    >
+      <span style={{ color: file.color, fontSize: "0.7rem", width: 12, textAlign: "center", flexShrink: 0 }}>
+        {file.symbol ?? "🔷"}
+      </span>
+      <span style={{ color: "#89ddff", fontSize: "0.75rem", flexShrink: 0 }}>📄</span>
+      <span style={{ color: "#cdd6f4" }}>{file.name}</span>
+      <span style={{ color: file.color }}>{file.ext}</span>
+    </div>
+  );
+}
+
+function FolderTreeItem({ folder }: { folder: FolderItem }) {
+  const [open, setOpen] = useState(true);
+  return (
+    <div>
       <div
-        style={{
-          position: "absolute",
-          left: 0,
-          top: 0,
-          bottom: 0,
-          width: 80,
-          background: "linear-gradient(to right, var(--background), transparent)",
-          zIndex: 2,
-          pointerEvents: "none",
-        }}
-      />
-      <div
-        style={{
-          position: "absolute",
-          right: 0,
-          top: 0,
-          bottom: 0,
-          width: 80,
-          background: "linear-gradient(to left, var(--background), transparent)",
-          zIndex: 2,
-          pointerEvents: "none",
-        }}
-      />
-      <div
-        className={direction === "left" ? "marquee-track marquee-left" : "marquee-track marquee-right"}
-        style={{ display: "flex", gap: "1.25rem", padding: "0.5rem 0" }}
+        className="file-tree-item"
+        onClick={() => setOpen(!open)}
+        style={{ paddingLeft: "0.75rem" }}
       >
-        {doubled.map((item, i) => (
-          <div
-            key={i}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "0.6rem",
-              padding: "0.6rem 1rem",
-              background: "var(--card)",
-              border: "1px solid var(--card-border)",
-              borderRadius: 10,
-              whiteSpace: "nowrap",
-              flexShrink: 0,
-              transition: "all 0.2s ease",
-            }}
-          >
-            <i
-              className={item.icon}
-              style={{ fontSize: "1.3rem", width: "1.3rem", textAlign: "center" }}
-            />
-            <span
-              style={{
-                fontSize: "0.8rem",
-                fontWeight: 500,
-                color: "var(--foreground-muted)",
-                fontFamily: "'Fira Code', monospace",
-              }}
-            >
-              {item.name}
-            </span>
-          </div>
-        ))}
+        {open ? <ChevronDown size={12} style={{ color: "#6c7086", flexShrink: 0 }} /> : <ChevronRight size={12} style={{ color: "#6c7086", flexShrink: 0 }} />}
+        {open
+          ? <FolderOpen size={14} style={{ color: "#e8a838", flexShrink: 0 }} />
+          : <Folder size={14} style={{ color: "#e8a838", flexShrink: 0 }} />}
+        <span style={{ color: "#cdd6f4" }}>{folder.name}</span>
       </div>
+      {open && (
+        <div>
+          {folder.files.map((f) => (
+            <FileTreeItem key={f.name} file={f} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -140,129 +113,79 @@ export function Skills() {
     <section
       id="skills"
       className="section-padding"
-      style={{ background: "var(--surface)", borderTop: "1px solid var(--border)", borderBottom: "1px solid var(--border)" }}
+      style={{ background: "var(--background)", borderTop: "1px solid var(--border)" }}
     >
       <div className="section-container">
         <motion.div
-          initial={{ opacity: 0, y: 24 }}
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true, margin: "-80px" }}
-          style={{ marginBottom: "2.5rem" }}
+          style={{ textAlign: "center", marginBottom: "2.5rem" }}
         >
-          <span className="section-tag">// tech stack</span>
-          <h2 className="section-title">Skills & Technologies</h2>
-          <p style={{ color: "var(--foreground-muted)", fontSize: "0.95rem", marginTop: "0.5rem", maxWidth: 500 }}>
-            Technologies I use to build intelligent, real-time systems.
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.5rem",
+              padding: "0.3rem 0.9rem",
+              borderRadius: 999,
+              border: "1.5px solid var(--card-border)",
+              marginBottom: "1rem",
+              fontSize: "0.8rem",
+              color: "var(--primary)",
+              fontWeight: 600,
+            }}
+          >
+            <span style={{ width: 7, height: 7, borderRadius: "50%", background: "var(--primary)", display: "inline-block" }} />
+            Stack &amp; tooling
+          </div>
+          <h2 className="section-title" style={{ marginBottom: "0.5rem" }}>
+            Technical{" "}
+            <span className="gradient-text">toolbox</span>
+          </h2>
+          <p style={{ color: "var(--foreground-muted)", fontSize: "0.95rem", maxWidth: 500, margin: "0 auto" }}>
+            Skills as a project tree — expand folders to explore languages, ML, cloud, data, and tooling.
           </p>
         </motion.div>
 
-        {/* Marquee rows */}
+        {/* File tree terminal window */}
         <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          viewport={{ once: true }}
-          style={{ display: "flex", flexDirection: "column", gap: "1rem", marginBottom: "3.5rem" }}
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.15 }}
+          viewport={{ once: true, margin: "-80px" }}
+          className="terminal-window"
+          style={{ maxWidth: 680, margin: "0 auto" }}
         >
-          <MarqueeRow items={row1} direction="left" />
-          <MarqueeRow items={row2} direction="right" />
+          {/* Titlebar */}
+          <div className="terminal-titlebar">
+            <div className="terminal-dots">
+              <div className="terminal-dot" style={{ background: "#ff5f57" }} />
+              <div className="terminal-dot" style={{ background: "#ffbd2e" }} />
+              <div className="terminal-dot" style={{ background: "#28c840" }} />
+            </div>
+            <span style={{ fontFamily: "'Fira Code', monospace", fontSize: "0.72rem", color: "rgba(255,255,255,0.4)" }}>
+              toolbox
+            </span>
+            <div style={{ width: 50 }} />
+          </div>
+
+          {/* File tree body */}
+          <div style={{ padding: "1rem 0.5rem" }} className="file-tree">
+            {/* Root */}
+            <div className="file-tree-item" style={{ paddingLeft: "0.5rem" }}>
+              <ChevronDown size={12} style={{ color: "#6c7086" }} />
+              <Folder size={14} style={{ color: "#e8a838" }} />
+              <span style={{ color: "#cdd6f4", fontWeight: 600 }}>portfolio</span>
+            </div>
+
+            {tree.map((folder) => (
+              <FolderTreeItem key={folder.name} folder={folder} />
+            ))}
+          </div>
         </motion.div>
-
-        {/* Skill bars by category */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
-            gap: "1.5rem",
-          }}
-          className="skills-grid"
-        >
-          {categories.map((cat, ci) => (
-            <motion.div
-              key={cat.tag}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: ci * 0.1 }}
-              viewport={{ once: true, margin: "-60px" }}
-              className="card"
-              style={{ padding: "1.5rem" }}
-            >
-              <div
-                style={{
-                  fontFamily: "'Fira Code', monospace",
-                  fontSize: "0.75rem",
-                  color: "var(--primary)",
-                  letterSpacing: "0.08em",
-                  marginBottom: "1.25rem",
-                  textTransform: "uppercase",
-                }}
-              >
-                {cat.tag}
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                {cat.items.map((skill, si) => (
-                  <div key={skill.name}>
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        marginBottom: "0.3rem",
-                      }}
-                    >
-                      <span style={{ fontSize: "0.8rem", fontWeight: 500, color: "var(--foreground)" }}>
-                        {skill.name}
-                      </span>
-                      <span
-                        style={{
-                          fontFamily: "'Fira Code', monospace",
-                          fontSize: "0.7rem",
-                          color: "var(--foreground-muted)",
-                        }}
-                      >
-                        {skill.level}%
-                      </span>
-                    </div>
-                    <div
-                      style={{
-                        height: 5,
-                        borderRadius: 999,
-                        background: "var(--border)",
-                        overflow: "hidden",
-                      }}
-                    >
-                      <motion.div
-                        initial={{ width: 0 }}
-                        whileInView={{ width: `${skill.level}%` }}
-                        transition={{ duration: 0.8, delay: si * 0.05, ease: "easeOut" }}
-                        viewport={{ once: true }}
-                        style={{
-                          height: "100%",
-                          borderRadius: 999,
-                          background: `linear-gradient(90deg, var(--primary), ${skill.color})`,
-                        }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-          ))}
-        </div>
       </div>
-
-      <style jsx>{`
-        @media (max-width: 900px) {
-          .skills-grid {
-            grid-template-columns: 1fr !important;
-          }
-        }
-        @media (max-width: 600px) {
-          .skills-grid {
-            grid-template-columns: 1fr !important;
-          }
-        }
-      `}</style>
     </section>
   );
 }

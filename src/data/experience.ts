@@ -57,32 +57,8 @@ export const experiences: Experience[] = [
     tech: ["Leadership", "Event Management", "Team Coordination"],
     type: "leadership",
   },
-  {
-    id: "4",
-    company: "NUST Volunteer Club (NVC)",
-    role: "Fund Manager",
-    startDate: "2025",
-    endDate: "2026",
-    location: "Islamabad, Pakistan",
-    description: [
-      "Supervised transparent allocation and management of club funds to support charitable initiatives and individuals in need.",
-    ],
-    tech: ["Finance Management", "Non-Profit", "Leadership"],
-    type: "leadership",
-  },
-  {
-    id: "5",
-    company: "P@SHA",
-    role: "Volunteer",
-    startDate: "2024",
-    endDate: "2024",
-    location: "Pakistan",
-    description: [
-      "Coordinated end-to-end event operations from the evaluation phase to the closing ceremony, ensuring seamless workflow and effective team collaboration.",
-    ],
-    tech: ["Event Operations", "Team Collaboration"],
-    type: "leadership",
-  },
+
+
   {
     id: "6",
     company: "National University of Science and Technology (NUST)",

@@ -1,244 +1,209 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { Mail, Github, Linkedin, MapPin, GraduationCap, Briefcase, Code2 } from "lucide-react";
+import { useRef, useState } from "react";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 
-const stats = [
-  { value: "2+", label: "Internships", icon: <Briefcase size={18} /> },
-  { value: "6+", label: "Projects", icon: <Code2 size={18} /> },
-  { value: "2026", label: "NUST Grad", icon: <GraduationCap size={18} /> },
-];
+// 3D tilt card wrapper — follows the cursor
+function TiltCard({ children }: { children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [glow, setGlow] = useState<{ x: number; y: number } | null>(null);
+
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [8, -8]), { stiffness: 120, damping: 20 });
+  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-8, 8]), { stiffness: 120, damping: 20 });
+
+  function handleMouseMove(e: React.MouseEvent<HTMLDivElement>) {
+    if (!ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    const xFrac = (e.clientX - rect.left) / rect.width - 0.5;
+    const yFrac = (e.clientY - rect.top) / rect.height - 0.5;
+    mouseX.set(xFrac);
+    mouseY.set(yFrac);
+    // Pixel position for the glow (relative to card)
+    setGlow({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+  }
+
+  function handleMouseLeave() {
+    mouseX.set(0);
+    mouseY.set(0);
+    setGlow(null);
+  }
+
+  return (
+    <motion.div
+      ref={ref}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{
+        rotateX,
+        rotateY,
+        transformStyle: "preserve-3d",
+        perspective: 1200,
+        position: "relative",
+        cursor: "default",
+      }}
+    >
+      {/* Cursor-tracking glow */}
+      {glow && (
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            inset: 0,
+            borderRadius: 14,
+            pointerEvents: "none",
+            zIndex: 2,
+            background: `radial-gradient(circle 220px at ${glow.x}px ${glow.y}px, rgba(76,175,80,0.13) 0%, transparent 70%)`,
+          }}
+        />
+      )}
+      <div style={{ position: "relative", zIndex: 1 }}>{children}</div>
+    </motion.div>
+  );
+}
 
 export function About() {
   return (
-    <section id="about" className="section-padding" style={{ background: "var(--background)" }}>
+    <section id="about" className="section-padding" style={{ background: "var(--surface)", borderTop: "1px solid var(--border)" }}>
       <div className="section-container">
         <motion.div
-          initial={{ opacity: 0, y: 24 }}
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true, margin: "-80px" }}
+          style={{ marginBottom: "2rem" }}
         >
-          <span className="section-tag">// about me</span>
-          <h2 className="section-title">Who I Am</h2>
+          <span className="section-tag">// about</span>
+          <h2 className="section-title">
+            Who am I<span className="gradient-text">?</span>
+          </h2>
         </motion.div>
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: "3rem",
-            alignItems: "start",
-            marginTop: "2.5rem",
-          }}
-          className="about-grid"
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.15 }}
+          viewport={{ once: true, margin: "-80px" }}
+          style={{ maxWidth: 820, margin: "0 auto" }}
         >
-          {/* Left: Bio */}
-          <motion.div
-            initial={{ opacity: 0, x: -24 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            viewport={{ once: true, margin: "-80px" }}
-          >
-            <p style={{ color: "var(--foreground)", lineHeight: 1.8, marginBottom: "1.25rem", fontSize: "0.975rem" }}>
-              I&apos;m a <strong>Computer Engineering graduate from NUST</strong> (Class of 2026) based in
-              Rawalpindi, Pakistan. My work focuses on building intelligent systems at the intersection of
-              AI, computer vision, and embedded platforms.
-            </p>
-            <p style={{ color: "var(--foreground-muted)", lineHeight: 1.8, marginBottom: "1.25rem", fontSize: "0.975rem" }}>
-              During my internships at <strong>RISETech</strong> and <strong>NCRA</strong>, I worked on
-              real-world AI pipelines, autonomous systems, and Linux-based edge deployments. I led the
-              community as <strong>President of COMPPEC</strong> and contributed to innovation ecosystems
-              as an NVC Fund Manager and P@SHA volunteer.
-            </p>
-            <p style={{ color: "var(--foreground-muted)", lineHeight: 1.8, marginBottom: "2rem", fontSize: "0.975rem" }}>
-              I&apos;m passionate about turning complex problems into elegant, performant solutions —
-              whether that&apos;s a computer vision pipeline running on a Raspberry Pi or a
-              full-stack web application with AI at its core. Currently <strong>open to remote opportunities
-              and relocation</strong>.
-            </p>
-
-            {/* Info chips */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
-              {[
-                { icon: <MapPin size={14} />, label: "Rawalpindi, Pakistan" },
-                { icon: <GraduationCap size={14} />, label: "B.E. Computer Engineering — NUST, 2026" },
-                { icon: <Briefcase size={14} />, label: "Open to remote & relocation" },
-              ].map(({ icon, label }) => (
-                <div
-                  key={label}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.6rem",
-                    fontSize: "0.875rem",
-                    color: "var(--foreground-muted)",
-                  }}
-                >
-                  <span style={{ color: "var(--primary)" }}>{icon}</span>
-                  {label}
+          <TiltCard>
+            <div className="terminal-window">
+              {/* Title bar */}
+              <div className="terminal-titlebar">
+                <div className="terminal-dots">
+                  <div className="terminal-dot" style={{ background: "#ff5f57" }} />
+                  <div className="terminal-dot" style={{ background: "#ffbd2e" }} />
+                  <div className="terminal-dot" style={{ background: "#28c840" }} />
                 </div>
-              ))}
-            </div>
+                <span style={{ fontFamily: "'Fira Code', monospace", fontSize: "0.72rem", color: "rgba(255,255,255,0.4)", letterSpacing: "0.08em" }}>
+                  ══ CODE FILES ══ ···
+                </span>
+                <div style={{ width: 50 }} />
+              </div>
 
-            {/* Social links */}
-            <div style={{ display: "flex", gap: "0.75rem", marginTop: "1.5rem" }}>
-              {[
-                { href: "mailto:sohailwahab27@gmail.com", icon: <Mail size={16} />, label: "Email" },
-                { href: "https://github.com/WahabSohail258", icon: <Github size={16} />, label: "GitHub" },
-                { href: "https://linkedin.com/in/wahab-sohail", icon: <Linkedin size={16} />, label: "LinkedIn" },
-              ].map(({ href, icon, label }) => (
-                <a
-                  key={label}
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={label}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    width: 38,
-                    height: 38,
-                    borderRadius: 8,
-                    border: "1.5px solid var(--border)",
-                    background: "var(--card)",
-                    color: "var(--foreground-muted)",
-                    transition: "all 0.2s ease",
-                    textDecoration: "none",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.color = "var(--primary)";
-                    e.currentTarget.style.borderColor = "var(--primary)";
-                    e.currentTarget.style.background = "var(--primary-muted)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.color = "var(--foreground-muted)";
-                    e.currentTarget.style.borderColor = "var(--border)";
-                    e.currentTarget.style.background = "var(--card)";
-                  }}
-                >
-                  {icon}
-                </a>
-              ))}
-            </div>
-          </motion.div>
+              {/* Terminal body */}
+              <div style={{ padding: "1.75rem", fontFamily: "'Fira Code', monospace", fontSize: "0.92rem", lineHeight: 1.85 }}>
 
-          {/* Right: Stats + code block */}
-          <motion.div
-            initial={{ opacity: 0, x: 24 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            viewport={{ once: true, margin: "-80px" }}
-            style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}
-          >
-            {/* Stats */}
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(3, 1fr)",
-                gap: "1rem",
-              }}
-            >
-              {stats.map((s) => (
-                <div
-                  key={s.label}
-                  className="card"
-                  style={{
-                    padding: "1.25rem",
-                    textAlign: "center",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    gap: "0.5rem",
-                  }}
-                >
-                  <span style={{ color: "var(--primary)" }}>{s.icon}</span>
-                  <div
-                    className="gradient-text"
-                    style={{ fontWeight: 700, fontSize: "1.5rem", lineHeight: 1 }}
-                  >
-                    {s.value}
-                  </div>
-                  <div style={{ fontSize: "0.75rem", color: "var(--foreground-muted)", fontWeight: 500 }}>
-                    {s.label}
-                  </div>
+                {/* $ WHOAMI */}
+                <div style={{ color: "#4caf50", fontWeight: 600, fontSize: "0.78rem", letterSpacing: "0.1em", marginBottom: "0.4rem" }}>
+                  $ WHOAMI — FROM MY POV
                 </div>
-              ))}
-            </div>
+                <div style={{ color: "#cdd6f4", fontWeight: 600, fontSize: "1.1rem", marginBottom: "0.2rem" }}>
+                  Wahab Sohail 🤚{" "}
+                  <span style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400, color: "#a6b0c3", fontSize: "0.95rem" }}>
+                    Coffee in one hand, keyboard in the other.
+                  </span>
+                </div>
 
-            {/* Code block */}
-            <div
-              style={{
-                background: "#1e1e2e",
-                borderRadius: 12,
-                padding: "1.25rem",
-                fontFamily: "'Fira Code', monospace",
-                fontSize: "0.8rem",
-                lineHeight: 1.7,
-                border: "1px solid rgba(255,255,255,0.05)",
-                overflow: "hidden",
-              }}
-            >
-              <div style={{ color: "#6c7086", marginBottom: "0.5rem", fontSize: "0.7rem" }}>
-                // wahab.ts
-              </div>
-              <div>
-                <span style={{ color: "#cba6f7" }}>const</span>{" "}
-                <span style={{ color: "#cdd6f4" }}>wahab</span>{" "}
-                <span style={{ color: "#89dceb" }}>=</span>{" "}
-                <span style={{ color: "#89b4fa" }}>{"{"}</span>
-              </div>
-              <div style={{ paddingLeft: "1rem" }}>
-                <span style={{ color: "#a6e3a1" }}>role</span>
-                <span style={{ color: "#cdd6f4" }}>: </span>
-                <span style={{ color: "#a6e3a1" }}>&quot;AI & ML Engineer&quot;</span>
-                <span style={{ color: "#6c7086" }}>,</span>
-              </div>
-              <div style={{ paddingLeft: "1rem" }}>
-                <span style={{ color: "#a6e3a1" }}>university</span>
-                <span style={{ color: "#cdd6f4" }}>: </span>
-                <span style={{ color: "#a6e3a1" }}>&quot;NUST&quot;</span>
-                <span style={{ color: "#6c7086" }}>,</span>
-              </div>
-              <div style={{ paddingLeft: "1rem" }}>
-                <span style={{ color: "#a6e3a1" }}>location</span>
-                <span style={{ color: "#cdd6f4" }}>: </span>
-                <span style={{ color: "#a6e3a1" }}>&quot;Rawalpindi, PK&quot;</span>
-                <span style={{ color: "#6c7086" }}>,</span>
-              </div>
-              <div style={{ paddingLeft: "1rem" }}>
-                <span style={{ color: "#a6e3a1" }}>openToWork</span>
-                <span style={{ color: "#cdd6f4" }}>: </span>
-                <span style={{ color: "#fab387" }}>true</span>
-                <span style={{ color: "#6c7086" }}>,</span>
-              </div>
-              <div style={{ paddingLeft: "1rem" }}>
-                <span style={{ color: "#a6e3a1" }}>loves</span>
-                <span style={{ color: "#cdd6f4" }}>: </span>
-                <span style={{ color: "#89b4fa" }}>[</span>
-                <span style={{ color: "#a6e3a1" }}>&quot;AI&quot;</span>
-                <span style={{ color: "#6c7086" }}>, </span>
-                <span style={{ color: "#a6e3a1" }}>&quot;CV&quot;</span>
-                <span style={{ color: "#6c7086" }}>, </span>
-                <span style={{ color: "#a6e3a1" }}>&quot;Linux&quot;</span>
-                <span style={{ color: "#89b4fa" }}>]</span>
-              </div>
-              <div>
-                <span style={{ color: "#89b4fa" }}>{"}"}</span>
+                <div style={{ borderTop: "1px solid rgba(255,255,255,0.07)", margin: "1rem 0" }} />
+
+                {/* AT A GLANCE */}
+                <div style={{ color: "#4caf50", fontWeight: 600, fontSize: "0.78rem", letterSpacing: "0.1em", marginBottom: "0.55rem" }}>
+                  AT A GLANCE
+                </div>
+                <div style={{ color: "#cdd6f4", marginBottom: "0.25rem", fontSize: "0.92rem" }}>
+                  <span style={{ color: "#4caf50" }}>→</span>{" "}
+                  Computer Engineering @ NUST — Class of 2026, Islamabad, Pakistan
+                </div>
+                <div style={{ color: "#cdd6f4", fontSize: "0.92rem" }}>
+                  <span style={{ color: "#4caf50" }}>→</span>{" "}
+                  Into{" "}
+                  <span style={{ color: "#89dceb" }}>AI, machine learning, embedded systems</span>
+                  <span style={{ fontFamily: "Poppins, sans-serif", color: "#a6b0c3" }}> — building things that ship in the real world.</span>
+                </div>
+
+                <div style={{ borderTop: "1px solid rgba(255,255,255,0.07)", margin: "1rem 0" }} />
+
+                {/* EXPERIENCE */}
+                <div style={{ color: "#4caf50", fontWeight: 600, fontSize: "0.78rem", letterSpacing: "0.1em", marginBottom: "0.55rem" }}>
+                  EXPERIENCE
+                </div>
+                <div style={{ color: "#cdd6f4", marginBottom: "0.2rem", fontWeight: 500, fontSize: "0.92rem" }}>
+                  ML Intern @ RISETech Pvt. Ltd.{" "}
+                  <span style={{ color: "#6c7086", fontWeight: 400 }}>· July – Aug 2025</span>
+                </div>
+                <div style={{ color: "#a6b0c3", paddingLeft: "0.85rem", marginBottom: "0.2rem", fontFamily: "Poppins, sans-serif", fontSize: "0.88rem" }}>
+                  <span style={{ color: "#6c7086" }}>—</span>{" "}
+                  AI &amp; data-driven research: preprocessing, model training, deep learning pipelines
+                </div>
+                <div style={{ color: "#a6b0c3", paddingLeft: "0.85rem", marginBottom: "0.75rem", fontFamily: "Poppins, sans-serif", fontSize: "0.88rem" }}>
+                  <span style={{ color: "#6c7086" }}>—</span>{" "}
+                  Healthcare &amp; biomedical AI solutions using TensorFlow, PyTorch, Scikit-learn
+                </div>
+                <div style={{ color: "#cdd6f4", marginBottom: "0.2rem", fontWeight: 500, fontSize: "0.92rem" }}>
+                  Intern @ NCRA (National Centre of Robotics &amp; Automation){" "}
+                  <span style={{ color: "#6c7086", fontWeight: 400 }}>· Aug – Sep 2024</span>
+                </div>
+                <div style={{ color: "#a6b0c3", paddingLeft: "0.85rem", fontFamily: "Poppins, sans-serif", fontSize: "0.88rem" }}>
+                  <span style={{ color: "#6c7086" }}>—</span>{" "}
+                  Edge AI on Raspberry Pi &amp; Jetson Nano, CUDA, Linux DevOps, Docker
+                </div>
+
+                <div style={{ borderTop: "1px solid rgba(255,255,255,0.07)", margin: "1rem 0" }} />
+
+                {/* ALSO BUILDING */}
+                <div style={{ color: "#4caf50", fontWeight: 600, fontSize: "0.78rem", letterSpacing: "0.1em", marginBottom: "0.55rem" }}>
+                  ALSO BUILDING
+                </div>
+                <div style={{ color: "#a6b0c3", fontFamily: "Poppins, sans-serif", fontSize: "0.9rem", lineHeight: 1.7 }}>
+                  Side projects spanning computer vision, autonomous systems, and full-stack AI apps.
+                  Comfortable in{" "}
+                  <span style={{ color: "#89dceb", fontFamily: "'Fira Code', monospace" }}>Python, C++,</span>
+                  {" "}and{" "}
+                  <span style={{ color: "#89dceb", fontFamily: "'Fira Code', monospace" }}>common ML stacks</span>
+                  {" "}— always curious what&apos;s next.
+                </div>
+
+                <div style={{ borderTop: "1px solid rgba(255,255,255,0.07)", margin: "1rem 0" }} />
+
+                {/* Footer quote */}
+                <div style={{ color: "#a6b0c3", fontFamily: "Poppins, sans-serif", fontSize: "0.88rem", lineHeight: 1.7 }}>
+                  Debugging mindset:{" "}
+                  <span style={{ color: "#cdd6f4", fontFamily: "'Fira Code', monospace" }}>House MD</span>
+                  {" "}· shipping like{" "}
+                  <span style={{ color: "#cdd6f4", fontFamily: "'Fira Code', monospace" }}>Harvey Specter</span>
+                  {" "}· midnight commits with{" "}
+                  <span style={{ color: "#cdd6f4", fontFamily: "'Fira Code', monospace" }}>Walter White</span>
+                  {" "}energy 🧠
+                </div>
+                <div style={{ color: "#a6b0c3", fontFamily: "Poppins, sans-serif", fontSize: "0.88rem", marginTop: "0.45rem" }}>
+                  I like products that{" "}
+                  <span style={{ color: "#cdd6f4", fontFamily: "'Fira Code', monospace" }}>tell a story</span>
+                  , fix a real problem, and feel a bit more human. 🌐
+                </div>
+
+                {/* Me in a nutshell */}
+                <div style={{ textAlign: "right", marginTop: "1.25rem", color: "#6c7086", fontSize: "0.75rem" }}>
+                  Me in a nutshell<br />
+                  <span style={{ color: "#4caf50" }}>Code. Coffee. Ship.</span>
+                </div>
               </div>
             </div>
-          </motion.div>
-        </div>
+          </TiltCard>
+        </motion.div>
       </div>
-
-      <style jsx>{`
-        @media (max-width: 768px) {
-          .about-grid {
-            grid-template-columns: 1fr !important;
-          }
-        }
-      `}</style>
     </section>
   );
 }
