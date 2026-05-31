@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Github, X, AlertCircle, Lightbulb, Target } from "lucide-react";
+import { Github, X, AlertCircle, Lightbulb, Target, FileText, Layers } from "lucide-react";
 import { projects, Project } from "@/data/projects";
 
 const categoryColors: Record<string, string> = {
@@ -27,7 +27,7 @@ const projectYears: Record<string, string> = {
 };
 
 const projectRoles: Record<string, string> = {
-  "1": "Edge AI Engineer",
+  "1": "Final Year Project Lead",
   "2": "Full Stack Developer",
   "3": "Computer Vision Engineer",
   "4": "ML Engineer",
@@ -35,8 +35,28 @@ const projectRoles: Record<string, string> = {
   "6": "Backend Developer",
 };
 
+// Thesis PDF links — set to "/thesis/fyp_thesis.pdf" after uploading
+const thesisLinks: Record<string, string> = {
+  "1": "/thesis/fyp_thesis.pdf",
+};
+
+const techStacks: Record<string, string[]> = {
+  "1": ["Kaldi", "C++", "Python", "OpenFst", "GMM-HMM", "MFCC Processing", "LDA/MLLT", "Transfer Learning"],
+};
+
+const keyOutcomes: Record<string, string[]> = {
+  "1": [
+    "4-stage progressive training pipeline (Monophone → Triphone → LDA+MLLT → SAT)",
+    "88% feature reduction (351 → 40 dims) while improving phoneme discrimination",
+    "Frame-accurate alignments for detailed phoneme error analysis",
+    "Cross-lingual generalisation via transfer learning (English + Persian → Urdu)",
+    "Real-time deployment on Raspberry Pi 5 with <350ms inference latency",
+    "Live Kivy UI with pronunciation feedback for speech rehabilitation",
+  ],
+};
+
 const problems: Record<string, string> = {
-  "1": "Real-time Urdu phoneme recognition on a Raspberry Pi 5 requires sub-100ms latency with minimal compute — standard models are too heavy for constrained edge hardware.",
+  "1": "Standard speech recognition systems operate at the word level, making them unsuitable for pronunciation feedback in language learning apps. Need phoneme-level recognition with specialised error analysis for specific pronunciation errors — and it must run in real time on a Raspberry Pi 5 with <350ms latency.",
   "2": "Engineering teams lose hours manually switching between Gmail, Slack, and Jira to get project status. There was no unified AI layer to surface insights across tools in real time.",
   "3": "Deaf and hard-of-hearing users lack accessible real-time translation tools. Most sign language recognition systems are offline, slow, or require specialised hardware.",
   "4": "The Santander dataset is anonymised and high-dimensional — standard feature engineering fails, requiring statistical feature selection and model comparison for reliable binary classification.",
@@ -45,7 +65,7 @@ const problems: Record<string, string> = {
 };
 
 const solutions: Record<string, string> = {
-  "1": "Designed a Kaldi-based acoustic pipeline with cross-language transfer (English & Persian data). Optimised inference using OpenBLAS and hardware-specific build configs. Built a Kivy mobile UI with live visual feedback and progress tracking, achieving real-time phoneme classification on Pi 5.",
+  "1": "Designed a complete phoneme-level ASR pipeline using Kaldi with progressive acoustic modelling (Monophone → Triphone → SAT). Built a custom Phoneme Error Rate (PER) module with lattice-to-phoneme conversion. Deployed on Raspberry Pi with <350ms inference and <1s total latency with a screen-based UI. Applied transfer learning across multiple languages (English & Persian) for cross-lingual generalisation.",
   "2": "Built a streaming Next.js + TypeScript app using Vercel AI SDK and Composio to unify Gmail, Slack, and Jira. Implemented a real-time AI chatbot with Convex backend that answers natural-language queries about sprint status, blockers, and deadlines.",
   "3": "Built dual-mode recognition: CNN for static signs (A–Z) and LSTM for dynamic gestures, both powered by MediaPipe's 21-keypoint hand tracking. Applied prediction smoothing for stability. Deployed as a live Streamlit app with text-to-speech output for real-world accessibility.",
   "4": "Selected Naive Bayes after statistical analysis of the feature distribution. Used SHAP for feature importance, LightGBM as a strong baseline, and a Residual MLP for deep comparison. Delivered a fully reproducible ML pipeline with cross-validation.",
@@ -54,7 +74,7 @@ const solutions: Record<string, string> = {
 };
 
 const impacts: Record<string, string[]> = {
-  "1": ["Achieved real-time phoneme recognition under 100ms on Raspberry Pi 5", "Overcame Urdu data scarcity using cross-language transfer learning", "Validated in speech rehabilitation clinical context"],
+  "1": ["Achieved real-time phoneme recognition under 350ms on Raspberry Pi 5", "Overcame Urdu data scarcity using cross-language transfer learning", "4-stage progressive pipeline: Monophone → Triphone → LDA+MLLT → SAT", "88% feature reduction (351→40 dims) preserving phoneme discrimination", "Validated in speech rehabilitation clinical context"],
   "2": ["Reduced daily project status check time for teams", "Natural language interface for sprint/blocker queries", "Integrated 3 external tools through a single AI interface"],
   "3": ["Dual-mode recognition covering static alphabet and dynamic gestures", "Real-time operation at 30fps with MediaPipe", "Text-to-speech output for immediate accessibility"],
   "4": ["Outperformed LightGBM baseline with simpler Naive Bayes model", "SHAP-driven feature analysis revealed key predictors", "Full reproducibility with documented cross-validation"],
@@ -190,19 +210,34 @@ function ProjectModal({ project, onClose }: { project: Project; onClose: () => v
             ))}
           </div>
 
-          {/* View Code */}
-          <a
-            href={project.github}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              display: "inline-flex", alignItems: "center", gap: "0.4rem",
-              color: "#c8e6c9", fontSize: "0.82rem", textDecoration: "none",
-              marginBottom: "1.25rem", fontWeight: 500,
-            }}
-          >
-            <Github size={14} /> View Code
-          </a>
+          {/* View Thesis / View Code */}
+          {thesisLinks[project.id] ? (
+            <a
+              href={thesisLinks[project.id]}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "inline-flex", alignItems: "center", gap: "0.4rem",
+                color: "#c8e6c9", fontSize: "0.82rem", textDecoration: "none",
+                marginBottom: "1.25rem", fontWeight: 600,
+              }}
+            >
+              <FileText size={14} /> View Thesis
+            </a>
+          ) : (
+            <a
+              href={project.github}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "inline-flex", alignItems: "center", gap: "0.4rem",
+                color: "#c8e6c9", fontSize: "0.82rem", textDecoration: "none",
+                marginBottom: "1.25rem", fontWeight: 500,
+              }}
+            >
+              <Github size={14} /> View Code
+            </a>
+          )}
 
           <p style={{ color: "#a6b0c3", fontSize: "0.88rem", lineHeight: 1.7, marginBottom: "1.25rem" }}>
             {project.description}
@@ -235,6 +270,50 @@ function ProjectModal({ project, onClose }: { project: Project; onClose: () => v
               {solutions[project.id]}
             </p>
           </div>
+
+          {/* Tech Stack — shown for FYP only */}
+          {techStacks[project.id] && (
+            <div style={{
+              background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)",
+              borderRadius: 10, padding: "1rem", marginBottom: "1rem",
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.75rem", paddingBottom: "0.6rem", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                <Layers size={14} style={{ color: "#4caf50" }} />
+                <span style={{ fontWeight: 700, color: "#f0ebe5", fontSize: "0.9rem" }}>Tech stack</span>
+              </div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
+                {techStacks[project.id].map((t) => (
+                  <span key={t} style={{
+                    padding: "0.25rem 0.65rem",
+                    background: "rgba(255,255,255,0.05)",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    borderRadius: 6, fontSize: "0.78rem",
+                    color: "#cdd6f4", fontFamily: "'Fira Code', monospace",
+                  }}>{t}</span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Key Outcomes — shown for FYP only */}
+          {keyOutcomes[project.id] && (
+            <div style={{
+              background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)",
+              borderRadius: 10, padding: "1rem", marginBottom: "1rem",
+            }}>
+              <div style={{ paddingBottom: "0.6rem", marginBottom: "0.75rem", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                <span style={{ fontWeight: 700, color: "#f0ebe5", fontSize: "0.9rem" }}>Key outcomes</span>
+              </div>
+              <ul style={{ listStyle: "none", padding: 0, display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                {keyOutcomes[project.id].map((item, i) => (
+                  <li key={i} style={{ display: "flex", gap: "0.5rem", alignItems: "flex-start", fontSize: "0.84rem", color: "#a6b0c3", lineHeight: 1.65 }}>
+                    <span style={{ color: "#4caf50", flexShrink: 0, marginTop: "0.15rem" }}>•</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {/* Tabs */}
           <div style={{ display: "flex", gap: "0.5rem", marginBottom: "0.75rem" }}>
