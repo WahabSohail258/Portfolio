@@ -1,7 +1,7 @@
 # Wahab Sohail — Portfolio
 
 > Personal portfolio website built with **Next.js 14**, **TypeScript**, and **Framer Motion**.  
-> Live at: [wahabsohail.vercel.app](https://wahabsohail.vercel.app)
+> Live at: [wahabsohail.vercel.app](https://portfolio-wahabsohail258.vercel.app/)
 
 ---
 
