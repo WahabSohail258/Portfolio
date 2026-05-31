@@ -1,21 +1,9 @@
 import type { Metadata } from "next";
-import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { CursorFollower } from "@/components/ui/cursor-follower";
 import { ScrollProgress } from "@/components/ui/scroll-progress";
+import { ThemeScript } from "@/components/ui/theme-script";
 import { Toaster } from "sonner";
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-});
-
-const plusJakarta = Plus_Jakarta_Sans({
-  subsets: ["latin"],
-  variable: "--font-plus-jakarta",
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   title: {
@@ -51,7 +39,6 @@ export const metadata: Metadata = {
     title: "Wahab Sohail | Computer Engineer & AI Developer",
     description:
       "Computer Engineering graduate from NUST. AI, ML, computer vision, and embedded systems.",
-    creator: "@wahab_sohail",
   },
   robots: {
     index: true,
@@ -66,9 +53,21 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="scroll-smooth">
-      <body
-        className={`${inter.variable} ${plusJakarta.variable} font-sans bg-[#0a0a0a] text-white antialiased overflow-x-hidden`}
-      >
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Fira+Code:wght@300;400;500;600;700&family=Fira+Mono:wght@400;500;700&display=swap"
+          rel="stylesheet"
+        />
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css"
+        />
+        <ThemeScript />
+      </head>
+      <body>
+        <div className="noise-overlay" aria-hidden="true" />
         <CursorFollower />
         <ScrollProgress />
         {children}
@@ -76,9 +75,9 @@ export default function RootLayout({
           position="bottom-right"
           toastOptions={{
             style: {
-              background: "#111111",
-              border: "1px solid rgba(59,130,246,0.3)",
-              color: "#fff",
+              background: "var(--card)",
+              border: "1px solid var(--card-border)",
+              color: "var(--foreground)",
             },
           }}
         />

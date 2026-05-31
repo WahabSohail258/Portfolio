@@ -1,7 +1,7 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
-  darkMode: ["class"],
+  darkMode: ["class", '[data-theme="dark"]'],
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -10,72 +10,60 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
-        electric: {
-          DEFAULT: "#3b82f6",
-          50: "#eff6ff",
-          100: "#dbeafe",
-          200: "#bfdbfe",
-          300: "#93c5fd",
-          400: "#60a5fa",
-          500: "#3b82f6",
-          600: "#2563eb",
-          700: "#1d4ed8",
-          800: "#1e40af",
-          900: "#1e3a8a",
-        },
-        surface: {
-          DEFAULT: "#111111",
-          50: "#1a1a1a",
-          100: "#161616",
-          200: "#111111",
-          300: "#0d0d0d",
-          400: "#0a0a0a",
-        },
+        primary: "#2563eb",
+        accent: "#06b6d4",
+        electric: "#3b82f6",
+        "warm-bg": "#f8f5f0",
+        "warm-card": "#f5f1eb",
+        "warm-border": "#e5dfd6",
+        charcoal: "#2d2a26",
+        "charcoal-light": "#5c564e",
+        "dark-bg": "#0c0c0c",
+        "dark-card": "#111111",
       },
       fontFamily: {
-        sans: ["var(--font-inter)", "system-ui", "sans-serif"],
-        display: ["var(--font-plus-jakarta)", "system-ui", "sans-serif"],
-      },
-      backgroundImage: {
-        "noise": "url('/noise.svg')",
-        "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
-        "gradient-electric": "linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%)",
-        "glow-electric": "radial-gradient(ellipse at center, rgba(59,130,246,0.15) 0%, transparent 70%)",
+        sans: ["Poppins", "system-ui", "sans-serif"],
+        mono: ["Fira Code", "Fira Mono", "monospace"],
       },
       animation: {
-        float: "float 6s ease-in-out infinite",
-        "float-slow": "float 8s ease-in-out infinite",
-        shimmer: "shimmer 2s linear infinite",
-        "spin-slow": "spin 8s linear infinite",
+        "marquee-left": "marquee-left 30s linear infinite",
+        "marquee-right": "marquee-right 30s linear infinite",
+        float: "float 5s ease-in-out infinite",
         "pulse-glow": "pulse-glow 2s ease-in-out infinite",
-        "bounce-slow": "bounce 2s infinite",
       },
       keyframes: {
+        "marquee-left": {
+          "0%": { transform: "translateX(0)" },
+          "100%": { transform: "translateX(-50%)" },
+        },
+        "marquee-right": {
+          "0%": { transform: "translateX(-50%)" },
+          "100%": { transform: "translateX(0)" },
+        },
         float: {
           "0%, 100%": { transform: "translateY(0px)" },
-          "50%": { transform: "translateY(-20px)" },
-        },
-        shimmer: {
-          "0%": { backgroundPosition: "-200% center" },
-          "100%": { backgroundPosition: "200% center" },
+          "50%": { transform: "translateY(-12px)" },
         },
         "pulse-glow": {
-          "0%, 100%": { boxShadow: "0 0 20px rgba(59,130,246,0.3)" },
-          "50%": { boxShadow: "0 0 40px rgba(59,130,246,0.6), 0 0 80px rgba(59,130,246,0.2)" },
+          "0%, 100%": { boxShadow: "0 0 20px rgba(37,99,235,0.2)" },
+          "50%": { boxShadow: "0 0 40px rgba(37,99,235,0.4)" },
         },
+      },
+      maxWidth: {
+        "7xl": "80rem",
+        container: "1100px",
       },
       backdropBlur: {
         xs: "2px",
       },
       boxShadow: {
-        "glow-sm": "0 0 10px rgba(59,130,246,0.3)",
-        "glow": "0 0 20px rgba(59,130,246,0.4)",
-        "glow-lg": "0 0 40px rgba(59,130,246,0.3), 0 0 80px rgba(59,130,246,0.15)",
-        "glass": "0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05)",
-        "card": "0 4px 24px rgba(0,0,0,0.5)",
-        "card-hover": "0 20px 60px rgba(0,0,0,0.6), 0 0 30px rgba(59,130,246,0.15)",
+        "glow-sm": "0 0 10px rgba(37,99,235,0.2)",
+        glow: "0 0 20px rgba(37,99,235,0.3)",
+        "glow-lg": "0 0 40px rgba(37,99,235,0.25)",
+        card: "0 4px 24px rgba(0,0,0,0.08)",
+        "card-dark": "0 4px 24px rgba(0,0,0,0.4)",
+        "card-hover": "0 10px 40px rgba(0,0,0,0.12)",
+        "card-hover-dark": "0 10px 40px rgba(0,0,0,0.6)",
       },
     },
   },

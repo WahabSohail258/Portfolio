@@ -1,35 +1,48 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowUp } from "lucide-react";
 
 export function BackToTop() {
-  const [visible, setVisible] = useState(false);
+  const [show, setShow] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setVisible(window.scrollY > 300);
-    window.addEventListener("scroll", onScroll, { passive: true });
+    const onScroll = () => setShow(window.scrollY > 400);
+    window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
-
   return (
     <AnimatePresence>
-      {visible && (
+      {show && (
         <motion.button
-          id="back-to-top"
-          onClick={scrollToTop}
-          initial={{ opacity: 0, scale: 0.5, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.5, y: 20 }}
-          whileHover={{ scale: 1.1, y: -2 }}
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.8 }}
+          whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className="fixed bottom-8 right-8 z-50 p-3 rounded-full border border-electric-500/30 glass text-electric-400 shadow-glow-sm hover:shadow-glow transition-shadow duration-300"
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           aria-label="Back to top"
+          style={{
+            position: "fixed",
+            bottom: "1.5rem",
+            right: "1.5rem",
+            zIndex: 50,
+            width: 42,
+            height: 42,
+            borderRadius: 10,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            background: "var(--primary)",
+            color: "#fff",
+            border: "none",
+            cursor: "pointer",
+            boxShadow: "0 4px 16px rgba(37,99,235,0.3)",
+          }}
         >
-          <ArrowUp className="w-5 h-5" />
+          <ArrowUp size={18} />
         </motion.button>
       )}
     </AnimatePresence>

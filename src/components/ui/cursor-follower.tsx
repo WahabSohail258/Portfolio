@@ -4,61 +4,34 @@ import { useEffect, useRef } from "react";
 import { motion, useMotionValue, useSpring } from "framer-motion";
 
 export function CursorFollower() {
-  const cursorX = useMotionValue(-100);
-  const cursorY = useMotionValue(-100);
-  const ringX = useMotionValue(-100);
-  const ringY = useMotionValue(-100);
-
-  const springConfig = { stiffness: 500, damping: 30 };
-  const ringSpring = { stiffness: 150, damping: 20 };
-
-  const dotX = useSpring(cursorX, springConfig);
-  const dotY = useSpring(cursorY, springConfig);
-  const smoothRingX = useSpring(ringX, ringSpring);
-  const smoothRingY = useSpring(ringY, ringSpring);
-
-  const scaleRef = useRef(1);
+  const dotX = useMotionValue(0);
+  const dotY = useMotionValue(0);
+  const ringX = useSpring(dotX, { stiffness: 120, damping: 18 });
+  const ringY = useSpring(dotY, { stiffness: 120, damping: 18 });
+  const visible = useRef(false);
 
   useEffect(() => {
-    // Only show on non-touch devices
+    if (typeof window === "undefined") return;
     if (window.matchMedia("(pointer: coarse)").matches) return;
 
-    const moveCursor = (e: MouseEvent) => {
-      cursorX.set(e.clientX);
-      cursorY.set(e.clientY);
-      ringX.set(e.clientX);
-      ringY.set(e.clientY);
+    const move = (e: MouseEvent) => {
+      dotX.set(e.clientX);
+      dotY.set(e.clientY);
+      if (!visible.current) visible.current = true;
     };
-
-    const handleEnter = () => {
-      scaleRef.current = 1.8;
-    };
-    const handleLeave = () => {
-      scaleRef.current = 1;
-    };
-
-    window.addEventListener("mousemove", moveCursor);
-
-    const interactives = document.querySelectorAll("a, button, [data-cursor]");
-    interactives.forEach((el) => {
-      el.addEventListener("mouseenter", handleEnter);
-      el.addEventListener("mouseleave", handleLeave);
-    });
-
-    return () => {
-      window.removeEventListener("mousemove", moveCursor);
-    };
-  }, [cursorX, cursorY, ringX, ringY]);
+    window.addEventListener("mousemove", move);
+    return () => window.removeEventListener("mousemove", move);
+  }, [dotX, dotY]);
 
   return (
     <>
       <motion.div
-        className="cursor-dot hidden md:block"
+        className="cursor-dot"
         style={{ x: dotX, y: dotY }}
       />
       <motion.div
-        className="cursor-ring hidden md:block"
-        style={{ x: smoothRingX, y: smoothRingY }}
+        className="cursor-ring"
+        style={{ x: ringX, y: ringY }}
       />
     </>
   );

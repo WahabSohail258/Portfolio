@@ -2,113 +2,306 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ─── CSS Variables ──────────────────────────────────────── */
-:root {
-  --background: 0 0% 4%;
-  --foreground: 0 0% 98%;
-  --electric: 217 91% 60%;
-  --electric-rgb: 59, 130, 246;
-  --surface: #111111;
-  --glass-bg: rgba(17, 17, 17, 0.6);
-  --glass-border: rgba(255, 255, 255, 0.06);
-  --glass-border-electric: rgba(59, 130, 246, 0.2);
+/* ── Google Fonts ─────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Fira+Code:wght@300;400;500;600;700&family=Fira+Mono:wght@400;500;700&display=swap');
+@import url('https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css');
+
+/* ── Light Theme (default) ───────────────────────────── */
+:root,
+[data-theme="light"] {
+  --background: #f8f5f0;
+  --foreground: #2d2a26;
+  --foreground-muted: #5c564e;
+  --card: #f5f1eb;
+  --card-border: #e5dfd6;
+  --card-hover: #eee8de;
+  --primary: #2563eb;
+  --primary-light: #dbeafe;
+  --primary-muted: rgba(37, 99, 235, 0.1);
+  --accent: #06b6d4;
+  --surface: #f0e9e0;
+  --border: #e5dfd6;
+  --input-bg: #f5f1eb;
+  --nav-bg: rgba(248, 245, 240, 0.85);
+  --shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.12);
+  --code-bg: #1e1e2e;
+  --code-fg: #cdd6f4;
+  --tag-bg: #e8e2da;
+  --tag-fg: #2d2a26;
 }
 
-/* ─── Scrollbar ──────────────────────────────────────────── */
+/* ── Dark Theme ──────────────────────────────────────── */
+[data-theme="dark"] {
+  --background: #0c0c0c;
+  --foreground: #f0f0f0;
+  --foreground-muted: #888888;
+  --card: #111111;
+  --card-border: rgba(255, 255, 255, 0.06);
+  --card-hover: #1a1a1a;
+  --primary: #3b82f6;
+  --primary-light: #1e3a8a;
+  --primary-muted: rgba(59, 130, 246, 0.12);
+  --accent: #06b6d4;
+  --surface: #111111;
+  --border: rgba(255, 255, 255, 0.08);
+  --input-bg: #111111;
+  --nav-bg: rgba(12, 12, 12, 0.85);
+  --shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.6);
+  --code-bg: #1e1e2e;
+  --code-fg: #cdd6f4;
+  --tag-bg: rgba(255, 255, 255, 0.06);
+  --tag-fg: #d0d0d0;
+}
+
+/* ── Base ────────────────────────────────────────────── */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "kern" 1, "liga" 1;
+}
+
+body {
+  font-family: 'Poppins', system-ui, sans-serif;
+  background-color: var(--background);
+  color: var(--foreground);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  overflow-x: hidden;
+}
+
+/* ── Scrollbar ──────────────────────────────────────── */
 ::-webkit-scrollbar {
   width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0a0a0a;
+  background: var(--background);
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(59, 130, 246, 0.4);
+  background: var(--primary);
+  opacity: 0.4;
   border-radius: 3px;
 }
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(59, 130, 246, 0.7);
-}
 
-/* ─── Selection ──────────────────────────────────────────── */
+/* ── Selection ──────────────────────────────────────── */
 ::selection {
-  background: rgba(59, 130, 246, 0.3);
-  color: #fff;
+  background: rgba(37, 99, 235, 0.2);
+  color: var(--foreground);
 }
 
-/* ─── Glassmorphism ──────────────────────────────────────── */
-@layer components {
-  .glass {
-    @apply backdrop-blur-md border;
-    background: var(--glass-bg);
-    border-color: var(--glass-border);
-  }
+/* ── Typography ─────────────────────────────────────── */
+.font-mono {
+  font-family: 'Fira Code', 'Fira Mono', monospace !important;
+}
 
-  .glass-electric {
-    @apply backdrop-blur-md border;
-    background: rgba(59, 130, 246, 0.05);
-    border-color: var(--glass-border-electric);
-  }
+/* ── Section Layout ─────────────────────────────────── */
+.section-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
 
-  .glow-text {
-    text-shadow: 0 0 20px rgba(59, 130, 246, 0.6),
-      0 0 40px rgba(59, 130, 246, 0.3);
-  }
+.section-padding {
+  padding: 5rem 0;
+}
 
-  .gradient-text {
-    @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
-  }
-
-  .section-heading {
-    @apply font-display text-4xl md:text-5xl font-bold;
-  }
-
-  .btn-primary {
-    @apply relative inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-300 overflow-hidden;
-    background: linear-gradient(135deg, #3b82f6, #2563eb);
-    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
-  }
-
-  .btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 0 30px rgba(59, 130, 246, 0.5), 0 10px 30px rgba(0, 0, 0, 0.4);
-  }
-
-  .btn-secondary {
-    @apply relative inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-300 border;
-    background: transparent;
-    border-color: rgba(59, 130, 246, 0.4);
-    color: #3b82f6;
-  }
-
-  .btn-secondary:hover {
-    background: rgba(59, 130, 246, 0.08);
-    border-color: rgba(59, 130, 246, 0.7);
-    transform: translateY(-2px);
-    box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
-  }
-
+@media (max-width: 768px) {
   .section-padding {
-    @apply py-20 md:py-32 px-4 md:px-8 lg:px-16;
+    padding: 3.5rem 0;
   }
 }
 
-/* ─── Noise Texture ──────────────────────────────────────── */
+/* ── Section Heading ────────────────────────────────── */
+.section-tag {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.8rem;
+  color: var(--primary);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.section-title {
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  font-weight: 700;
+  color: var(--foreground);
+  line-height: 1.2;
+  margin-bottom: 1rem;
+}
+
+/* ── Cards ──────────────────────────────────────────── */
+.card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow);
+}
+
+.card:hover {
+  background: var(--card-hover);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-3px);
+}
+
+/* ── Buttons ────────────────────────────────────────── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.5rem;
+  background: var(--primary);
+  color: #fff;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.5rem;
+  background: transparent;
+  color: var(--primary);
+  border: 1.5px solid var(--primary);
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.btn-secondary:hover {
+  background: var(--primary-muted);
+  transform: translateY(-1px);
+}
+
+/* ── Tags / Badges ──────────────────────────────────── */
+.tech-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.65rem;
+  background: var(--tag-bg);
+  color: var(--tag-fg);
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  font-family: 'Fira Code', monospace;
+  border: 1px solid var(--card-border);
+}
+
+/* ── Gradient Text ──────────────────────────────────── */
+.gradient-text {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Marquee (Scrolling Tech Stack) ─────────────────── */
+@keyframes marquee-left {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes marquee-right {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+}
+
+.marquee-left {
+  animation: marquee-left 30s linear infinite;
+}
+
+.marquee-right {
+  animation: marquee-right 30s linear infinite;
+}
+
+.marquee-left:hover,
+.marquee-right:hover {
+  animation-play-state: paused;
+}
+
+/* ── Timeline ───────────────────────────────────────── */
+.timeline-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--primary);
+  border: 2px solid var(--background);
+  box-shadow: 0 0 0 3px var(--primary-muted);
+  flex-shrink: 0;
+}
+
+.timeline-line {
+  width: 2px;
+  background: linear-gradient(to bottom, var(--primary), transparent);
+  flex-shrink: 0;
+}
+
+/* ── Devicon Overrides ──────────────────────────────── */
+.devicon-icon {
+  font-size: 2rem;
+  transition: transform 0.2s ease;
+}
+
+.devicon-icon:hover {
+  transform: scale(1.15);
+}
+
+/* ── Noise Overlay ──────────────────────────────────── */
 .noise-overlay {
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 9999;
-  opacity: 0.025;
+  opacity: 0.02;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
   background-size: 128px 128px;
 }
 
-/* ─── Cursor ─────────────────────────────────────────────── */
+/* ── Scroll Progress ────────────────────────────────── */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  z-index: 9999;
+  transform-origin: left;
+}
+
+/* ── Cursor ─────────────────────────────────────────── */
 .cursor-dot {
   width: 8px;
   height: 8px;
-  background: #3b82f6;
+  background: var(--primary);
   border-radius: 50%;
   position: fixed;
   top: 0;
@@ -119,9 +312,9 @@
 }
 
 .cursor-ring {
-  width: 36px;
-  height: 36px;
-  border: 1.5px solid rgba(59, 130, 246, 0.6);
+  width: 32px;
+  height: 32px;
+  border: 1.5px solid rgba(37, 99, 235, 0.5);
   border-radius: 50%;
   position: fixed;
   top: 0;
@@ -131,48 +324,26 @@
   transform: translate(-50%, -50%);
 }
 
-/* ─── Timeline ───────────────────────────────────────────── */
-.timeline-line {
-  background: linear-gradient(
-    to bottom,
-    transparent 0%,
-    rgba(59, 130, 246, 0.5) 20%,
-    rgba(59, 130, 246, 0.5) 80%,
-    transparent 100%
-  );
+/* ── Animations ─────────────────────────────────────── */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
 }
 
-/* ─── Skill bar ──────────────────────────────────────────── */
-.skill-bar-fill {
-  background: linear-gradient(90deg, #3b82f6 0%, #06b6d4 100%);
-  box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(37,99,235,0.2); }
+  50% { box-shadow: 0 0 40px rgba(37,99,235,0.4); }
 }
 
-/* ─── Animations ─────────────────────────────────────────── */
-@keyframes shimmer-move {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+.animate-float {
+  animation: float 5s ease-in-out infinite;
 }
 
-.shimmer-bg {
-  background: linear-gradient(
-    90deg,
-    rgba(59, 130, 246, 0) 0%,
-    rgba(59, 130, 246, 0.08) 50%,
-    rgba(59, 130, 246, 0) 100%
-  );
-  background-size: 200% 100%;
-  animation: shimmer-move 3s linear infinite;
-}
-
-/* ─── Prefers reduced motion ─────────────────────────────── */
+/* ── Reduced Motion ─────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
   }
 }

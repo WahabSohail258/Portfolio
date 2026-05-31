@@ -1,140 +1,268 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { useInView } from "react-intersection-observer";
-import { SectionWrapper } from "@/components/ui/section-wrapper";
-import { skills, techIcons } from "@/data/skills";
+import { motion } from "framer-motion";
 
-type Category = "languages" | "aiml" | "tools";
-const categories: { key: Category; label: string }[] = [
-  { key: "languages", label: "Languages" },
-  { key: "aiml", label: "AI & ML" },
-  { key: "tools", label: "Tools & Systems" },
+// Tech items for the scrolling marquee rows
+const row1 = [
+  { name: "Python", icon: "devicon-python-plain colored" },
+  { name: "C++", icon: "devicon-cplusplus-plain colored" },
+  { name: "TypeScript", icon: "devicon-typescript-plain colored" },
+  { name: "JavaScript", icon: "devicon-javascript-plain colored" },
+  { name: "Bash", icon: "devicon-bash-plain" },
+  { name: "SQL", icon: "devicon-postgresql-plain colored" },
+  { name: "TensorFlow", icon: "devicon-tensorflow-original colored" },
+  { name: "PyTorch", icon: "devicon-pytorch-original colored" },
+  { name: "OpenCV", icon: "devicon-opencv-plain colored" },
+  { name: "Scikit-learn", icon: "devicon-scikitlearn-plain colored" },
 ];
 
-function SkillBar({ name, level, icon, delay }: { name: string; level: number; icon: string; delay: number }) {
-  const { ref, inView } = useInView({ triggerOnce: true });
+const row2 = [
+  { name: "React", icon: "devicon-react-original colored" },
+  { name: "Next.js", icon: "devicon-nextjs-plain" },
+  { name: "FastAPI", icon: "devicon-fastapi-plain colored" },
+  { name: "Flask", icon: "devicon-flask-original" },
+  { name: "Node.js", icon: "devicon-nodejs-plain colored" },
+  { name: "Docker", icon: "devicon-docker-plain colored" },
+  { name: "Linux", icon: "devicon-linux-plain" },
+  { name: "Git", icon: "devicon-git-plain colored" },
+  { name: "Raspberry Pi", icon: "devicon-raspberrypi-plain colored" },
+  { name: "MongoDB", icon: "devicon-mongodb-plain colored" },
+];
 
+const categories = [
+  {
+    tag: "Languages",
+    items: [
+      { name: "Python", level: 95, color: "#3776AB" },
+      { name: "C / C++", level: 80, color: "#00599C" },
+      { name: "TypeScript", level: 75, color: "#3178C6" },
+      { name: "JavaScript", level: 78, color: "#F7DF1E" },
+      { name: "Bash / Shell", level: 70, color: "#4EAA25" },
+      { name: "SQL", level: 72, color: "#336791" },
+    ],
+  },
+  {
+    tag: "AI & ML",
+    items: [
+      { name: "TensorFlow / Keras", level: 85, color: "#FF6F00" },
+      { name: "PyTorch", level: 80, color: "#EE4C2C" },
+      { name: "OpenCV", level: 88, color: "#5C3EE8" },
+      { name: "Scikit-learn", level: 82, color: "#F7931E" },
+      { name: "YOLOv8", level: 85, color: "#00FFFF" },
+      { name: "MediaPipe", level: 80, color: "#0F9D58" },
+    ],
+  },
+  {
+    tag: "Tools & Systems",
+    items: [
+      { name: "Linux / Raspberry Pi", level: 85, color: "#FCC624" },
+      { name: "Docker", level: 75, color: "#2496ED" },
+      { name: "FastAPI / Flask", level: 82, color: "#009688" },
+      { name: "React / Next.js", level: 75, color: "#61DAFB" },
+      { name: "Git / GitHub", level: 88, color: "#F05032" },
+      { name: "MongoDB / PostgreSQL", level: 72, color: "#47A248" },
+    ],
+  },
+];
+
+function MarqueeRow({ items, direction }: { items: typeof row1; direction: "left" | "right" }) {
+  const doubled = [...items, ...items]; // duplicate for seamless loop
   return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, x: -20 }}
-      animate={inView ? { opacity: 1, x: 0 } : {}}
-      transition={{ delay, duration: 0.5 }}
-      className="group"
-    >
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-2">
-          <span className="text-lg">{icon}</span>
-          <span className="text-sm font-medium text-white/80">{name}</span>
-        </div>
-        <span className="text-xs text-electric-400 font-mono">{level}%</span>
+    <div style={{ overflow: "hidden", width: "100%", position: "relative" }}>
+      {/* Fade edges */}
+      <div
+        style={{
+          position: "absolute",
+          left: 0,
+          top: 0,
+          bottom: 0,
+          width: 80,
+          background: "linear-gradient(to right, var(--background), transparent)",
+          zIndex: 2,
+          pointerEvents: "none",
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          right: 0,
+          top: 0,
+          bottom: 0,
+          width: 80,
+          background: "linear-gradient(to left, var(--background), transparent)",
+          zIndex: 2,
+          pointerEvents: "none",
+        }}
+      />
+      <div
+        className={direction === "left" ? "marquee-track marquee-left" : "marquee-track marquee-right"}
+        style={{ display: "flex", gap: "1.25rem", padding: "0.5rem 0" }}
+      >
+        {doubled.map((item, i) => (
+          <div
+            key={i}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.6rem",
+              padding: "0.6rem 1rem",
+              background: "var(--card)",
+              border: "1px solid var(--card-border)",
+              borderRadius: 10,
+              whiteSpace: "nowrap",
+              flexShrink: 0,
+              transition: "all 0.2s ease",
+            }}
+          >
+            <i
+              className={item.icon}
+              style={{ fontSize: "1.3rem", width: "1.3rem", textAlign: "center" }}
+            />
+            <span
+              style={{
+                fontSize: "0.8rem",
+                fontWeight: 500,
+                color: "var(--foreground-muted)",
+                fontFamily: "'Fira Code', monospace",
+              }}
+            >
+              {item.name}
+            </span>
+          </div>
+        ))}
       </div>
-      <div className="h-[6px] rounded-full bg-white/[0.06] overflow-hidden">
-        <motion.div
-          className="skill-bar-fill h-full rounded-full"
-          initial={{ width: 0 }}
-          animate={inView ? { width: `${level}%` } : { width: 0 }}
-          transition={{ delay: delay + 0.2, duration: 1, ease: [0.25, 0.4, 0.25, 1] }}
-        />
-      </div>
-    </motion.div>
+    </div>
   );
 }
 
 export function Skills() {
-  const [activeCategory, setActiveCategory] = useState<Category>("languages");
-  const filtered = skills.filter((s) => s.category === activeCategory);
-
   return (
-    <section id="skills" className="section-padding bg-[#111111] relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-[600px] h-[600px] translate-x-1/3 -translate-y-1/3 bg-electric-500/[0.03] rounded-full blur-3xl pointer-events-none" />
+    <section
+      id="skills"
+      className="section-padding"
+      style={{ background: "var(--surface)", borderTop: "1px solid var(--border)", borderBottom: "1px solid var(--border)" }}
+    >
+      <div className="section-container">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true, margin: "-80px" }}
+          style={{ marginBottom: "2.5rem" }}
+        >
+          <span className="section-tag">// tech stack</span>
+          <h2 className="section-title">Skills & Technologies</h2>
+          <p style={{ color: "var(--foreground-muted)", fontSize: "0.95rem", marginTop: "0.5rem", maxWidth: 500 }}>
+            Technologies I use to build intelligent, real-time systems.
+          </p>
+        </motion.div>
 
-      <div className="max-w-7xl mx-auto">
-        <SectionWrapper className="text-center mb-16">
-          <p className="text-electric-400 text-sm font-medium tracking-widest uppercase mb-3">What I work with</p>
-          <h2 className="section-heading">
-            My <span className="gradient-text">Skills</span>
-          </h2>
-          <div className="w-16 h-[2px] bg-gradient-electric mx-auto mt-4" />
-        </SectionWrapper>
+        {/* Marquee rows */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          viewport={{ once: true }}
+          style={{ display: "flex", flexDirection: "column", gap: "1rem", marginBottom: "3.5rem" }}
+        >
+          <MarqueeRow items={row1} direction="left" />
+          <MarqueeRow items={row2} direction="right" />
+        </motion.div>
 
-        <div className="grid lg:grid-cols-2 gap-12">
-          {/* Skill Bars */}
-          <div>
-            {/* Category tabs */}
-            <div className="flex gap-2 mb-8 p-1 glass rounded-xl border border-white/[0.06] w-fit">
-              {categories.map((cat) => (
-                <button
-                  key={cat.key}
-                  id={`skill-tab-${cat.key}`}
-                  onClick={() => setActiveCategory(cat.key)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
-                    activeCategory === cat.key
-                      ? "bg-electric-600 text-white shadow-glow-sm"
-                      : "text-white/50 hover:text-white"
-                  }`}
-                >
-                  {cat.label}
-                </button>
-              ))}
-            </div>
-
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeCategory}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.3 }}
-                className="space-y-5"
+        {/* Skill bars by category */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(3, 1fr)",
+            gap: "1.5rem",
+          }}
+          className="skills-grid"
+        >
+          {categories.map((cat, ci) => (
+            <motion.div
+              key={cat.tag}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: ci * 0.1 }}
+              viewport={{ once: true, margin: "-60px" }}
+              className="card"
+              style={{ padding: "1.5rem" }}
+            >
+              <div
+                style={{
+                  fontFamily: "'Fira Code', monospace",
+                  fontSize: "0.75rem",
+                  color: "var(--primary)",
+                  letterSpacing: "0.08em",
+                  marginBottom: "1.25rem",
+                  textTransform: "uppercase",
+                }}
               >
-                {filtered.map((skill, i) => (
-                  <SkillBar key={skill.name} {...skill} delay={i * 0.08} />
-                ))}
-              </motion.div>
-            </AnimatePresence>
-          </div>
-
-          {/* Tech Icons Grid */}
-          <SectionWrapper direction="right" delay={0.2}>
-            <div>
-              <h3 className="text-lg font-semibold text-white/70 mb-6">Technologies I love</h3>
-              <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
-                {techIcons.map((tech, i) => (
-                  <motion.div
-                    key={tech.name}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.05, duration: 0.4 }}
-                    whileHover={{ scale: 1.08, y: -4 }}
-                    className="glass rounded-xl p-3 border border-white/[0.06] flex flex-col items-center gap-2 cursor-default group transition-all duration-300 hover:border-electric-500/30"
-                    style={{
-                      "--glow-color": tech.color,
-                    } as React.CSSProperties}
-                  >
+                {cat.tag}
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                {cat.items.map((skill, si) => (
+                  <div key={skill.name}>
                     <div
-                      className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold font-mono transition-all duration-300 group-hover:shadow-lg"
                       style={{
-                        background: `${tech.color}15`,
-                        color: tech.color,
-                        border: `1px solid ${tech.color}25`,
+                        display: "flex",
+                        justifyContent: "space-between",
+                        marginBottom: "0.3rem",
                       }}
                     >
-                      {tech.name.slice(0, 2)}
+                      <span style={{ fontSize: "0.8rem", fontWeight: 500, color: "var(--foreground)" }}>
+                        {skill.name}
+                      </span>
+                      <span
+                        style={{
+                          fontFamily: "'Fira Code', monospace",
+                          fontSize: "0.7rem",
+                          color: "var(--foreground-muted)",
+                        }}
+                      >
+                        {skill.level}%
+                      </span>
                     </div>
-                    <span className="text-white/50 text-[10px] font-medium text-center leading-tight group-hover:text-white/80 transition-colors duration-300">
-                      {tech.name}
-                    </span>
-                  </motion.div>
+                    <div
+                      style={{
+                        height: 5,
+                        borderRadius: 999,
+                        background: "var(--border)",
+                        overflow: "hidden",
+                      }}
+                    >
+                      <motion.div
+                        initial={{ width: 0 }}
+                        whileInView={{ width: `${skill.level}%` }}
+                        transition={{ duration: 0.8, delay: si * 0.05, ease: "easeOut" }}
+                        viewport={{ once: true }}
+                        style={{
+                          height: "100%",
+                          borderRadius: 999,
+                          background: `linear-gradient(90deg, var(--primary), ${skill.color})`,
+                        }}
+                      />
+                    </div>
+                  </div>
                 ))}
               </div>
-            </div>
-          </SectionWrapper>
+            </motion.div>
+          ))}
         </div>
       </div>
+
+      <style jsx>{`
+        @media (max-width: 900px) {
+          .skills-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
+        @media (max-width: 600px) {
+          .skills-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
+      `}</style>
     </section>
   );
 }

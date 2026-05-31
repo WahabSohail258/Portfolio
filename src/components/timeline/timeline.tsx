@@ -1,158 +1,211 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useInView } from "react-intersection-observer";
-import { Briefcase, GraduationCap, MapPin, Calendar } from "lucide-react";
-import { SectionWrapper } from "@/components/ui/section-wrapper";
+import { Briefcase, GraduationCap, Star, MapPin, Calendar } from "lucide-react";
 import { experiences } from "@/data/experience";
 
-const typeStyle: Record<string, string> = {
-  work: "border-electric-500/50 bg-electric-500/10 text-electric-400",
-  education: "border-purple-500/50 bg-purple-500/10 text-purple-400",
-  leadership: "border-amber-500/50 bg-amber-500/10 text-amber-400",
+const typeConfig = {
+  work: {
+    icon: <Briefcase size={14} />,
+    color: "#2563eb",
+    bg: "rgba(37,99,235,0.1)",
+    label: "Work",
+  },
+  education: {
+    icon: <GraduationCap size={14} />,
+    color: "#059669",
+    bg: "rgba(5,150,105,0.1)",
+    label: "Education",
+  },
+  leadership: {
+    icon: <Star size={14} />,
+    color: "#d97706",
+    bg: "rgba(217,119,6,0.1)",
+    label: "Leadership",
+  },
 };
-
-const typeLabel: Record<string, string> = {
-  work: "Work",
-  education: "Education",
-  leadership: "Leadership",
-};
-
-function TimelineItem({ exp, index }: { exp: (typeof experiences)[0]; index: number }) {
-  const { ref, inView } = useInView({ triggerOnce: true, rootMargin: "-50px" });
-  const isLeft = index % 2 === 0;
-
-  return (
-    <div ref={ref} className="relative flex items-start gap-0 md:gap-8">
-      {/* Left content (desktop) */}
-      <div className={`hidden md:block w-[calc(50%-2rem)] ${isLeft ? "" : "invisible"}`}>
-        {isLeft && (
-          <motion.div
-            initial={{ opacity: 0, x: -40 }}
-            animate={inView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.6, ease: [0.25, 0.4, 0.25, 1] }}
-            className="glass rounded-2xl p-5 border border-white/[0.06] hover:border-electric-500/20 transition-all duration-300 hover:shadow-card group"
-          >
-            <TimelineCard exp={exp} />
-          </motion.div>
-        )}
-      </div>
-
-      {/* Center dot */}
-      <div className="relative flex flex-col items-center flex-shrink-0 z-10">
-        <motion.div
-          initial={{ scale: 0, opacity: 0 }}
-          animate={inView ? { scale: 1, opacity: 1 } : {}}
-          transition={{ duration: 0.4, delay: 0.2 }}
-          className={`w-10 h-10 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all duration-300 ${typeStyle[exp.type]}`}
-        >
-          {exp.type === "education" ? (
-            <GraduationCap className="w-4 h-4" />
-          ) : exp.type === "leadership" ? (
-            <span className="text-sm">⭐</span>
-          ) : (
-            <Briefcase className="w-4 h-4" />
-          )}
-        </motion.div>
-      </div>
-
-      {/* Right content (desktop) / Mobile full-width */}
-      <div className={`flex-1 md:w-[calc(50%-2rem)] md:flex-none pb-8 ${isLeft ? "md:invisible md:hidden" : ""}`}>
-        {/* Mobile: always show, Desktop: only show if right-aligned */}
-        <motion.div
-          initial={{ opacity: 0, x: isLeft ? 40 : 40 }}
-          animate={inView ? { opacity: 1, x: 0 } : {}}
-          transition={{ duration: 0.6, ease: [0.25, 0.4, 0.25, 1] }}
-          className="glass rounded-2xl p-5 border border-white/[0.06] hover:border-electric-500/20 transition-all duration-300 hover:shadow-card group ml-4 md:ml-0"
-        >
-          {/* Show on mobile always, show on desktop only if right-aligned */}
-          <div className={!isLeft ? "" : "md:hidden"}>
-            <TimelineCard exp={exp} />
-          </div>
-        </motion.div>
-      </div>
-
-      {/* Right desktop */}
-      {isLeft && (
-        <div className="hidden md:block w-[calc(50%-2rem)]" />
-      )}
-    </div>
-  );
-}
-
-function TimelineCard({ exp }: { exp: (typeof experiences)[0] }) {
-  return (
-    <>
-      <div className="flex items-start justify-between gap-2 mb-3">
-        <div>
-          <h3 className="font-display font-bold text-white text-base leading-tight">{exp.role}</h3>
-          <p className="text-electric-400 text-sm font-medium mt-0.5">{exp.company}</p>
-        </div>
-        <span className={`flex-shrink-0 px-2 py-0.5 rounded-md text-[10px] font-medium ${
-          exp.type === "education"
-            ? "bg-purple-500/10 text-purple-400 border border-purple-500/20"
-            : exp.type === "leadership"
-            ? "bg-amber-500/10 text-amber-400 border border-amber-500/20"
-            : "bg-electric-500/10 text-electric-400 border border-electric-500/20"
-        }`}>
-          {typeLabel[exp.type]}
-        </span>
-      </div>
-
-      <div className="flex flex-wrap gap-3 mb-3 text-xs text-white/40">
-        <span className="flex items-center gap-1">
-          <Calendar className="w-3 h-3" />
-          {exp.startDate} – {exp.endDate}
-        </span>
-        <span className="flex items-center gap-1">
-          <MapPin className="w-3 h-3" />
-          {exp.location}
-        </span>
-      </div>
-
-      <ul className="space-y-1.5 mb-4">
-        {exp.description.map((item, i) => (
-          <li key={i} className="text-white/50 text-sm flex items-start gap-2">
-            <span className="text-electric-500 mt-1.5 flex-shrink-0 text-[6px]">●</span>
-            {item}
-          </li>
-        ))}
-      </ul>
-
-      <div className="flex flex-wrap gap-1.5">
-        {exp.tech.map((t) => (
-          <span key={t} className="px-2 py-0.5 rounded-md text-[10px] font-medium glass-electric text-electric-400 border border-electric-500/20">
-            {t}
-          </span>
-        ))}
-      </div>
-    </>
-  );
-}
 
 export function Timeline() {
   return (
-    <section id="experience" className="section-padding bg-[#111111] relative overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(59,130,246,0.04)_0%,transparent_60%)] pointer-events-none" />
-
-      <div className="max-w-5xl mx-auto">
-        <SectionWrapper className="text-center mb-16">
-          <p className="text-electric-400 text-sm font-medium tracking-widest uppercase mb-3">My journey</p>
-          <h2 className="section-heading">
-            Experience & <span className="gradient-text">Education</span>
-          </h2>
-          <div className="w-16 h-[2px] bg-gradient-electric mx-auto mt-4" />
-        </SectionWrapper>
+    <section
+      id="experience"
+      className="section-padding"
+      style={{ background: "var(--surface)", borderTop: "1px solid var(--border)" }}
+    >
+      <div className="section-container">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true, margin: "-80px" }}
+          style={{ marginBottom: "3rem" }}
+        >
+          <span className="section-tag">// experience</span>
+          <h2 className="section-title">My Journey</h2>
+          <p style={{ color: "var(--foreground-muted)", fontSize: "0.95rem", marginTop: "0.5rem", maxWidth: 500 }}>
+            Work experience, education, and leadership roles.
+          </p>
+        </motion.div>
 
         {/* Timeline */}
-        <div className="relative">
+        <div style={{ position: "relative", paddingLeft: "2rem" }}>
           {/* Vertical line */}
-          <div className="absolute left-5 md:left-1/2 top-0 bottom-0 w-[1px] timeline-line md:-translate-x-px" />
+          <div
+            style={{
+              position: "absolute",
+              left: 5,
+              top: 0,
+              bottom: 0,
+              width: 2,
+              background: "linear-gradient(to bottom, var(--primary), rgba(37,99,235,0.1))",
+              borderRadius: 2,
+            }}
+          />
 
-          <div className="space-y-6 md:space-y-0">
-            {experiences.map((exp, i) => (
-              <TimelineItem key={exp.id} exp={exp} index={i} />
-            ))}
+          <div style={{ display: "flex", flexDirection: "column", gap: "1.75rem" }}>
+            {experiences.map((exp, i) => {
+              const cfg = typeConfig[exp.type];
+              return (
+                <motion.div
+                  key={exp.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5, delay: i * 0.07 }}
+                  viewport={{ once: true, margin: "-60px" }}
+                  style={{ position: "relative" }}
+                >
+                  {/* Dot */}
+                  <div
+                    style={{
+                      position: "absolute",
+                      left: -26,
+                      top: 20,
+                      width: 12,
+                      height: 12,
+                      borderRadius: "50%",
+                      background: cfg.color,
+                      border: "2px solid var(--background)",
+                      boxShadow: `0 0 0 3px ${cfg.bg}`,
+                    }}
+                  />
+
+                  {/* Card */}
+                  <div
+                    className="card"
+                    style={{ padding: "1.25rem 1.5rem" }}
+                  >
+                    {/* Top row */}
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "flex-start",
+                        gap: "1rem",
+                        flexWrap: "wrap",
+                        marginBottom: "0.6rem",
+                      }}
+                    >
+                      <div>
+                        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.25rem" }}>
+                          <span
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "0.25rem",
+                              padding: "0.15rem 0.5rem",
+                              borderRadius: 5,
+                              fontSize: "0.68rem",
+                              fontWeight: 600,
+                              fontFamily: "'Fira Code', monospace",
+                              background: cfg.bg,
+                              color: cfg.color,
+                            }}
+                          >
+                            {cfg.icon} {cfg.label}
+                          </span>
+                        </div>
+                        <h3
+                          style={{
+                            fontSize: "1rem",
+                            fontWeight: 700,
+                            color: "var(--foreground)",
+                            marginBottom: "0.15rem",
+                          }}
+                        >
+                          {exp.role}
+                        </h3>
+                        <div style={{ fontSize: "0.875rem", fontWeight: 600, color: "var(--primary)" }}>
+                          {exp.company}
+                        </div>
+                      </div>
+
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "flex-end",
+                          gap: "0.25rem",
+                          flexShrink: 0,
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "0.3rem",
+                            fontSize: "0.78rem",
+                            color: "var(--foreground-muted)",
+                            fontFamily: "'Fira Code', monospace",
+                          }}
+                        >
+                          <Calendar size={11} />
+                          {exp.startDate} — {exp.endDate}
+                        </div>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "0.3rem",
+                            fontSize: "0.78rem",
+                            color: "var(--foreground-muted)",
+                          }}
+                        >
+                          <MapPin size={11} />
+                          {exp.location}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Description bullets */}
+                    <ul style={{ margin: "0.5rem 0 0.75rem", padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: "0.3rem" }}>
+                      {exp.description.map((d, di) => (
+                        <li
+                          key={di}
+                          style={{
+                            fontSize: "0.84rem",
+                            color: "var(--foreground-muted)",
+                            lineHeight: 1.6,
+                            display: "flex",
+                            gap: "0.5rem",
+                            alignItems: "flex-start",
+                          }}
+                        >
+                          <span style={{ color: "var(--primary)", flexShrink: 0, marginTop: "0.35rem" }}>›</span>
+                          {d}
+                        </li>
+                      ))}
+                    </ul>
+
+                    {/* Tech tags */}
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
+                      {exp.tech.map((t) => (
+                        <span key={t} className="tech-tag">{t}</span>
+                      ))}
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       </div>

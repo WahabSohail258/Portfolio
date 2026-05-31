@@ -1,175 +1,244 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { useInView } from "react-intersection-observer";
-import { SectionWrapper } from "@/components/ui/section-wrapper";
-import { MapPin, GraduationCap } from "lucide-react";
-
-interface CountUpProps {
-  end: number;
-  suffix?: string;
-  duration?: number;
-}
-
-function CountUp({ end, suffix = "", duration = 2 }: CountUpProps) {
-  const [count, setCount] = useState(0);
-  const { ref, inView } = useInView({ triggerOnce: true });
-  const startedRef = useRef(false);
-
-  useEffect(() => {
-    if (inView && !startedRef.current) {
-      startedRef.current = true;
-      const startTime = performance.now();
-      const animate = (now: number) => {
-        const elapsed = (now - startTime) / (duration * 1000);
-        const progress = Math.min(elapsed, 1);
-        const eased = 1 - Math.pow(1 - progress, 3);
-        setCount(Math.round(eased * end));
-        if (progress < 1) requestAnimationFrame(animate);
-      };
-      requestAnimationFrame(animate);
-    }
-  }, [inView, end, duration]);
-
-  return (
-    <span ref={ref}>
-      {count}
-      {suffix}
-    </span>
-  );
-}
+import { Mail, Github, Linkedin, MapPin, GraduationCap, Briefcase, Code2 } from "lucide-react";
 
 const stats = [
-  { value: 2, suffix: "+", label: "Internships" },
-  { value: 6, suffix: "+", label: "Projects Delivered" },
-  { value: 7, suffix: "+", label: "Technologies" },
-  { value: 2026, suffix: "", label: "NUST Graduate" },
+  { value: "2+", label: "Internships", icon: <Briefcase size={18} /> },
+  { value: "6+", label: "Projects", icon: <Code2 size={18} /> },
+  { value: "2026", label: "NUST Grad", icon: <GraduationCap size={18} /> },
 ];
 
 export function About() {
   return (
-    <section id="about" className="section-padding bg-[#0a0a0a] relative overflow-hidden">
-      <div className="absolute top-1/2 left-0 w-[500px] h-[500px] -translate-y-1/2 -translate-x-1/2 bg-electric-500/5 rounded-full blur-3xl pointer-events-none" />
+    <section id="about" className="section-padding" style={{ background: "var(--background)" }}>
+      <div className="section-container">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true, margin: "-80px" }}
+        >
+          <span className="section-tag">// about me</span>
+          <h2 className="section-title">Who I Am</h2>
+        </motion.div>
 
-      <div className="max-w-7xl mx-auto">
-        <SectionWrapper className="text-center mb-16">
-          <p className="text-electric-400 text-sm font-medium tracking-widest uppercase mb-3">Get to know me</p>
-          <h2 className="section-heading">
-            About <span className="gradient-text">Me</span>
-          </h2>
-          <div className="w-16 h-[2px] bg-gradient-electric mx-auto mt-4" />
-        </SectionWrapper>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: "3rem",
+            alignItems: "start",
+            marginTop: "2.5rem",
+          }}
+          className="about-grid"
+        >
+          {/* Left: Bio */}
+          <motion.div
+            initial={{ opacity: 0, x: -24 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            viewport={{ once: true, margin: "-80px" }}
+          >
+            <p style={{ color: "var(--foreground)", lineHeight: 1.8, marginBottom: "1.25rem", fontSize: "0.975rem" }}>
+              I&apos;m a <strong>Computer Engineering graduate from NUST</strong> (Class of 2026) based in
+              Rawalpindi, Pakistan. My work focuses on building intelligent systems at the intersection of
+              AI, computer vision, and embedded platforms.
+            </p>
+            <p style={{ color: "var(--foreground-muted)", lineHeight: 1.8, marginBottom: "1.25rem", fontSize: "0.975rem" }}>
+              During my internships at <strong>RISETech</strong> and <strong>NCRA</strong>, I worked on
+              real-world AI pipelines, autonomous systems, and Linux-based edge deployments. I led the
+              community as <strong>President of COMPPEC</strong> and contributed to innovation ecosystems
+              as an NVC Fund Manager and P@SHA volunteer.
+            </p>
+            <p style={{ color: "var(--foreground-muted)", lineHeight: 1.8, marginBottom: "2rem", fontSize: "0.975rem" }}>
+              I&apos;m passionate about turning complex problems into elegant, performant solutions —
+              whether that&apos;s a computer vision pipeline running on a Raspberry Pi or a
+              full-stack web application with AI at its core. Currently <strong>open to remote opportunities
+              and relocation</strong>.
+            </p>
 
-        <div className="grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
-          {/* Left — Bio */}
-          <SectionWrapper direction="left">
-            <div className="space-y-6">
-              <div className="glass rounded-2xl p-6 border border-white/[0.06]">
-                <h3 className="font-display text-2xl font-bold mb-4 text-white">
-                  Hi, I&apos;m Wahab 👋
-                </h3>
-                <p className="text-white/60 leading-relaxed mb-4">
-                  I&apos;m a <span className="text-electric-400 font-medium">Computer Engineering graduate from NUST</span>,
-                  specializing in AI systems, computer vision, and real-time embedded applications —
-                  based in <span className="text-white font-medium">Rawalpindi, Pakistan</span>.
-                </p>
-                <p className="text-white/60 leading-relaxed mb-4">
-                  I design and build <span className="text-white font-medium">intelligent, production-grade software</span> —
-                  from edge AI pipelines running on Raspberry Pi and Jetson Nano, to full-stack web
-                  applications with real-time data streaming. My work spans the full spectrum from
-                  low-level hardware integration to cloud-ready APIs.
-                </p>
-                <p className="text-white/60 leading-relaxed">
-                  I bring hands-on experience from internships at <span className="text-white font-medium">RISETech</span> and
-                  the <span className="text-white font-medium">National Centre of Robotics and Automation (NCRA)</span>,
-                  where I contributed to AI research, biomedical solutions, and embedded system deployments.
-                </p>
-              </div>
-
-              <div className="flex flex-wrap gap-3">
-                {["Python", "C++", "PyTorch", "OpenCV", "Linux", "Raspberry Pi", "Next.js", "Docker"].map((tech) => (
-                  <span
-                    key={tech}
-                    className="px-3 py-1.5 rounded-lg text-xs font-medium glass-electric text-electric-400 border border-electric-500/20"
-                  >
-                    {tech}
-                  </span>
-                ))}
-              </div>
-
-              <div className="flex gap-4 flex-wrap">
-                <a
-                  href="#contact"
-                  onClick={(e) => { e.preventDefault(); document.querySelector("#contact")?.scrollIntoView({ behavior: "smooth" }); }}
-                  className="btn-primary text-white text-sm"
+            {/* Info chips */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+              {[
+                { icon: <MapPin size={14} />, label: "Rawalpindi, Pakistan" },
+                { icon: <GraduationCap size={14} />, label: "B.E. Computer Engineering — NUST, 2026" },
+                { icon: <Briefcase size={14} />, label: "Open to remote & relocation" },
+              ].map(({ icon, label }) => (
+                <div
+                  key={label}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.6rem",
+                    fontSize: "0.875rem",
+                    color: "var(--foreground-muted)",
+                  }}
                 >
-                  Get in Touch
-                </a>
-                <a href="/resume.pdf" download className="btn-secondary text-sm">
-                  Download Resume
-                </a>
-              </div>
-            </div>
-          </SectionWrapper>
-
-          {/* Right — Stats */}
-          <SectionWrapper direction="right" delay={0.2}>
-            <div className="grid grid-cols-2 gap-4">
-              {stats.map((stat, i) => (
-                <motion.div
-                  key={stat.label}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 + 0.3, duration: 0.5 }}
-                  whileHover={{ scale: 1.04, y: -4 }}
-                  className="glass rounded-2xl p-6 border border-white/[0.06] hover:border-electric-500/30 transition-all duration-300 hover:shadow-glow-sm text-center"
-                >
-                  <div className="font-display text-3xl font-black gradient-text mb-2">
-                    <CountUp end={stat.value} suffix={stat.suffix} />
-                  </div>
-                  <p className="text-white/50 text-sm leading-tight">{stat.label}</p>
-                </motion.div>
+                  <span style={{ color: "var(--primary)" }}>{icon}</span>
+                  {label}
+                </div>
               ))}
             </div>
 
-            <div className="mt-6 space-y-3">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.5 }}
-                className="glass rounded-2xl p-5 border border-white/[0.06] flex items-center gap-3"
-              >
-                <div className="w-10 h-10 rounded-xl bg-gradient-electric flex items-center justify-center shadow-glow flex-shrink-0">
-                  <GraduationCap className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <p className="text-white font-semibold text-sm">B.Sc. Computer Engineering</p>
-                  <p className="text-electric-400 text-xs">NUST — Class of 2026</p>
-                </div>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.65 }}
-                className="glass rounded-2xl p-5 border border-white/[0.06] flex items-center gap-3"
-              >
-                <div className="w-10 h-10 rounded-xl bg-electric-600/10 border border-electric-500/20 flex items-center justify-center flex-shrink-0">
-                  <MapPin className="w-4 h-4 text-electric-400" />
-                </div>
-                <div>
-                  <p className="text-white font-semibold text-sm">Based in</p>
-                  <p className="text-white/50 text-xs">Rawalpindi, Pakistan — Open to remote & relocation</p>
-                </div>
-              </motion.div>
+            {/* Social links */}
+            <div style={{ display: "flex", gap: "0.75rem", marginTop: "1.5rem" }}>
+              {[
+                { href: "mailto:sohailwahab27@gmail.com", icon: <Mail size={16} />, label: "Email" },
+                { href: "https://github.com/WahabSohail258", icon: <Github size={16} />, label: "GitHub" },
+                { href: "https://linkedin.com/in/wahab-sohail", icon: <Linkedin size={16} />, label: "LinkedIn" },
+              ].map(({ href, icon, label }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={label}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: 38,
+                    height: 38,
+                    borderRadius: 8,
+                    border: "1.5px solid var(--border)",
+                    background: "var(--card)",
+                    color: "var(--foreground-muted)",
+                    transition: "all 0.2s ease",
+                    textDecoration: "none",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = "var(--primary)";
+                    e.currentTarget.style.borderColor = "var(--primary)";
+                    e.currentTarget.style.background = "var(--primary-muted)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = "var(--foreground-muted)";
+                    e.currentTarget.style.borderColor = "var(--border)";
+                    e.currentTarget.style.background = "var(--card)";
+                  }}
+                >
+                  {icon}
+                </a>
+              ))}
             </div>
-          </SectionWrapper>
+          </motion.div>
+
+          {/* Right: Stats + code block */}
+          <motion.div
+            initial={{ opacity: 0, x: 24 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            viewport={{ once: true, margin: "-80px" }}
+            style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}
+          >
+            {/* Stats */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(3, 1fr)",
+                gap: "1rem",
+              }}
+            >
+              {stats.map((s) => (
+                <div
+                  key={s.label}
+                  className="card"
+                  style={{
+                    padding: "1.25rem",
+                    textAlign: "center",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: "0.5rem",
+                  }}
+                >
+                  <span style={{ color: "var(--primary)" }}>{s.icon}</span>
+                  <div
+                    className="gradient-text"
+                    style={{ fontWeight: 700, fontSize: "1.5rem", lineHeight: 1 }}
+                  >
+                    {s.value}
+                  </div>
+                  <div style={{ fontSize: "0.75rem", color: "var(--foreground-muted)", fontWeight: 500 }}>
+                    {s.label}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Code block */}
+            <div
+              style={{
+                background: "#1e1e2e",
+                borderRadius: 12,
+                padding: "1.25rem",
+                fontFamily: "'Fira Code', monospace",
+                fontSize: "0.8rem",
+                lineHeight: 1.7,
+                border: "1px solid rgba(255,255,255,0.05)",
+                overflow: "hidden",
+              }}
+            >
+              <div style={{ color: "#6c7086", marginBottom: "0.5rem", fontSize: "0.7rem" }}>
+                // wahab.ts
+              </div>
+              <div>
+                <span style={{ color: "#cba6f7" }}>const</span>{" "}
+                <span style={{ color: "#cdd6f4" }}>wahab</span>{" "}
+                <span style={{ color: "#89dceb" }}>=</span>{" "}
+                <span style={{ color: "#89b4fa" }}>{"{"}</span>
+              </div>
+              <div style={{ paddingLeft: "1rem" }}>
+                <span style={{ color: "#a6e3a1" }}>role</span>
+                <span style={{ color: "#cdd6f4" }}>: </span>
+                <span style={{ color: "#a6e3a1" }}>&quot;AI & ML Engineer&quot;</span>
+                <span style={{ color: "#6c7086" }}>,</span>
+              </div>
+              <div style={{ paddingLeft: "1rem" }}>
+                <span style={{ color: "#a6e3a1" }}>university</span>
+                <span style={{ color: "#cdd6f4" }}>: </span>
+                <span style={{ color: "#a6e3a1" }}>&quot;NUST&quot;</span>
+                <span style={{ color: "#6c7086" }}>,</span>
+              </div>
+              <div style={{ paddingLeft: "1rem" }}>
+                <span style={{ color: "#a6e3a1" }}>location</span>
+                <span style={{ color: "#cdd6f4" }}>: </span>
+                <span style={{ color: "#a6e3a1" }}>&quot;Rawalpindi, PK&quot;</span>
+                <span style={{ color: "#6c7086" }}>,</span>
+              </div>
+              <div style={{ paddingLeft: "1rem" }}>
+                <span style={{ color: "#a6e3a1" }}>openToWork</span>
+                <span style={{ color: "#cdd6f4" }}>: </span>
+                <span style={{ color: "#fab387" }}>true</span>
+                <span style={{ color: "#6c7086" }}>,</span>
+              </div>
+              <div style={{ paddingLeft: "1rem" }}>
+                <span style={{ color: "#a6e3a1" }}>loves</span>
+                <span style={{ color: "#cdd6f4" }}>: </span>
+                <span style={{ color: "#89b4fa" }}>[</span>
+                <span style={{ color: "#a6e3a1" }}>&quot;AI&quot;</span>
+                <span style={{ color: "#6c7086" }}>, </span>
+                <span style={{ color: "#a6e3a1" }}>&quot;CV&quot;</span>
+                <span style={{ color: "#6c7086" }}>, </span>
+                <span style={{ color: "#a6e3a1" }}>&quot;Linux&quot;</span>
+                <span style={{ color: "#89b4fa" }}>]</span>
+              </div>
+              <div>
+                <span style={{ color: "#89b4fa" }}>{"}"}</span>
+              </div>
+            </div>
+          </motion.div>
         </div>
       </div>
+
+      <style jsx>{`
+        @media (max-width: 768px) {
+          .about-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
+      `}</style>
     </section>
   );
 }
