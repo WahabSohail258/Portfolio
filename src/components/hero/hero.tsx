@@ -47,7 +47,7 @@ export function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: [0.25, 0.4, 0.25, 1] }}
         >
-          <h1 style={{
+          <h1 className="hero-heading" style={{
             fontWeight: 800,
             lineHeight: 1.1,
             fontSize: "clamp(2.4rem, 5.5vw, 4.2rem)",

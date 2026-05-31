@@ -89,9 +89,56 @@ body {
 ::selection { background: var(--primary-muted); color: var(--foreground); }
 
 /* ── Layout ───────────────────────────────────────────── */
-.section-container { max-width: 1100px; margin: 0 auto; padding: 0 1.5rem; }
+.section-container { max-width: 1100px; margin: 0 auto; padding: 0 1.25rem; }
 .section-padding { padding: 5rem 0; }
-@media (max-width: 768px) { .section-padding { padding: 3.5rem 0; } }
+
+/* ── Mobile Responsive ────────────────────────────────── */
+@media (max-width: 768px) {
+  html { font-size: 15px; }
+
+  .section-padding { padding: 3rem 0; }
+  .section-container { padding: 0 1rem; }
+
+  /* Navbar pill — hide nav links, show hamburger */
+  .nav-links { display: none !important; }
+  .nav-right-items { display: none !important; }
+  .hamburger { display: flex !important; }
+
+  /* Hero */
+  .hero-heading { font-size: clamp(2rem, 8vw, 3rem) !important; }
+
+  /* Bento contact grid — stack vertically */
+  .bento-contact-grid { grid-template-columns: 1fr !important; }
+
+  /* Projects grid */
+  .projects-grid { grid-template-columns: 1fr !important; }
+
+  /* Skills/toolbox marquee */
+  .marquee-left, .marquee-right { animation-duration: 18s; }
+
+  /* Bento grid */
+  .bento-grid { grid-template-columns: 1fr 1fr !important; }
+
+  /* Experience timeline */
+  .timeline-grid { grid-template-columns: 1fr !important; }
+
+  /* Card hover — remove translate on touch */
+  .card:hover { transform: none; }
+  .bento-card:hover { transform: none; }
+
+  /* Section title size */
+  .section-title { font-size: clamp(1.6rem, 6vw, 2rem) !important; }
+
+  /* Terminal — reduce padding */
+  .terminal-window { font-size: 0.8rem !important; }
+}
+
+@media (max-width: 480px) {
+  html { font-size: 14px; }
+  .section-container { padding: 0 0.85rem; }
+  .bento-grid { grid-template-columns: 1fr !important; }
+}
+
 
 /* ── Section Labels ───────────────────────────────────── */
 .section-tag {
