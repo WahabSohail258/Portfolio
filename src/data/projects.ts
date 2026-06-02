@@ -86,12 +86,12 @@ export const projects: Project[] = [
     id: "6",
     title: "Blood Management System",
     description:
-      "Database-driven system for managing donor and recipient records with relational schemas and full CRUD operations.",
+      "A full stack web application for managing blood donor and recipient records with real-time compatibility matching and a complete management dashboard.",
     longDescription:
-      "Developed a database-driven blood management system to manage donor and recipient records. Designed relational database schemas and implemented SQL queries for efficient data retrieval. Built backend logic with Node.js and handled CRUD operations with proper data validation and error handling.",
+      "Built a full stack Blood Management System with a Node.js + Express backend and a frontend dashboard for hospital staff. The system handles donor registration, recipient requests, blood type compatibility matching, and inventory tracking. Implemented RESTful APIs with proper validation and error handling, connected to a MySQL database with a normalised relational schema. The UI allows hospital staff to search, filter and manage donor records in real time.",
     image: "/projects/bloodmgmt.jpg",
-    tags: ["Node.js", "MySQL", "SQL", "CRUD", "REST API"],
-    category: "backend",
+    tags: ["Node.js", "Express.js", "MySQL", "REST API", "Full Stack"],
+    category: "fullstack",
     github: "https://github.com/WahabSohail258/Blood-Managment-System",
     live: "https://github.com/WahabSohail258/Blood-Managment-System",
     featured: false,

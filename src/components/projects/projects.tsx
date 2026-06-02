@@ -43,7 +43,7 @@ const thesisLinks: Record<string, string> = {
 const techStacks: Record<string, string[]> = {
   "1": ["Kaldi", "C++", "Python", "OpenFst", "GMM-HMM", "MFCC Processing", "LDA/MLLT", "Transfer Learning"],
   "5": ["Python", "OpenCV", "Raspberry Pi", "PiCamera", "Canny Edge Detection", "Hough Transform", "MOG2 Background Subtraction", "Multithreading"],
-  "6": ["Node.js", "Express.js", "MySQL", "SQL", "REST API", "CRUD Operations", "Data Validation", "Relational Schema Design"],
+  "6": ["Node.js", "Express.js", "MySQL", "EJS / HTML", "CSS", "REST API", "CRUD Operations", "Normalised Schema Design"],
 };
 
 const keyOutcomes: Record<string, string[]> = {
@@ -64,12 +64,12 @@ const keyOutcomes: Record<string, string[]> = {
     "Colour masking for lane isolation under varying lighting conditions",
   ],
   "6": [
-    "Relational schema covering donors, recipients, blood types and compatibility rules",
-    "Real-time donor search with blood type compatibility filtering",
-    "Full CRUD REST API with input validation and structured error responses",
-    "Optimised SQL queries for fast donor-recipient matching at scale",
-    "Scalable schema design supporting multi-hospital deployments",
-    "Robust data models preventing invalid blood-type assignments",
+    "Full donor registration and management with blood type records",
+    "Real-time blood type compatibility matching for recipient requests",
+    "Frontend dashboard for hospital staff to search, filter and manage donors",
+    "RESTful API with structured validation and meaningful error responses",
+    "Normalised MySQL schema preventing data anomalies across tables",
+    "Inventory tracking module for blood stock levels across blood types",
   ],
 };
 
@@ -79,7 +79,7 @@ const problems: Record<string, string> = {
   "3": "Deaf and hard-of-hearing users lack accessible real-time translation tools. Most sign language recognition systems are offline, slow, or require specialised hardware.",
   "4": "The Santander dataset is anonymised and high-dimensional — standard feature engineering fails, requiring statistical feature selection and model comparison for reliable binary classification.",
   "5": "Building a self-driving car prototype on a Raspberry Pi requires real-time lane detection and obstacle avoidance using only classical image processing — deep learning models are too compute-heavy for the constrained hardware. The system must respond fast enough to control the car without lag.",
-  "6": "Hospital blood banks operate in silos — donor records, blood type data and recipient requests are managed manually or in disconnected spreadsheets. This causes critical delays when matching compatible donors to patients in urgent need of transfusions.",
+  "6": "Hospital blood banks operate in silos — donor records, blood type data and recipient requests are managed manually or in disconnected spreadsheets. This causes critical delays when matching compatible donors to patients in urgent need of transfusions. A centralised digital system is needed to manage this end-to-end.",
 };
 
 const solutions: Record<string, string> = {
@@ -88,7 +88,7 @@ const solutions: Record<string, string> = {
   "3": "Built dual-mode recognition: CNN for static signs (A–Z) and LSTM for dynamic gestures, both powered by MediaPipe's 21-keypoint hand tracking. Applied prediction smoothing for stability. Deployed as a live Streamlit app with text-to-speech output for real-world accessibility.",
   "4": "Selected Naive Bayes after statistical analysis of the feature distribution. Used SHAP for feature importance, LightGBM as a strong baseline, and a Residual MLP for deep comparison. Delivered a fully reproducible ML pipeline with cross-validation.",
   "5": "Implemented a full classical computer vision pipeline: Canny edge detection for boundary extraction, Hough Transform for lane line fitting, colour masking in HSV space for robustness, and perspective transformation to get a bird's-eye view of the road. BackgroundSubtractorMOG2 was used for moving obstacle detection. Ran the entire pipeline on Raspberry Pi with PiCamera using Python multithreading to keep the control loop and camera feed in sync.",
-  "6": "Designed a normalised relational MySQL schema with tables for donors, recipients, blood inventory and compatibility rules. Built a Node.js + Express REST API with full CRUD operations, structured error handling, and input validation. The system performs real-time blood type compatibility checks and returns ranked donor matches instantly — designed to be extensible across multiple hospital branches.",
+  "6": "Built a full stack Blood Management System using Node.js and Express for the backend and a server-rendered frontend dashboard (EJS/HTML + CSS) for hospital staff. The system supports donor registration, recipient request management, and real-time blood type compatibility checks. MySQL was used as the database with a fully normalised schema. REST APIs handle all CRUD operations with input validation and structured error responses. Hospital staff can search, filter and update donor records through the dashboard interface.",
 };
 
 const impacts: Record<string, string[]> = {
@@ -97,7 +97,7 @@ const impacts: Record<string, string[]> = {
   "3": ["Dual-mode recognition covering static alphabet and dynamic gestures", "Real-time operation at 30fps with MediaPipe", "Text-to-speech output for immediate accessibility"],
   "4": ["Outperformed LightGBM baseline with simpler Naive Bayes model", "SHAP-driven feature analysis revealed key predictors", "Full reproducibility with documented cross-validation"],
   "5": ["Real-time lane detection and following on Raspberry Pi hardware", "Zero-ML obstacle avoidance using classical background subtraction", "Bird's-eye lane tracking via perspective transformation", "Colour-masked lane isolation robust to lighting changes", "Multithreaded control loop keeping car response lag-free"],
-  "6": ["Instant donor-recipient matching with blood type compatibility logic", "Normalised relational schema preventing data anomalies", "Structured REST API with full CRUD and error handling", "Scalable multi-hospital deployment ready architecture", "SQL-optimised queries for fast donor lookups at scale"],
+  "6": ["Full stack web app with donor management dashboard", "Real-time blood type compatibility matching", "Structured REST API with validation and error handling", "Normalised MySQL schema preventing data anomalies", "Blood inventory tracking across all blood types"],
 };
 
 function ProjectModal({ project, onClose }: { project: Project; onClose: () => void }) {
