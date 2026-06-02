@@ -78,8 +78,8 @@ export const projects: Project[] = [
     image: "/projects/autonav.jpg",
     tags: ["Python", "OpenCV", "Edge Detection", "Embedded Systems"],
     category: "aiml",
-    github: "https://github.com/WahabSohail258",
-    live: "https://github.com/WahabSohail258",
+    github: "https://github.com/WahabSohail258/Self-Driving-Car",
+    live: "https://github.com/WahabSohail258/Self-Driving-Car",
     featured: false,
   },
   {
@@ -92,8 +92,8 @@ export const projects: Project[] = [
     image: "/projects/bloodmgmt.jpg",
     tags: ["Node.js", "MySQL", "SQL", "CRUD", "REST API"],
     category: "backend",
-    github: "https://github.com/WahabSohail258",
-    live: "https://github.com/WahabSohail258",
+    github: "https://github.com/WahabSohail258/Blood-Managment-System",
+    live: "https://github.com/WahabSohail258/Blood-Managment-System",
     featured: false,
   },
 ];

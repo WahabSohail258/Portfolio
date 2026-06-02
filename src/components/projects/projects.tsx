@@ -42,6 +42,8 @@ const thesisLinks: Record<string, string> = {
 
 const techStacks: Record<string, string[]> = {
   "1": ["Kaldi", "C++", "Python", "OpenFst", "GMM-HMM", "MFCC Processing", "LDA/MLLT", "Transfer Learning"],
+  "5": ["Python", "OpenCV", "Raspberry Pi", "PiCamera", "Canny Edge Detection", "Hough Transform", "MOG2 Background Subtraction", "Multithreading"],
+  "6": ["Node.js", "Express.js", "MySQL", "SQL", "REST API", "CRUD Operations", "Data Validation", "Relational Schema Design"],
 };
 
 const keyOutcomes: Record<string, string[]> = {
@@ -53,6 +55,22 @@ const keyOutcomes: Record<string, string[]> = {
     "Real-time deployment on Raspberry Pi 5 with <350ms inference latency",
     "Live Kivy UI with pronunciation feedback for speech rehabilitation",
   ],
+  "5": [
+    "Real-time lane detection pipeline running at live video speed on Raspberry Pi",
+    "Canny edge detection + Hough Transform for robust lane boundary identification",
+    "Perspective transformation for bird's-eye view lane tracking",
+    "Obstacle avoidance via BackgroundSubtractorMOG2 — no ML model required",
+    "Multithreaded Python ensuring camera feed and control loop run in parallel",
+    "Colour masking for lane isolation under varying lighting conditions",
+  ],
+  "6": [
+    "Relational schema covering donors, recipients, blood types and compatibility rules",
+    "Real-time donor search with blood type compatibility filtering",
+    "Full CRUD REST API with input validation and structured error responses",
+    "Optimised SQL queries for fast donor-recipient matching at scale",
+    "Scalable schema design supporting multi-hospital deployments",
+    "Robust data models preventing invalid blood-type assignments",
+  ],
 };
 
 const problems: Record<string, string> = {
@@ -60,8 +78,8 @@ const problems: Record<string, string> = {
   "2": "Engineering teams lose hours manually switching between Gmail, Slack, and Jira to get project status. There was no unified AI layer to surface insights across tools in real time.",
   "3": "Deaf and hard-of-hearing users lack accessible real-time translation tools. Most sign language recognition systems are offline, slow, or require specialised hardware.",
   "4": "The Santander dataset is anonymised and high-dimensional — standard feature engineering fails, requiring statistical feature selection and model comparison for reliable binary classification.",
-  "5": "Real-time lane detection and obstacle avoidance on resource-constrained hardware like Raspberry Pi requires efficient classical image processing techniques.",
-  "6": "Hospital blood banks lack a centralised system to match donors with recipients in real time, causing delays that can be life-threatening.",
+  "5": "Building a self-driving car prototype on a Raspberry Pi requires real-time lane detection and obstacle avoidance using only classical image processing — deep learning models are too compute-heavy for the constrained hardware. The system must respond fast enough to control the car without lag.",
+  "6": "Hospital blood banks operate in silos — donor records, blood type data and recipient requests are managed manually or in disconnected spreadsheets. This causes critical delays when matching compatible donors to patients in urgent need of transfusions.",
 };
 
 const solutions: Record<string, string> = {
@@ -69,8 +87,8 @@ const solutions: Record<string, string> = {
   "2": "Built a streaming Next.js + TypeScript app using Vercel AI SDK and Composio to unify Gmail, Slack, and Jira. Implemented a real-time AI chatbot with Convex backend that answers natural-language queries about sprint status, blockers, and deadlines.",
   "3": "Built dual-mode recognition: CNN for static signs (A–Z) and LSTM for dynamic gestures, both powered by MediaPipe's 21-keypoint hand tracking. Applied prediction smoothing for stability. Deployed as a live Streamlit app with text-to-speech output for real-world accessibility.",
   "4": "Selected Naive Bayes after statistical analysis of the feature distribution. Used SHAP for feature importance, LightGBM as a strong baseline, and a Residual MLP for deep comparison. Delivered a fully reproducible ML pipeline with cross-validation.",
-  "5": "Developed a self-driving car simulation using Canny edge detection, Hough Transform, colour masking, and perspective transformation for lane detection. Implemented real-time obstacle avoidance with BackgroundSubtractorMOG2 and multithreaded Python on Raspberry Pi + PiCamera.",
-  "6": "Designed a relational SQL schema for donor/recipient matching with blood type compatibility logic. Built a Node.js REST API with full CRUD, data validation, and error handling. The system enables real-time donor searches and availability updates.",
+  "5": "Implemented a full classical computer vision pipeline: Canny edge detection for boundary extraction, Hough Transform for lane line fitting, colour masking in HSV space for robustness, and perspective transformation to get a bird's-eye view of the road. BackgroundSubtractorMOG2 was used for moving obstacle detection. Ran the entire pipeline on Raspberry Pi with PiCamera using Python multithreading to keep the control loop and camera feed in sync.",
+  "6": "Designed a normalised relational MySQL schema with tables for donors, recipients, blood inventory and compatibility rules. Built a Node.js + Express REST API with full CRUD operations, structured error handling, and input validation. The system performs real-time blood type compatibility checks and returns ranked donor matches instantly — designed to be extensible across multiple hospital branches.",
 };
 
 const impacts: Record<string, string[]> = {
@@ -78,8 +96,8 @@ const impacts: Record<string, string[]> = {
   "2": ["Reduced daily project status check time for teams", "Natural language interface for sprint/blocker queries", "Integrated 3 external tools through a single AI interface"],
   "3": ["Dual-mode recognition covering static alphabet and dynamic gestures", "Real-time operation at 30fps with MediaPipe", "Text-to-speech output for immediate accessibility"],
   "4": ["Outperformed LightGBM baseline with simpler Naive Bayes model", "SHAP-driven feature analysis revealed key predictors", "Full reproducibility with documented cross-validation"],
-  "5": ["Lane following at real-time video speed on Raspberry Pi", "Obstacle avoidance via classical computer vision (no ML needed)", "Modular pipeline adaptable to different track environments"],
-  "6": ["Real-time donor search with blood type compatibility filtering", "Robust CRUD API with validated data models", "Scalable schema supporting multi-hospital deployments"],
+  "5": ["Real-time lane detection and following on Raspberry Pi hardware", "Zero-ML obstacle avoidance using classical background subtraction", "Bird's-eye lane tracking via perspective transformation", "Colour-masked lane isolation robust to lighting changes", "Multithreaded control loop keeping car response lag-free"],
+  "6": ["Instant donor-recipient matching with blood type compatibility logic", "Normalised relational schema preventing data anomalies", "Structured REST API with full CRUD and error handling", "Scalable multi-hospital deployment ready architecture", "SQL-optimised queries for fast donor lookups at scale"],
 };
 
 function ProjectModal({ project, onClose }: { project: Project; onClose: () => void }) {
