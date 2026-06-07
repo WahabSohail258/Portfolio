@@ -2,9 +2,25 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Github, Mail, Linkedin, ArrowUpRight, Send, CheckCircle, AlertCircle } from "lucide-react";
+import { Github, Mail, Linkedin, ArrowUpRight, Send, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 import emailjs from "@emailjs/browser";
 
+/* ── Helpers ─────────────────────────────────────────────── */
+const SERVICE_ID  = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID  ?? "";
+const TEMPLATE_ID = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID ?? "";
+const PUBLIC_KEY  = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY  ?? "";
+
+/** Returns true only if all three EmailJS keys are real (non-empty / non-placeholder) */
+function emailjsConfigured() {
+  const placeholders = ["", "service_placeholder", "template_placeholder", "placeholder_key"];
+  return (
+    !placeholders.includes(SERVICE_ID) &&
+    !placeholders.includes(TEMPLATE_ID) &&
+    !placeholders.includes(PUBLIC_KEY)
+  );
+}
+
+/* ── Clock Widget ────────────────────────────────────────── */
 function ClockWidget() {
   const [mounted, setMounted] = useState(false);
   const [now, setNow] = useState(new Date());
@@ -15,7 +31,6 @@ function ClockWidget() {
     return () => clearInterval(t);
   }, []);
 
-  // Don't render time on server — prevents hydration mismatch
   if (!mounted) {
     return (
       <div style={{ display: "flex", alignItems: "center", gap: "0.85rem" }}>
@@ -61,42 +76,66 @@ function ClockWidget() {
   );
 }
 
+/* ── Card animation variants ─────────────────────────────── */
 const cardVariants = {
-  hidden: { opacity: 0, y: 20, scale: 0.97 },
+  hidden: { opacity: 0, y: 24, scale: 0.96 },
   visible: (i: number) => ({
     opacity: 1, y: 0, scale: 1,
-    transition: { duration: 0.4, delay: i * 0.07, ease: "easeOut" },
+    transition: { duration: 0.45, delay: i * 0.08, ease: [0.25, 0.46, 0.45, 0.94] },
   }),
 };
 
+/* ── Main Component ──────────────────────────────────────── */
 export function BentoContact() {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+  const [errorMsg, setErrorMsg] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
+    if (status === "error") setStatus("idle");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus("sending");
+    setErrorMsg("");
+
+    // ── Path A: EmailJS is properly configured ──
+    if (emailjsConfigured()) {
+      try {
+        await emailjs.send(
+          SERVICE_ID,
+          TEMPLATE_ID,
+          { from_name: form.name, from_email: form.email, message: form.message },
+          PUBLIC_KEY
+        );
+        setStatus("success");
+        setForm({ name: "", email: "", message: "" });
+        return;
+      } catch {
+        // fall through to mailto fallback
+      }
+    }
+
+    // ── Path B: Mailto fallback — always works ──
     try {
-      await emailjs.send(
-        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
-        process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!,
-        { from_name: form.name, from_email: form.email, message: form.message },
-        process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!
+      const subject = encodeURIComponent(`Portfolio Contact from ${form.name}`);
+      const body = encodeURIComponent(
+        `Name: ${form.name}\nEmail: ${form.email}\n\nMessage:\n${form.message}`
       );
+      window.open(`mailto:sohailwahab27@gmail.com?subject=${subject}&body=${body}`, "_blank");
       setStatus("success");
       setForm({ name: "", email: "", message: "" });
     } catch {
+      setErrorMsg("Could not open email client. Please email sohailwahab27@gmail.com directly.");
       setStatus("error");
     }
   };
 
   const inputStyle: React.CSSProperties = {
     width: "100%",
-    padding: "0.55rem 0.85rem",
+    padding: "0.6rem 0.9rem",
     background: "var(--surface)",
     border: "1px solid var(--border)",
     borderRadius: 8,
@@ -104,7 +143,7 @@ export function BentoContact() {
     fontSize: "0.83rem",
     fontFamily: "Poppins, sans-serif",
     outline: "none",
-    transition: "border-color 0.2s",
+    transition: "border-color 0.2s, box-shadow 0.2s",
   };
 
   return (
@@ -114,10 +153,11 @@ export function BentoContact() {
       style={{ background: "var(--background)", borderTop: "1px solid var(--border)" }}
     >
       <div className="section-container">
+        {/* Heading */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.65, ease: [0.25, 0.46, 0.45, 0.94] }}
           viewport={{ once: true, margin: "-80px" }}
           style={{ textAlign: "center", marginBottom: "2.5rem" }}
         >
@@ -132,26 +172,26 @@ export function BentoContact() {
           </p>
         </motion.div>
 
-        {/* Two-column: bento left + form right */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem", alignItems: "start" }} className="bento-contact-grid">
-
-          {/* Bento left */}
+        {/* Grid: bento left + form right */}
+        <div
+          style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem", alignItems: "start" }}
+          className="bento-contact-grid"
+        >
+          {/* ── Left: Bento cards ── */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
 
-            {/* GitHub card — fully clickable */}
+            {/* GitHub */}
             <motion.a
               href="https://github.com/WahabSohail258"
-              target="_blank"
-              rel="noopener noreferrer"
+              target="_blank" rel="noopener noreferrer"
               custom={0} variants={cardVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}
               className="bento-card"
               style={{
                 background: "linear-gradient(135deg, #e91e8c 0%, #c2185b 100%)",
                 color: "#fff", minHeight: 130,
-                textDecoration: "none", display: "flex", flexDirection: "column",
-                cursor: "pointer",
+                textDecoration: "none", display: "flex", flexDirection: "column", cursor: "pointer",
               }}
-              whileHover={{ scale: 1.02, opacity: 0.95 }}
+              whileHover={{ scale: 1.03, boxShadow: "0 12px 40px rgba(233,30,140,0.35)" }}
             >
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "auto" }}>
                 <Github size={24} />
@@ -164,27 +204,38 @@ export function BentoContact() {
             </motion.a>
 
             {/* Clock */}
-            <motion.div custom={1} variants={cardVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}
-              className="bento-card">
+            <motion.div
+              custom={1} variants={cardVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}
+              className="bento-card"
+              whileHover={{ scale: 1.02 }}
+            >
               <ClockWidget />
             </motion.div>
 
             {/* Name + available */}
-            <motion.div custom={2} variants={cardVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}
-              className="bento-card">
+            <motion.div
+              custom={2} variants={cardVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}
+              className="bento-card"
+              whileHover={{ scale: 1.02 }}
+            >
               <div style={{ fontWeight: 700, fontSize: "1rem", marginBottom: "0.2rem" }}>Wahab Sohail</div>
               <div style={{ color: "var(--foreground-muted)", fontSize: "0.78rem", marginBottom: "0.5rem" }}>AI &amp; ML Engineer</div>
               <div style={{ display: "flex", alignItems: "center", gap: "0.35rem" }}>
-                <span className="animate-pulse-dot"
-                  style={{ width: 7, height: 7, borderRadius: "50%", background: "#4caf50", flexShrink: 0 }} />
+                <span
+                  className="animate-pulse-dot"
+                  style={{ width: 7, height: 7, borderRadius: "50%", background: "#4caf50", flexShrink: 0, display: "inline-block" }}
+                />
                 <span style={{ fontSize: "0.72rem", color: "#4caf50", fontWeight: 600 }}>Available for work</span>
               </div>
             </motion.div>
 
             {/* Tagline */}
-            <motion.div custom={3} variants={cardVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}
+            <motion.div
+              custom={3} variants={cardVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}
               className="bento-card"
-              style={{ display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
+              style={{ display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center" }}
+              whileHover={{ scale: 1.02 }}
+            >
               <div>
                 <div style={{ fontWeight: 800, fontSize: "1.15rem", lineHeight: 1.2, color: "var(--foreground)" }}>Build.</div>
                 <div className="gradient-text" style={{ fontWeight: 800, fontSize: "1.15rem", lineHeight: 1.2 }}>Ship.</div>
@@ -192,30 +243,35 @@ export function BentoContact() {
               </div>
             </motion.div>
 
-            {/* Social icons 2×2 */}
-            <motion.div custom={4} variants={cardVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}
-              className="bento-card">
+            {/* Socials */}
+            <motion.div
+              custom={4} variants={cardVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}
+              className="bento-card"
+              whileHover={{ scale: 1.02 }}
+            >
               <div style={{ fontSize: "0.65rem", color: "var(--foreground-muted)", marginBottom: "0.6rem", fontFamily: "'Fira Code', monospace" }}>
                 // socials
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.4rem" }}>
                 {[
-                  { href: "mailto:sohailwahab27@gmail.com", icon: <Mail size={16} />, color: "#ea4335" },
-                  { href: "https://linkedin.com/in/wahab-sohail", icon: <Linkedin size={16} />, color: "#0077b5" },
-                  { href: "https://github.com/WahabSohail258", icon: <Github size={16} />, color: "#4caf50" },
-                  { href: "#contact", icon: <Send size={16} />, color: "var(--primary)" },
-                ].map(({ href, icon, color }, i) => (
-                  <a key={i} href={href}
+                  { href: "mailto:sohailwahab27@gmail.com", icon: <Mail size={16} />, color: "#ea4335", label: "Email" },
+                  { href: "https://linkedin.com/in/wahab-sohail", icon: <Linkedin size={16} />, color: "#0077b5", label: "LinkedIn" },
+                  { href: "https://github.com/WahabSohail258", icon: <Github size={16} />, color: "#4caf50", label: "GitHub" },
+                  { href: "#contact", icon: <Send size={16} />, color: "var(--primary)", label: "Message" },
+                ].map(({ href, icon, color, label }) => (
+                  <a
+                    key={label} href={href}
                     target={href.startsWith("http") ? "_blank" : undefined}
                     rel="noopener noreferrer"
+                    title={label}
                     style={{
                       height: 38, borderRadius: 9,
                       display: "flex", alignItems: "center", justifyContent: "center",
                       background: color, color: "#fff", textDecoration: "none",
-                      transition: "opacity 0.15s",
+                      transition: "opacity 0.15s, transform 0.15s",
                     }}
-                    onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.8")}
-                    onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+                    onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.85"; e.currentTarget.style.transform = "translateY(-2px)"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.transform = "translateY(0)"; }}
                   >
                     {icon}
                   </a>
@@ -224,9 +280,12 @@ export function BentoContact() {
             </motion.div>
 
             {/* Quote */}
-            <motion.div custom={5} variants={cardVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}
+            <motion.div
+              custom={5} variants={cardVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}
               className="bento-card"
-              style={{ background: "linear-gradient(135deg, #f2c94c 0%, #f2994a 100%)", color: "#1a1a0a" }}>
+              style={{ background: "linear-gradient(135deg, #f2c94c 0%, #f2994a 100%)", color: "#1a1a0a" }}
+              whileHover={{ scale: 1.02 }}
+            >
               <div style={{ fontSize: "0.72rem", fontWeight: 700, marginBottom: "0.4rem" }}>📁 Notes</div>
               <p style={{ fontSize: "0.75rem", lineHeight: 1.55, fontStyle: "italic" }}>
                 &quot;Build things that ship in the real world. Curiosity is the engine — discipline is the fuel.&quot;
@@ -234,62 +293,129 @@ export function BentoContact() {
             </motion.div>
           </div>
 
-          {/* Contact Form */}
+          {/* ── Right: Contact Form ── */}
           <motion.div
-            initial={{ opacity: 0, x: 24 }}
+            initial={{ opacity: 0, x: 30 }}
             whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
+            transition={{ duration: 0.65, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
             viewport={{ once: true, margin: "-80px" }}
             className="card"
-            style={{ padding: "1.5rem" }}
+            style={{ padding: "1.75rem" }}
           >
-            <div style={{ fontFamily: "'Fira Code', monospace", fontSize: "0.75rem", color: "var(--primary)", marginBottom: "1.25rem", letterSpacing: "0.05em" }}>
-              $ send --message
+            <div style={{
+              fontFamily: "'Fira Code', monospace", fontSize: "0.75rem",
+              color: "var(--primary)", marginBottom: "1.5rem", letterSpacing: "0.05em",
+              display: "flex", alignItems: "center", gap: "0.5rem",
+            }}>
+              <span style={{ opacity: 0.5 }}>$</span> send --message
+              <span style={{ marginLeft: "auto", fontSize: "0.68rem", color: "var(--foreground-muted)", fontStyle: "italic" }}>
+                {emailjsConfigured() ? "via EmailJS" : "via mailto"}
+              </span>
             </div>
-            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "0.85rem" }}>
+
+            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
               <div>
-                <label htmlFor="bc-name" style={{ display: "block", fontSize: "0.7rem", fontFamily: "'Fira Code', monospace", color: "var(--primary)", marginBottom: "0.3rem" }}>
-                  // name
+                <label
+                  htmlFor="bc-name"
+                  style={{ display: "block", fontSize: "0.7rem", fontFamily: "'Fira Code', monospace", color: "var(--primary)", marginBottom: "0.35rem", letterSpacing: "0.04em" }}
+                >
+                  // your_name
                 </label>
-                <input id="bc-name" name="name" type="text" required value={form.name}
-                  onChange={handleChange} placeholder="John Doe" style={inputStyle}
-                  onFocus={(e) => (e.target.style.borderColor = "var(--primary)")}
-                  onBlur={(e) => (e.target.style.borderColor = "var(--border)")} />
-              </div>
-              <div>
-                <label htmlFor="bc-email" style={{ display: "block", fontSize: "0.7rem", fontFamily: "'Fira Code', monospace", color: "var(--primary)", marginBottom: "0.3rem" }}>
-                  // email
-                </label>
-                <input id="bc-email" name="email" type="email" required value={form.email}
-                  onChange={handleChange} placeholder="john@example.com" style={inputStyle}
-                  onFocus={(e) => (e.target.style.borderColor = "var(--primary)")}
-                  onBlur={(e) => (e.target.style.borderColor = "var(--border)")} />
-              </div>
-              <div>
-                <label htmlFor="bc-message" style={{ display: "block", fontSize: "0.7rem", fontFamily: "'Fira Code', monospace", color: "var(--primary)", marginBottom: "0.3rem" }}>
-                  // message
-                </label>
-                <textarea id="bc-message" name="message" required rows={5} value={form.message}
-                  onChange={handleChange} placeholder="Tell me about your project or opportunity..."
-                  style={{ ...inputStyle, resize: "vertical" }}
-                  onFocus={(e) => (e.target.style.borderColor = "var(--primary)")}
-                  onBlur={(e) => (e.target.style.borderColor = "var(--border)")} />
+                <input
+                  id="bc-name" name="name" type="text" required
+                  value={form.name} onChange={handleChange}
+                  placeholder="John Doe" style={inputStyle}
+                  onFocus={(e) => { e.target.style.borderColor = "var(--primary)"; e.target.style.boxShadow = "0 0 0 3px rgba(var(--primary-rgb),0.1)"; }}
+                  onBlur={(e) => { e.target.style.borderColor = "var(--border)"; e.target.style.boxShadow = "none"; }}
+                />
               </div>
 
-              <button type="submit" disabled={status === "sending"} className="btn-primary"
-                style={{ justifyContent: "center", opacity: status === "sending" ? 0.7 : 1 }}>
-                {status === "sending" ? "Sending..." : <><Send size={14} /> Send Message</>}
+              <div>
+                <label
+                  htmlFor="bc-email"
+                  style={{ display: "block", fontSize: "0.7rem", fontFamily: "'Fira Code', monospace", color: "var(--primary)", marginBottom: "0.35rem", letterSpacing: "0.04em" }}
+                >
+                  // email_address
+                </label>
+                <input
+                  id="bc-email" name="email" type="email" required
+                  value={form.email} onChange={handleChange}
+                  placeholder="john@example.com" style={inputStyle}
+                  onFocus={(e) => { e.target.style.borderColor = "var(--primary)"; e.target.style.boxShadow = "0 0 0 3px rgba(var(--primary-rgb),0.1)"; }}
+                  onBlur={(e) => { e.target.style.borderColor = "var(--border)"; e.target.style.boxShadow = "none"; }}
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="bc-message"
+                  style={{ display: "block", fontSize: "0.7rem", fontFamily: "'Fira Code', monospace", color: "var(--primary)", marginBottom: "0.35rem", letterSpacing: "0.04em" }}
+                >
+                  // message
+                </label>
+                <textarea
+                  id="bc-message" name="message" required rows={5}
+                  value={form.message} onChange={handleChange}
+                  placeholder="Tell me about your project or opportunity..."
+                  style={{ ...inputStyle, resize: "vertical" }}
+                  onFocus={(e) => { e.target.style.borderColor = "var(--primary)"; e.target.style.boxShadow = "0 0 0 3px rgba(var(--primary-rgb),0.1)"; }}
+                  onBlur={(e) => { e.target.style.borderColor = "var(--border)"; e.target.style.boxShadow = "none"; }}
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={status === "sending"}
+                className="btn-primary"
+                style={{ justifyContent: "center", opacity: status === "sending" ? 0.75 : 1, gap: "0.5rem" }}
+              >
+                {status === "sending" ? (
+                  <>
+                    <Loader2 size={15} style={{ animation: "spin 1s linear infinite" }} />
+                    Sending...
+                  </>
+                ) : (
+                  <><Send size={14} /> Send Message</>
+                )}
               </button>
 
               {status === "success" && (
-                <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", padding: "0.6rem 0.8rem", borderRadius: 8, background: "rgba(76,175,80,0.08)", border: "1px solid rgba(76,175,80,0.2)", color: "#4caf50", fontSize: "0.8rem" }}>
-                  <CheckCircle size={14} /> Sent! I&apos;ll get back to you soon.
-                </div>
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  style={{
+                    display: "flex", alignItems: "center", gap: "0.5rem",
+                    padding: "0.75rem 1rem", borderRadius: 10,
+                    background: "rgba(76,175,80,0.08)", border: "1px solid rgba(76,175,80,0.25)",
+                    color: "#4caf50", fontSize: "0.84rem", fontWeight: 500,
+                  }}
+                >
+                  <CheckCircle size={15} />
+                  Message sent! I&apos;ll get back to you soon.
+                </motion.div>
               )}
+
               {status === "error" && (
-                <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", padding: "0.6rem 0.8rem", borderRadius: 8, background: "rgba(220,38,38,0.08)", border: "1px solid rgba(220,38,38,0.2)", color: "#dc2626", fontSize: "0.8rem" }}>
-                  <AlertCircle size={14} /> Failed. Email: sohailwahab27@gmail.com
-                </div>
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  style={{
+                    display: "flex", flexDirection: "column", gap: "0.3rem",
+                    padding: "0.75rem 1rem", borderRadius: 10,
+                    background: "rgba(220,38,38,0.08)", border: "1px solid rgba(220,38,38,0.2)",
+                    color: "#dc2626", fontSize: "0.82rem",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontWeight: 600 }}>
+                    <AlertCircle size={15} /> {errorMsg || "Something went wrong."}
+                  </div>
+                  <div style={{ fontSize: "0.78rem", opacity: 0.8 }}>
+                    Or email directly:{" "}
+                    <a href="mailto:sohailwahab27@gmail.com" style={{ color: "#dc2626", fontWeight: 700 }}>
+                      sohailwahab27@gmail.com
+                    </a>
+                  </div>
+                </motion.div>
               )}
             </form>
           </motion.div>
@@ -300,6 +426,7 @@ export function BentoContact() {
         @media (max-width: 768px) {
           .bento-contact-grid { grid-template-columns: 1fr !important; }
         }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
       `}</style>
     </section>
   );
