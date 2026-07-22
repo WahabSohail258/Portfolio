@@ -5,7 +5,7 @@ import { motion, AnimatePresence, useInView } from "framer-motion";
 import {
   Github, X, AlertCircle, Lightbulb, Target,
   FileText, Layers, ExternalLink, ChevronRight, Sparkles,
-  Mic, MessageSquare, Hand, BarChart2, Car, Droplets,
+  Mic, MessageSquare, Hand, BarChart2, Car, Droplets, Search,
 } from "lucide-react";
 import { projects, Project } from "@/data/projects";
 
@@ -23,6 +23,7 @@ const categoryLabels: Record<string, string> = {
 const projectYears: Record<string, string> = {
   "1": "2025", "2": "2025", "3": "2024",
   "4": "2024", "5": "2024", "6": "2023",
+  "7": "2025",
 };
 const projectRoles: Record<string, string> = {
   "1": "Final Year Project Lead",
@@ -31,6 +32,7 @@ const projectRoles: Record<string, string> = {
   "4": "ML Engineer",
   "5": "Embedded Systems Developer",
   "6": "Backend Developer",
+  "7": "AI Agent Developer",
 };
 const thesisLinks: Record<string, string> = {
   "1": "/thesis/fyp_thesis.pdf",
@@ -85,6 +87,13 @@ const thumbnailConfig: Record<string, {
     icon: <Droplets size={32} strokeWidth={1.5} />,
     devicons: ["devicon-nodejs-plain", "devicon-express-original", "devicon-mysql-plain"],
     label: "Node.js · Express · MySQL",
+  },
+  "7": {
+    gradient: "linear-gradient(135deg, #061820 0%, #0c3040 50%, #051218 100%)",
+    accentColor: "#14b8a6",
+    icon: <Search size={32} strokeWidth={1.5} />,
+    devicons: ["devicon-nextjs-plain", "devicon-fastapi-plain", "devicon-python-plain", "devicon-postgresql-plain"],
+    label: "LangGraph · Groq · pgvector",
   },
 };
 
@@ -176,6 +185,7 @@ const techStacks: Record<string, string[]> = {
   "1": ["Kaldi", "C++", "Python", "OpenFst", "GMM-HMM", "MFCC Processing", "LDA/MLLT", "Transfer Learning"],
   "5": ["Python", "OpenCV", "Raspberry Pi", "PiCamera", "Canny Edge Detection", "Hough Transform", "MOG2 Background Subtraction", "Multithreading"],
   "6": ["Node.js", "Express.js", "MySQL", "EJS / HTML", "CSS", "REST API", "CRUD Operations", "Normalised Schema Design"],
+  "7": ["Next.js 16", "FastAPI", "LangGraph", "Groq (llama-3.3-70b)", "Tavily", "sentence-transformers", "pgvector", "Supabase Postgres", "Tailwind CSS"],
 };
 const keyOutcomes: Record<string, string[]> = {
   "1": [
@@ -202,6 +212,14 @@ const keyOutcomes: Record<string, string[]> = {
     "Normalised MySQL schema preventing data anomalies across tables",
     "Inventory tracking module for blood stock levels across blood types",
   ],
+  "7": [
+    "LLM planner autonomously drafts research checklists via tool-calling",
+    "Parallel sub-agents across 5 categories run concurrently with isolated context",
+    "Scratch memory offloading prevents context bloat and hallucination",
+    "Structured markdown brief with real source citations",
+    "pgvector embeddings turn output into a queryable knowledge base",
+    "Full offline mode with deterministic stubs for local dev and CI",
+  ],
 };
 const problems: Record<string, string> = {
   "1": "Standard speech recognition systems operate at the word level, making them unsuitable for pronunciation feedback in language learning apps. Need phoneme-level recognition with specialised error analysis for specific pronunciation errors — and it must run in real time on a Raspberry Pi 5 with <350ms latency.",
@@ -210,6 +228,7 @@ const problems: Record<string, string> = {
   "4": "The Santander dataset is anonymised and high-dimensional — standard feature engineering fails, requiring statistical feature selection and model comparison for reliable binary classification.",
   "5": "Building a self-driving car prototype on a Raspberry Pi requires real-time lane detection and obstacle avoidance using only classical image processing — deep learning models are too compute-heavy for the constrained hardware.",
   "6": "Hospital blood banks operate in silos — donor records, blood type data and recipient requests are managed manually or in disconnected spreadsheets, causing critical delays in urgent transfusion matching.",
+  "7": "Researching a company manually means hours switching between Google, news sites, LinkedIn, and pricing pages. A single-shot LLM lookup hallucinates and lacks depth. There's no tool that plans its own research strategy, delegates parallel agents, and turns findings into a queryable knowledge base.",
 };
 const solutions: Record<string, string> = {
   "1": "Designed a complete phoneme-level ASR pipeline using Kaldi with progressive acoustic modelling (Monophone → Triphone → SAT). Built a custom Phoneme Error Rate (PER) module with lattice-to-phoneme conversion. Deployed on Raspberry Pi with <350ms inference and <1s total latency with a screen-based UI.",
@@ -218,6 +237,7 @@ const solutions: Record<string, string> = {
   "4": "Selected Naive Bayes after statistical analysis of the feature distribution. Used SHAP for feature importance, LightGBM as a strong baseline, and a Residual MLP for deep comparison. Delivered a fully reproducible ML pipeline with cross-validation.",
   "5": "Implemented a full classical computer vision pipeline: Canny edge detection, Hough Transform for lane line fitting, colour masking in HSV space, and perspective transformation for bird's-eye view. BackgroundSubtractorMOG2 for moving obstacle detection. Ran on Raspberry Pi with Python multithreading.",
   "6": "Built a full stack Blood Management System using Node.js and Express backend with server-rendered frontend dashboard. Supports donor registration, recipient request management, and real-time blood type compatibility checks with a normalised MySQL schema.",
+  "7": "Built an autonomous research agent using LangGraph with an LLM planner that drafts its own research checklist via tool-calling. The planner fans out isolated sub-agents in parallel — one per research category — each with its own context. Scratch memory offloads large scraped content so only compact summaries flow through. Findings are consolidated into a structured brief and embedded into pgvector for RAG-style follow-up queries. Deployed with a Next.js frontend streaming live agent progress and a FastAPI backend.",
 };
 const impacts: Record<string, string[]> = {
   "1": ["Achieved real-time phoneme recognition under 350ms on Raspberry Pi 5", "Overcame Urdu data scarcity using cross-language transfer learning", "4-stage progressive pipeline: Monophone → Triphone → LDA+MLLT → SAT", "88% feature reduction (351→40 dims) preserving phoneme discrimination"],
@@ -226,6 +246,7 @@ const impacts: Record<string, string[]> = {
   "4": ["Outperformed LightGBM baseline with simpler Naive Bayes model", "SHAP-driven feature analysis revealed key predictors", "Full reproducibility with documented cross-validation"],
   "5": ["Real-time lane detection and following on Raspberry Pi hardware", "Zero-ML obstacle avoidance using classical background subtraction", "Bird's-eye lane tracking via perspective transformation", "Colour-masked lane isolation robust to lighting changes"],
   "6": ["Full stack web app with donor management dashboard", "Real-time blood type compatibility matching", "Structured REST API with validation and error handling", "Normalised MySQL schema preventing data anomalies"],
+  "7": ["Autonomous multi-agent research pipeline with zero manual intervention", "Parallel sub-agents with isolated contexts prevent context bloat", "RAG-ready pgvector index for follow-up queries on research output", "Live streaming of agent progress via Next.js frontend"],
 };
 
 /* ── Modal ─────────────────────────────────────────────────── */
@@ -339,7 +360,7 @@ function ProjectModal({ project, onClose }: { project: Project; onClose: () => v
           </div>
 
           {/* Links */}
-          <div style={{ display: "flex", gap: "1rem", marginBottom: "1.25rem" }}>
+          <div style={{ display: "flex", gap: "1rem", marginBottom: "1.25rem", flexWrap: "wrap" }}>
             {thesisLinks[project.id] ? (
               <a href={thesisLinks[project.id]} target="_blank" rel="noopener noreferrer"
                 style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", color: "var(--primary)", fontSize: "0.82rem", textDecoration: "none", fontWeight: 600 }}>
@@ -355,6 +376,12 @@ function ProjectModal({ project, onClose }: { project: Project; onClose: () => v
               style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", color: "var(--foreground-muted)", fontSize: "0.82rem", textDecoration: "none" }}>
               <ExternalLink size={13} /> GitHub
             </a>
+            {project.live && project.live !== project.github && (
+              <a href={project.live} target="_blank" rel="noopener noreferrer"
+                style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", color, fontSize: "0.82rem", textDecoration: "none", fontWeight: 600 }}>
+                <ExternalLink size={13} /> Live Demo
+              </a>
+            )}
           </div>
 
           <p style={{ color: "var(--foreground-muted)", fontSize: "0.88rem", lineHeight: 1.7, marginBottom: "1.25rem" }}>

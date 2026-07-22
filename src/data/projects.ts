@@ -96,4 +96,18 @@ export const projects: Project[] = [
     live: "https://github.com/WahabSohail258/Blood-Managment-System",
     featured: false,
   },
+  {
+    id: "7",
+    title: "OrgMind — Autonomous Company Research",
+    description:
+      "AI-powered research agent that plans its own strategy, delegates parallel sub-agents across research categories, and produces a cited brief with a queryable knowledge base.",
+    longDescription:
+      "Built an autonomous organisation research agent. Given a company name or URL, OrgMind uses an LLM planner (Groq llama-3.3-70b via tool-calling) to draft its own research checklist, then fans out isolated sub-agents in parallel — one per category (overview, products & pricing, recent news, leadership, market & competitors). Large scraped content is offloaded to scratch memory so only compact summaries flow through the agent's working context. Findings are consolidated into a structured markdown brief and embedded into a pgvector index, turning the output into a queryable knowledge base rather than a static report. The full pipeline runs end-to-end with a Next.js frontend streaming live agent progress.",
+    image: "/projects/orgmind.jpg",
+    tags: ["Next.js", "FastAPI", "LangGraph", "Groq", "pgvector", "Supabase", "Tavily"],
+    category: "fullstack",
+    github: "https://github.com/WahabSohail258/OrgMind",
+    live: "https://companies-researcher.vercel.app/",
+    featured: true,
+  },
 ];
