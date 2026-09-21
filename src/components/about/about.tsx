@@ -89,7 +89,7 @@ function TypedHeading() {
     <div style={{ color: "#4caf50", fontWeight: 600, fontSize: "0.78rem", letterSpacing: "0.1em", marginBottom: "0.4rem", minHeight: "1.2em" }}>
       <span style={{ opacity: 0.7 }}>$&nbsp;</span>
       <TypeAnimation
-        sequence={["whoami", 900, "whoami — from my pov", 0]}
+        sequence={["whoami", 900, "AI Engineer — conversational AI & voice", 0]}
         wrapper="span"
         speed={45}
         cursor={true}
@@ -174,7 +174,7 @@ export function About() {
                 >
                   Wahab Sohail 🤚{" "}
                   <span style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400, color: "#a6b0c3", fontSize: "0.95rem" }}>
-                    Coffee in one hand, keyboard in the other.
+                    Making machines speak Urdu.
                   </span>
                 </motion.div>
 
@@ -191,8 +191,8 @@ export function About() {
                 <motion.div custom={4} variants={termBlock} style={{ color: "#cdd6f4", fontSize: "0.92rem" }}>
                   <span style={{ color: "#4caf50" }}>→</span>{" "}
                   Into{" "}
-                  <span style={{ color: "#89dceb" }}>AI, machine learning, embedded systems</span>
-                  <span style={{ fontFamily: "Poppins, sans-serif", color: "#a6b0c3" }}> — building things that ship in the real world.</span>
+                  <span style={{ color: "#89dceb" }}>conversational AI, Urdu voice systems, LLM agents</span>
+                  <span style={{ fontFamily: "Poppins, sans-serif", color: "#a6b0c3" }}> — grounded, evaluated, and shipped to real users.</span>
                 </motion.div>
 
                 <DrawDivider delay={0.2} />
@@ -200,6 +200,18 @@ export function About() {
                 {/* EXPERIENCE */}
                 <motion.div custom={5} variants={termBlock} style={{ color: "#4caf50", fontWeight: 600, fontSize: "0.78rem", letterSpacing: "0.1em", marginBottom: "0.55rem" }}>
                   EXPERIENCE
+                </motion.div>
+                <motion.div custom={6} variants={termBlock} style={{ color: "#cdd6f4", marginBottom: "0.2rem", fontWeight: 500, fontSize: "0.92rem" }}>
+                  AI Engineer @ Blue Group of Companies{" "}
+                  <span style={{ color: "#6c7086", fontWeight: 400 }}>· 2025 – Present</span>
+                </motion.div>
+                <motion.div custom={6} variants={termBlock} style={{ color: "#a6b0c3", paddingLeft: "0.85rem", marginBottom: "0.2rem", fontFamily: "Poppins, sans-serif", fontSize: "0.88rem" }}>
+                  <span style={{ color: "#6c7086" }}>—</span>{" "}
+                  Urdu conversational voice agent: local LLM generation, Coqui TTS, RAG grounding
+                </motion.div>
+                <motion.div custom={6} variants={termBlock} style={{ color: "#a6b0c3", paddingLeft: "0.85rem", marginBottom: "0.75rem", fontFamily: "Poppins, sans-serif", fontSize: "0.88rem" }}>
+                  <span style={{ color: "#6c7086" }}>—</span>{" "}
+                  Domain LLM fine-tuning with Hugging Face + PEFT/LoRA on English &amp; Roman Urdu
                 </motion.div>
                 <motion.div custom={6} variants={termBlock} style={{ color: "#cdd6f4", marginBottom: "0.2rem", fontWeight: 500, fontSize: "0.92rem" }}>
                   ML Intern @ RISETech Pvt. Ltd.{" "}
@@ -229,11 +241,11 @@ export function About() {
                   ALSO BUILDING
                 </motion.div>
                 <motion.div custom={9} variants={termBlock} style={{ color: "#a6b0c3", fontFamily: "Poppins, sans-serif", fontSize: "0.9rem", lineHeight: 1.7 }}>
-                  Side projects spanning computer vision, autonomous systems, and full-stack AI apps.
+                  Side projects spanning multi-agent research systems, ticket-resolution agents, and low-resource Urdu speech tools.
                   Comfortable in{" "}
                   <span style={{ color: "#89dceb", fontFamily: "'Fira Code', monospace" }}>Python, C++,</span>
                   {" "}and{" "}
-                  <span style={{ color: "#89dceb", fontFamily: "'Fira Code', monospace" }}>common ML stacks</span>
+                  <span style={{ color: "#89dceb", fontFamily: "'Fira Code', monospace" }}>the modern LLM stack</span>
                   {" "}— always curious what&apos;s next.
                 </motion.div>
 

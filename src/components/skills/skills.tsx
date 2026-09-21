@@ -3,71 +3,11 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronRight, ChevronDown, Folder, FolderOpen } from "lucide-react";
-
-interface FileItem {
-  name: string;
-  ext: string;
-  color: string;
-  symbol?: string;
-}
-
-interface FolderItem {
-  name: string;
-  files: FileItem[];
-}
-
-const tree: FolderItem[] = [
-  {
-    name: "programming-languages",
-    files: [
-      { name: "python", ext: ".py", color: "#3776AB", symbol: "🔷" },
-      { name: "c", ext: ".c", color: "#A8B9CC", symbol: "🔹" },
-      { name: "cplusplus", ext: ".cpp", color: "#00599C", symbol: "🔷" },
-      { name: "typescript", ext: ".ts", color: "#3178C6", symbol: "🔷" },
-      { name: "javascript", ext: ".js", color: "#F7DF1E", symbol: "○" },
-      { name: "bash", ext: ".sh", color: "#4EAA25", symbol: "·" },
-      { name: "sql", ext: ".sql", color: "#336791", symbol: "○" },
-    ],
-  },
-  {
-    name: "ai-machine-learning",
-    files: [
-      { name: "tensorflow", ext: ".ts", color: "#FF6F00", symbol: "🔷" },
-      { name: "pytorch", ext: ".ts", color: "#EE4C2C", symbol: "🔷" },
-      { name: "scikit-learn", ext: ".ts", color: "#F7931E", symbol: "🔷" },
-      { name: "deep-learning", ext: ".ts", color: "#a78bfa", symbol: "🔷" },
-      { name: "computer-vision", ext: ".ts", color: "#5C3EE8", symbol: "🔷" },
-      { name: "yolov8", ext: ".ts", color: "#00FFFF", symbol: "🔷" },
-      { name: "mediapipe", ext: ".ts", color: "#0F9D58", symbol: "🔷" },
-    ],
-  },
-  {
-    name: "frameworks",
-    files: [
-      { name: "react", ext: ".tsx", color: "#61DAFB", symbol: "🔷" },
-      { name: "nextjs", ext: ".tsx", color: "#cdd6f4", symbol: "🔷" },
-      { name: "fastapi", ext: ".py", color: "#009688", symbol: "🔷" },
-      { name: "flask", ext: ".py", color: "#cdd6f4", symbol: "🔷" },
-      { name: "nodejs", ext: ".js", color: "#339933", symbol: "🔷" },
-    ],
-  },
-  {
-    name: "tools-and-systems",
-    files: [
-      { name: "docker", ext: ".sh", color: "#2496ED", symbol: "🔷" },
-      { name: "linux", ext: ".sh", color: "#FCC624", symbol: "·" },
-      { name: "raspberry-pi", ext: ".sh", color: "#C51A4A", symbol: "·" },
-      { name: "git", ext: ".sh", color: "#F05032", symbol: "·" },
-      { name: "cuda", ext: ".cu", color: "#76b900", symbol: "Σ" },
-      { name: "mongodb", ext: ".js", color: "#47A248", symbol: "○" },
-      { name: "postgresql", ext: ".sql", color: "#336791", symbol: "○" },
-    ],
-  },
-];
+import { skillTree, SkillFile, SkillFolder } from "@/data/skills";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
-function FileTreeItem({ file, index }: { file: FileItem; index: number }) {
+function FileTreeItem({ file, index }: { file: SkillFile; index: number }) {
   return (
     <motion.div
       className="file-tree-item"
@@ -88,7 +28,7 @@ function FileTreeItem({ file, index }: { file: FileItem; index: number }) {
   );
 }
 
-function FolderTreeItem({ folder, folderIndex }: { folder: FolderItem; folderIndex: number }) {
+function FolderTreeItem({ folder, folderIndex }: { folder: SkillFolder; folderIndex: number }) {
   const [open, setOpen] = useState(true);
   return (
     <motion.div
@@ -192,8 +132,8 @@ export function Skills() {
             Technical{" "}
             <span className="gradient-text">toolbox</span>
           </h2>
-          <p style={{ color: "var(--foreground-muted)", fontSize: "0.95rem", maxWidth: 500, margin: "0 auto" }}>
-            Skills as a project tree — expand folders to explore languages, ML, cloud, data, and tooling.
+          <p style={{ color: "var(--foreground-muted)", fontSize: "0.95rem", maxWidth: 520, margin: "0 auto" }}>
+            Skills as a project tree — from LLM fine-tuning and voice AI to retrieval, backend, and infrastructure.
           </p>
         </motion.div>
 
@@ -234,7 +174,7 @@ export function Skills() {
               <span style={{ color: "#cdd6f4", fontWeight: 600 }}>portfolio</span>
             </motion.div>
 
-            {tree.map((folder, i) => (
+            {skillTree.map((folder, i) => (
               <FolderTreeItem key={folder.name} folder={folder} folderIndex={i} />
             ))}
 

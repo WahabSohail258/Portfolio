@@ -1,47 +1,107 @@
-export interface Skill {
+export interface SkillFile {
   name: string;
-  level: number; // 0–100
-  icon: string;
-  category: "languages" | "aiml" | "tools";
+  ext: string;
+  color: string;
+  symbol?: string;
 }
 
-export const skills: Skill[] = [
-  // Languages & Programming
-  { name: "Python", level: 92, icon: "🐍", category: "languages" },
-  { name: "C++", level: 85, icon: "⚡", category: "languages" },
-  { name: "Java", level: 72, icon: "☕", category: "languages" },
-  { name: "SQL", level: 78, icon: "🗃️", category: "languages" },
-  { name: "JavaScript / TypeScript", level: 80, icon: "🔷", category: "languages" },
-  { name: "Verilog / MATLAB", level: 65, icon: "🔬", category: "languages" },
+export interface SkillFolder {
+  name: string;
+  files: SkillFile[];
+}
 
-  // AI & ML
-  { name: "PyTorch / TensorFlow", level: 88, icon: "🔥", category: "aiml" },
-  { name: "OpenCV / MediaPipe", level: 90, icon: "👁️", category: "aiml" },
-  { name: "LLMs / RAG / Fine-Tuning", level: 82, icon: "🤖", category: "aiml" },
-  { name: "Scikit-learn / LightGBM", level: 85, icon: "📊", category: "aiml" },
-  { name: "Deep Learning (CNN/LSTM)", level: 87, icon: "🧠", category: "aiml" },
-  { name: "Computer Vision", level: 88, icon: "📷", category: "aiml" },
-
-  // Tools & Systems
-  { name: "Linux (Ubuntu / RPi OS)", level: 88, icon: "🐧", category: "tools" },
-  { name: "Git / GitHub", level: 90, icon: "🐙", category: "tools" },
-  { name: "Docker / CUDA", level: 78, icon: "🐳", category: "tools" },
-  { name: "Raspberry Pi / Jetson Nano", level: 85, icon: "🔌", category: "tools" },
-  { name: "AWS S3 / Vercel", level: 72, icon: "☁️", category: "tools" },
-  { name: "MySQL / PostgreSQL / MongoDB", level: 80, icon: "💾", category: "tools" },
-];
-
-export const techIcons = [
-  { name: "Python", color: "#3776AB" },
-  { name: "C++", color: "#00599C" },
-  { name: "PyTorch", color: "#EE4C2C" },
-  { name: "TensorFlow", color: "#FF6F00" },
-  { name: "OpenCV", color: "#5C3EE8" },
-  { name: "Next.js", color: "#ffffff" },
-  { name: "Node.js", color: "#339933" },
-  { name: "Docker", color: "#2496ED" },
-  { name: "Linux", color: "#FCC624" },
-  { name: "Raspberry Pi", color: "#A22846" },
-  { name: "AWS", color: "#FF9900" },
-  { name: "MongoDB", color: "#47A248" },
+/**
+ * Skills taxonomy mirrors the resume:
+ * LLMs & Agents / Voice AI / RAG & Retrieval / ML & DL /
+ * Languages / Backend & APIs / Infrastructure / Research
+ */
+export const skillTree: SkillFolder[] = [
+  {
+    name: "llms-and-agents",
+    files: [
+      { name: "huggingface", ext: ".py", color: "#FFD21E", symbol: "🔷" },
+      { name: "peft-lora", ext: ".py", color: "#FFC107", symbol: "🔷" },
+      { name: "langgraph", ext: ".py", color: "#FF6F00", symbol: "🔷" },
+      { name: "langchain", ext: ".py", color: "#1C3C3C", symbol: "🔷" },
+      { name: "ollama", ext: ".sh", color: "#a78bfa", symbol: "·" },
+      { name: "groq", ext: ".py", color: "#F55036", symbol: "🔷" },
+      { name: "prompt-engineering", ext: ".md", color: "#89dceb", symbol: "○" },
+    ],
+  },
+  {
+    name: "voice-ai",
+    files: [
+      { name: "coqui-tts", ext: ".py", color: "#4caf50", symbol: "🔷" },
+      { name: "kaldi", ext: ".cpp", color: "#F05032", symbol: "🔷" },
+      { name: "hmm-acoustic", ext: ".py", color: "#5C6BC0", symbol: "🔷" },
+      { name: "urdu-asr", ext: ".py", color: "#4caf50", symbol: "🔷" },
+      { name: "speech-datasets", ext: ".py", color: "#ba68c8", symbol: "·" },
+      { name: "elevenlabs-data", ext: ".wav", color: "#89dceb", symbol: "○" },
+    ],
+  },
+  {
+    name: "rag-and-retrieval",
+    files: [
+      { name: "embeddings", ext: ".py", color: "#42A5F5", symbol: "🔷" },
+      { name: "chunking", ext: ".py", color: "#66BB6A", symbol: "🔷" },
+      { name: "reranking", ext: ".py", color: "#FFA726", symbol: "🔷" },
+      { name: "sentence-transformers", ext: ".py", color: "#26C6DA", symbol: "🔷" },
+      { name: "faiss", ext: ".py", color: "#5C6BC0", symbol: "🔷" },
+      { name: "pgvector", ext: ".sql", color: "#336791", symbol: "○" },
+      { name: "chromadb", ext: ".py", color: "#FF7043", symbol: "○" },
+    ],
+  },
+  {
+    name: "ml-and-deep-learning",
+    files: [
+      { name: "pytorch", ext: ".py", color: "#EE4C2C", symbol: "🔷" },
+      { name: "tensorflow", ext: ".py", color: "#FF6F00", symbol: "🔷" },
+      { name: "scikit-learn", ext: ".py", color: "#F7931E", symbol: "🔷" },
+      { name: "transformers", ext: ".py", color: "#FFD21E", symbol: "🔷" },
+      { name: "fine-tuning", ext: ".py", color: "#AB47BC", symbol: "🔷" },
+      { name: "model-evaluation", ext: ".ipynb", color: "#F7931E", symbol: "○" },
+    ],
+  },
+  {
+    name: "languages",
+    files: [
+      { name: "python", ext: ".py", color: "#3776AB", symbol: "🔷" },
+      { name: "cplusplus", ext: ".cpp", color: "#00599C", symbol: "🔷" },
+      { name: "sql", ext: ".sql", color: "#336791", symbol: "○" },
+      { name: "typescript", ext: ".ts", color: "#3178C6", symbol: "🔷" },
+      { name: "shell", ext: ".sh", color: "#4EAA25", symbol: "·" },
+    ],
+  },
+  {
+    name: "backend-and-apis",
+    files: [
+      { name: "fastapi", ext: ".py", color: "#009688", symbol: "🔷" },
+      { name: "rest-apis", ext: ".ts", color: "#61DAFB", symbol: "🔷" },
+      { name: "openai-compatible", ext: ".py", color: "#412991", symbol: "🔷" },
+      { name: "postgresql", ext: ".sql", color: "#336791", symbol: "○" },
+      { name: "supabase", ext: ".ts", color: "#3ECF8E", symbol: "○" },
+    ],
+  },
+  {
+    name: "infrastructure",
+    files: [
+      { name: "docker", ext: ".sh", color: "#2496ED", symbol: "🔷" },
+      { name: "linux", ext: ".sh", color: "#FCC624", symbol: "·" },
+      { name: "git", ext: ".sh", color: "#F05032", symbol: "·" },
+      { name: "cuda", ext: ".cu", color: "#76b900", symbol: "Σ" },
+      { name: "openblas", ext: ".c", color: "#F44336", symbol: "Σ" },
+      { name: "raspberry-pi", ext: ".py", color: "#C51A4A", symbol: "·" },
+      { name: "vercel", ext: ".json", color: "#cdd6f4", symbol: "○" },
+    ],
+  },
+  {
+    name: "research",
+    files: [
+      { name: "experiment-design", ext: ".md", color: "#89dceb", symbol: "○" },
+      { name: "paper-reimpl", ext: ".py", color: "#ba68c8", symbol: "🔷" },
+      { name: "cross-lingual-transfer", ext: ".py", color: "#4caf50", symbol: "🔷" },
+      { name: "model-eval", ext: ".ipynb", color: "#FFA726", symbol: "○" },
+      { name: "tech-docs", ext: ".md", color: "#cdd6f4", symbol: "○" },
+    ],
+  },
 ];

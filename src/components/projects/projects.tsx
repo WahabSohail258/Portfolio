@@ -4,8 +4,8 @@ import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import {
   Github, X, AlertCircle, Lightbulb, Target,
-  FileText, Layers, ExternalLink, ChevronRight, Sparkles,
-  Mic, MessageSquare, Hand, BarChart2, Car, Droplets, Search,
+  Layers, ExternalLink, ChevronRight, Sparkles,
+  Mic, MessageSquare, Hand, BarChart2, Car, Droplets, Search, Bot, Headphones,
 } from "lucide-react";
 import { projects, Project } from "@/data/projects";
 
@@ -21,234 +21,214 @@ const categoryLabels: Record<string, string> = {
   backend: "Backend",
 };
 const projectYears: Record<string, string> = {
-  "1": "2025", "2": "2025", "3": "2024",
-  "4": "2024", "5": "2024", "6": "2023",
-  "7": "2025",
+  "8": "2025 — Present", "1": "2025", "7": "2025", "9": "2025", "2": "2025",
+  "3": "2024", "4": "2024", "5": "2024", "6": "2023",
 };
 const projectRoles: Record<string, string> = {
+  "8": "AI Engineer @ Blue Group",
   "1": "Final Year Project Lead",
+  "7": "AI Agent Developer",
+  "9": "AI Agent Developer",
   "2": "Full Stack Developer",
   "3": "Computer Vision Engineer",
   "4": "ML Engineer",
   "5": "Embedded Systems Developer",
   "6": "Backend Developer",
-  "7": "AI Agent Developer",
 };
 const thesisLinks: Record<string, string> = {
   "1": "/thesis/fyp_thesis.pdf",
 };
 
-/* ── Per-project thumbnail config ────────────────────────── */
+/* ── Thumbnail accent config (for badges + fallback) ─────── */
 const thumbnailConfig: Record<string, {
   gradient: string;
   icon: React.ReactNode;
-  devicons: string[];
   accentColor: string;
-  label: string;
 }> = {
+  "8": {
+    gradient: "linear-gradient(135deg, #10201a 0%, #1a3828 50%, #0a1a12 100%)",
+    accentColor: "#66bb6a",
+    icon: <Headphones size={34} strokeWidth={1.5} />,
+  },
   "1": {
     gradient: "linear-gradient(135deg, #0d2015 0%, #1a3a28 50%, #0d1f18 100%)",
     accentColor: "#4caf50",
     icon: <Mic size={32} strokeWidth={1.5} />,
-    devicons: ["devicon-python-plain", "devicon-cplusplus-plain", "devicon-linux-plain", "devicon-raspberrypi-plain"],
-    label: "Speech · Kaldi · Edge AI",
   },
   "2": {
     gradient: "linear-gradient(135deg, #0d1830 0%, #1a2f50 50%, #0a1828 100%)",
     accentColor: "#3b82f6",
     icon: <MessageSquare size={32} strokeWidth={1.5} />,
-    devicons: ["devicon-nextjs-plain", "devicon-typescript-plain", "devicon-googlecloud-plain"],
-    label: "Next.js · Convex · Vercel AI",
   },
   "3": {
     gradient: "linear-gradient(135deg, #1a1030 0%, #2d1f50 50%, #110c28 100%)",
     accentColor: "#8b5cf6",
     icon: <Hand size={32} strokeWidth={1.5} />,
-    devicons: ["devicon-python-plain", "devicon-opencv-plain", "devicon-tensorflow-plain"],
-    label: "CNN · LSTM · MediaPipe",
   },
   "4": {
     gradient: "linear-gradient(135deg, #1a1500 0%, #302800 50%, #1a1200 100%)",
     accentColor: "#f59e0b",
     icon: <BarChart2 size={32} strokeWidth={1.5} />,
-    devicons: ["devicon-python-plain", "devicon-jupyter-plain", "devicon-pytorch-plain"],
-    label: "LightGBM · SHAP · Naive Bayes",
   },
   "5": {
     gradient: "linear-gradient(135deg, #001220 0%, #002840 50%, #000e1a 100%)",
     accentColor: "#06b6d4",
     icon: <Car size={32} strokeWidth={1.5} />,
-    devicons: ["devicon-python-plain", "devicon-opencv-plain", "devicon-raspberrypi-plain"],
-    label: "OpenCV · Edge Detection · Pi",
   },
   "6": {
     gradient: "linear-gradient(135deg, #1a0808 0%, #350f0f 50%, #150505 100%)",
     accentColor: "#ef4444",
     icon: <Droplets size={32} strokeWidth={1.5} />,
-    devicons: ["devicon-nodejs-plain", "devicon-express-original", "devicon-mysql-plain"],
-    label: "Node.js · Express · MySQL",
   },
   "7": {
     gradient: "linear-gradient(135deg, #061820 0%, #0c3040 50%, #051218 100%)",
     accentColor: "#14b8a6",
     icon: <Search size={32} strokeWidth={1.5} />,
-    devicons: ["devicon-nextjs-plain", "devicon-fastapi-plain", "devicon-python-plain", "devicon-postgresql-plain"],
-    label: "LangGraph · Groq · pgvector",
+  },
+  "9": {
+    gradient: "linear-gradient(135deg, #0d1a12 0%, #14301f 50%, #081109 100%)",
+    accentColor: "#4caf50",
+    icon: <Bot size={32} strokeWidth={1.5} />,
   },
 };
 
-/* ── Project Thumbnail (replaces AI image) ───────────────── */
-function ProjectThumbnail({ projectId, compact = false }: { projectId: string; compact?: boolean }) {
-  const cfg = thumbnailConfig[projectId];
-  if (!cfg) return null;
-  const h = compact ? 160 : 200;
+/* ── Image with graceful gradient fallback ───────────────── */
+function ProjectImage({ src, alt, accent, height }: { src: string; alt: string; accent: string; height: number }) {
+  const [failed, setFailed] = useState(false);
 
-  return (
-    <div style={{
-      height: h, width: "100%", position: "relative",
-      background: cfg.gradient,
-      display: "flex", flexDirection: "column",
-      alignItems: "center", justifyContent: "center",
-      overflow: "hidden", flexShrink: 0,
-    }}>
-      {/* Soft glow orbs */}
-      <div style={{
-        position: "absolute", top: -30, left: -30,
-        width: 160, height: 160, borderRadius: "50%",
-        background: `radial-gradient(circle, ${cfg.accentColor}22 0%, transparent 70%)`,
-        pointerEvents: "none",
-      }} />
-      <div style={{
-        position: "absolute", bottom: -20, right: -20,
-        width: 120, height: 120, borderRadius: "50%",
-        background: `radial-gradient(circle, ${cfg.accentColor}18 0%, transparent 70%)`,
-        pointerEvents: "none",
-      }} />
-
-      {/* Grid dot pattern */}
-      <svg
-        style={{ position: "absolute", inset: 0, opacity: 0.08 }}
-        width="100%" height="100%"
+  if (failed) {
+    return (
+      <div
+        role="img"
+        aria-label={alt}
+        style={{
+          height, width: "100%", position: "relative",
+          background: "var(--surface)",
+          display: "flex", flexDirection: "column",
+          alignItems: "center", justifyContent: "center",
+          overflow: "hidden", flexShrink: 0,
+        }}
       >
-        <defs>
-          <pattern id={`dots-${projectId}`} x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
-            <circle cx="1" cy="1" r="1" fill={cfg.accentColor} />
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill={`url(#dots-${projectId})`} />
-      </svg>
-
-      {/* Main icon — gentle float */}
-      <div style={{
-        color: cfg.accentColor,
-        marginBottom: "0.75rem",
-        filter: `drop-shadow(0 0 12px ${cfg.accentColor}60)`,
-        position: "relative", zIndex: 1,
-      }}>
-        <div className="animate-float" style={{ display: "flex" }}>
-          {cfg.icon}
+        <div aria-hidden style={{
+          position: "absolute", inset: 0,
+          background: `radial-gradient(circle 300px at 30% 20%, ${accent}22 0%, transparent 70%), radial-gradient(circle 260px at 80% 90%, ${accent}18 0%, transparent 70%)`,
+        }} />
+        <div style={{ color: accent, filter: `drop-shadow(0 0 14px ${accent}55)`, position: "relative", zIndex: 1 }} className="animate-float">
+          {thumbnailConfig[altToId(alt)]?.icon}
         </div>
       </div>
+    );
+  }
 
-      {/* Devicons row */}
-      <div style={{
-        display: "flex", gap: "0.6rem", marginBottom: "0.6rem",
-        position: "relative", zIndex: 1,
-      }}>
-        {cfg.devicons.map((cls) => (
-          <i
-            key={cls}
-            className={cls}
-            style={{
-              fontSize: compact ? "1.3rem" : "1.5rem",
-              color: "rgba(255,255,255,0.75)",
-              filter: "drop-shadow(0 1px 4px rgba(0,0,0,0.5))",
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Label */}
-      <div style={{
-        fontSize: "0.67rem",
-        color: "rgba(255,255,255,0.45)",
-        fontFamily: "'Fira Code', monospace",
-        letterSpacing: "0.04em",
-        position: "relative", zIndex: 1,
-      }}>
-        {cfg.label}
-      </div>
-    </div>
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={src}
+      alt={alt}
+      onError={() => setFailed(true)}
+      style={{
+        height, width: "100%", objectFit: "cover",
+        display: "block", flexShrink: 0,
+      }}
+    />
   );
 }
 
-/* ── Data ────────────────────────────────────────────────── */
+// helper: map alt text back to project id for the fallback icon
+function altToId(alt: string): string {
+  const map: Record<string, string> = {
+    "Urdu Conversational Voice Agent": "8",
+    "SpeakWell — Urdu Phoneme Recognition": "1",
+    "Tool Insights Chat": "2",
+    "Sign Language Recognition": "3",
+    "Santander Transaction Prediction": "4",
+    "Autonomous Navigation System": "5",
+    "Blood Management System": "6",
+    "OrgMind — Multi-Agent Research & QA": "7",
+    "Customer Support Ticket Resolution Agent": "9",
+  };
+  return map[alt] ?? "1";
+}
+
+/* ── Data: resume-aligned details ────────────────────────── */
 const techStacks: Record<string, string[]> = {
-  "1": ["Kaldi", "C++", "Python", "OpenFst", "GMM-HMM", "MFCC Processing", "LDA/MLLT", "Transfer Learning"],
-  "5": ["Python", "OpenCV", "Raspberry Pi", "PiCamera", "Canny Edge Detection", "Hough Transform", "MOG2 Background Subtraction", "Multithreading"],
-  "6": ["Node.js", "Express.js", "MySQL", "EJS / HTML", "CSS", "REST API", "CRUD Operations", "Normalised Schema Design"],
-  "7": ["Next.js 16", "FastAPI", "LangGraph", "Groq (llama-3.3-70b)", "Tavily", "sentence-transformers", "pgvector", "Supabase Postgres", "Tailwind CSS"],
+  "8": ["Python", "Coqui TTS", "Hugging Face Transformers", "PEFT / LoRA", "Ollama", "ElevenLabs Audio Data", "RAG", "FastAPI"],
+  "1": ["Python", "C++", "Kaldi", "HMM Acoustic Models", "OpenBLAS", "Kivy", "Raspberry Pi 5"],
+  "7": ["LangGraph", "Groq", "Sentence Transformers", "Supabase / pgvector", "FastAPI", "Next.js"],
+  "9": ["LangGraph", "FAISS", "RAG", "Docker", "Python"],
+  "2": ["Next.js", "TypeScript", "Convex", "Vercel AI SDK", "Composio", "Jira"],
+  "3": ["Python", "OpenCV", "MediaPipe", "CNN", "LSTM", "Streamlit"],
+  "4": ["Python", "LightGBM", "Naive Bayes", "PyTorch", "SHAP", "Scikit-learn"],
+  "5": ["Python", "OpenCV", "Edge Detection", "Embedded Systems"],
+  "6": ["Node.js", "Express.js", "MySQL", "REST API", "Full Stack"],
 };
 const keyOutcomes: Record<string, string[]> = {
+  "8": [
+    "Urdu conversational voice agent components in production: local LLM generation + TTS, STT in progress",
+    "Coqui TTS adapted with ElevenLabs audio data for natural Urdu speech synthesis",
+    "Domain LLMs fine-tuned with PEFT/LoRA on English and Roman Urdu conversations",
+    "Outputs evaluated for factual consistency, directness, and domain adherence",
+    "Ollama-hosted LLMs + local embedding models integrated via OpenAI-compatible interfaces",
+    "RAG pipelines retrieving knowledge-base context for grounded Urdu responses",
+  ],
   "1": [
-    "4-stage progressive training pipeline (Monophone → Triphone → LDA+MLLT → SAT)",
-    "88% feature reduction (351 → 40 dims) while improving phoneme discrimination",
-    "Frame-accurate alignments for detailed phoneme error analysis",
-    "Cross-lingual generalisation via transfer learning (English + Persian → Urdu)",
-    "Real-time deployment on Raspberry Pi 5 with <350ms inference latency",
-    "Live Kivy UI with pronunciation feedback for speech rehabilitation",
-  ],
-  "5": [
-    "Real-time lane detection pipeline running at live video speed on Raspberry Pi",
-    "Canny edge detection + Hough Transform for robust lane boundary identification",
-    "Perspective transformation for bird's-eye view lane tracking",
-    "Obstacle avoidance via BackgroundSubtractorMOG2 — no ML model required",
-    "Multithreaded Python ensuring camera feed and control loop run in parallel",
-    "Colour masking for lane isolation under varying lighting conditions",
-  ],
-  "6": [
-    "Full donor registration and management with blood type records",
-    "Real-time blood type compatibility matching for recipient requests",
-    "Frontend dashboard for hospital staff to search, filter and manage donors",
-    "RESTful API with structured validation and meaningful error responses",
-    "Normalised MySQL schema preventing data anomalies across tables",
-    "Inventory tracking module for blood stock levels across blood types",
+    "Phoneme-level Urdu ASR built from raw pediatric speech recordings to labelled datasets",
+    "Cross-lingual transfer learning reimplementation (English + Persian acoustic models)",
+    "Controlled experiments comparing recognition across training-data regimes",
+    "Deployed on Raspberry Pi 5 with OpenBLAS and hardware-specific build configurations",
+    "Kivy interface for live phoneme feedback and rehabilitation progress tracking",
   ],
   "7": [
-    "LLM planner autonomously drafts research checklists via tool-calling",
-    "Parallel sub-agents across 5 categories run concurrently with isolated context",
-    "Scratch memory offloading prevents context bloat and hallucination",
-    "Structured markdown brief with real source citations",
-    "pgvector embeddings turn output into a queryable knowledge base",
-    "Full offline mode with deterministic stubs for local dev and CI",
+    "LangGraph agent workflows for structured QA over heterogeneous web data",
+    "Responses grounded in retrieved source context via a complete RAG pipeline",
+    "Sentence-transformer embeddings, chunking, and pgvector retrieval behind FastAPI",
+    "Retrieval strategies refined to improve context relevance",
+    "End-to-end Next.js app deployed through Vercel and cloud infrastructure",
   ],
+  "9": [
+    "LangGraph workflow: triage → FAISS retrieval → grounded response generation",
+    "LLM responses grounded in relevant support documentation",
+    "FAISS knowledge retrieval over embedded support articles",
+    "Fully containerized with Docker for reproducible dev + deployment environments",
+  ],
+  "2": ["Unified Gmail, Slack, Jira insights through a single AI chat interface", "Real-time streaming responses with Vercel AI SDK", "Sprint-based agile delivery tracked in Jira", "Scalable full-stack architecture with Convex backend"],
+  "3": ["Dual-mode recognition: CNN for static alphabet, LSTM for dynamic gestures", "MediaPipe 21-keypoint hand tracking at live framerate", "Prediction smoothing for stable real-time inference", "Streamlit app with text-to-speech output"],
+  "4": ["Outperformed stronger baselines with simpler, interpretable Naive Bayes", "SHAP-driven feature analysis revealed key predictors", "Complete reproducible pipeline with cross-validation"],
+  "5": ["Real-time lane detection on embedded hardware", "Edge detection + colour masking + perspective transformation", "Vision-based autonomous path following"],
+  "6": ["Full donor/recipient management with compatibility matching", "Structured REST API with validation and error handling", "Normalised MySQL schema preventing data anomalies", "Real-time dashboard for hospital staff"],
 };
 const problems: Record<string, string> = {
-  "1": "Standard speech recognition systems operate at the word level, making them unsuitable for pronunciation feedback in language learning apps. Need phoneme-level recognition with specialised error analysis for specific pronunciation errors — and it must run in real time on a Raspberry Pi 5 with <350ms latency.",
+  "8": "Urdu is a low-resource language for conversational AI — most TTS and ASR systems barely support it, and no off-the-shelf voice agent exists for domain-specific Urdu use cases. The pipeline needs natural-sounding Urdu TTS, an LLM that speaks grounded Roman-Urdu/Urdu responses, and eventually full speech-to-text — all running on local infrastructure.",
+  "1": "Standard speech recognition systems operate at the word level, making them unsuitable for pronunciation feedback in speech rehabilitation. Urdu has almost no annotated pediatric speech data, and the system must run in real time on a Raspberry Pi 5.",
+  "7": "Researching a company manually means hours switching between Google, news sites, LinkedIn, and pricing pages. A single-shot LLM lookup hallucinates and lacks depth. There's no tool that plans its own research strategy and grounds every claim in retrieved sources.",
+  "9": "Support teams drown in repetitive tickets whose answers already exist in documentation. Manual triage is slow, and generic LLM responses hallucinate when they aren't grounded in the actual support knowledge base.",
   "2": "Engineering teams lose hours manually switching between Gmail, Slack, and Jira to get project status. There was no unified AI layer to surface insights across tools in real time.",
   "3": "Deaf and hard-of-hearing users lack accessible real-time translation tools. Most sign language recognition systems are offline, slow, or require specialised hardware.",
   "4": "The Santander dataset is anonymised and high-dimensional — standard feature engineering fails, requiring statistical feature selection and model comparison for reliable binary classification.",
   "5": "Building a self-driving car prototype on a Raspberry Pi requires real-time lane detection and obstacle avoidance using only classical image processing — deep learning models are too compute-heavy for the constrained hardware.",
   "6": "Hospital blood banks operate in silos — donor records, blood type data and recipient requests are managed manually or in disconnected spreadsheets, causing critical delays in urgent transfusion matching.",
-  "7": "Researching a company manually means hours switching between Google, news sites, LinkedIn, and pricing pages. A single-shot LLM lookup hallucinates and lacks depth. There's no tool that plans its own research strategy, delegates parallel agents, and turns findings into a queryable knowledge base.",
 };
 const solutions: Record<string, string> = {
-  "1": "Designed a complete phoneme-level ASR pipeline using Kaldi with progressive acoustic modelling (Monophone → Triphone → SAT). Built a custom Phoneme Error Rate (PER) module with lattice-to-phoneme conversion. Deployed on Raspberry Pi with <350ms inference and <1s total latency with a screen-based UI.",
+  "8": "Developing components for an Urdu conversational voice agent spanning local LLM response generation and text-to-speech, with speech-to-text integration in progress for an end-to-end pipeline. Applying Coqui TTS with ElevenLabs audio data to Urdu synthesis, fine-tuning domain-specific LLMs with Hugging Face Transformers + PEFT/LoRA on English and Roman Urdu conversations, integrating Ollama-hosted LLMs and local embedding models through OpenAI-compatible interfaces, and building RAG pipelines that ground Urdu responses in knowledge-base context.",
+  "1": "Built a phoneme-level Urdu ASR pipeline with Kaldi, addressing data scarcity by reimplementing cross-lingual transfer learning from English and Persian acoustic models and running controlled experiments across training-data regimes. Deployed on Raspberry Pi 5 using OpenBLAS and hardware-specific build configs, with a Kivy interface for live phoneme feedback and rehabilitation progress tracking.",
+  "7": "Orchestrated LangGraph agent workflows for structured QA over heterogeneous web data. Implemented sentence-transformer embeddings, document chunking, and pgvector retrieval behind a FastAPI backend, refining retrieval strategies to improve context relevance. Delivered end-to-end with a Next.js interface deployed through Vercel and cloud infrastructure.",
+  "9": "Built a LangGraph ticket-resolution workflow combining ticket triage, FAISS knowledge retrieval, and LLM-generated responses grounded in relevant support documentation. Containerized the application with Docker to make the agent runtime and dependencies reproducible across development and deployment environments.",
   "2": "Built a streaming Next.js + TypeScript app using Vercel AI SDK and Composio to unify Gmail, Slack, and Jira. Implemented a real-time AI chatbot with Convex backend that answers natural-language queries about sprint status, blockers, and deadlines.",
   "3": "Built dual-mode recognition: CNN for static signs (A–Z) and LSTM for dynamic gestures, both powered by MediaPipe's 21-keypoint hand tracking. Applied prediction smoothing for stability. Deployed as a live Streamlit app with text-to-speech output.",
   "4": "Selected Naive Bayes after statistical analysis of the feature distribution. Used SHAP for feature importance, LightGBM as a strong baseline, and a Residual MLP for deep comparison. Delivered a fully reproducible ML pipeline with cross-validation.",
-  "5": "Implemented a full classical computer vision pipeline: Canny edge detection, Hough Transform for lane line fitting, colour masking in HSV space, and perspective transformation for bird's-eye view. BackgroundSubtractorMOG2 for moving obstacle detection. Ran on Raspberry Pi with Python multithreading.",
+  "5": "Implemented a full classical computer vision pipeline: Canny edge detection, Hough Transform for lane line fitting, colour masking in HSV space, and perspective transformation for bird's-eye view. Ran on Raspberry Pi with Python multithreading.",
   "6": "Built a full stack Blood Management System using Node.js and Express backend with server-rendered frontend dashboard. Supports donor registration, recipient request management, and real-time blood type compatibility checks with a normalised MySQL schema.",
-  "7": "Built an autonomous research agent using LangGraph with an LLM planner that drafts its own research checklist via tool-calling. The planner fans out isolated sub-agents in parallel — one per research category — each with its own context. Scratch memory offloads large scraped content so only compact summaries flow through. Findings are consolidated into a structured brief and embedded into pgvector for RAG-style follow-up queries. Deployed with a Next.js frontend streaming live agent progress and a FastAPI backend.",
 };
 const impacts: Record<string, string[]> = {
-  "1": ["Achieved real-time phoneme recognition under 350ms on Raspberry Pi 5", "Overcame Urdu data scarcity using cross-language transfer learning", "4-stage progressive pipeline: Monophone → Triphone → LDA+MLLT → SAT", "88% feature reduction (351→40 dims) preserving phoneme discrimination"],
+  "8": ["Voice agent components running in production at Blue Group of Companies", "Natural Urdu TTS adapted from ElevenLabs audio data", "Domain LLM fine-tuning evaluated for factual consistency and directness", "Grounded Urdu responses via retrieval-augmented generation"],
+  "1": ["Real-time phoneme recognition on Raspberry Pi 5", "Overcame Urdu data scarcity with cross-language transfer learning", "Live phoneme feedback UI for speech rehabilitation", "Hardware-optimized inference with OpenBLAS"],
+  "7": ["Autonomous multi-agent research pipeline with grounded citations", "RAG-ready pgvector index for follow-up queries", "Refined retrieval strategies for better context relevance", "Live streaming agent progress via Next.js frontend"],
+  "9": ["Automated ticket triage and grounded response drafting", "Responses cite actual support documentation via FAISS retrieval", "Reproducible deployment with Docker containerization"],
   "2": ["Reduced daily project status check time for teams", "Natural language interface for sprint/blocker queries", "Integrated 3 external tools through a single AI interface"],
-  "3": ["Dual-mode recognition covering static alphabet and dynamic gestures", "Real-time operation at 30fps with MediaPipe", "Text-to-speech output for immediate accessibility"],
+  "3": ["Dual-mode recognition covering static alphabet and dynamic gestures", "Real-time operation with MediaPipe", "Text-to-speech output for immediate accessibility"],
   "4": ["Outperformed LightGBM baseline with simpler Naive Bayes model", "SHAP-driven feature analysis revealed key predictors", "Full reproducibility with documented cross-validation"],
-  "5": ["Real-time lane detection and following on Raspberry Pi hardware", "Zero-ML obstacle avoidance using classical background subtraction", "Bird's-eye lane tracking via perspective transformation", "Colour-masked lane isolation robust to lighting changes"],
-  "6": ["Full stack web app with donor management dashboard", "Real-time blood type compatibility matching", "Structured REST API with validation and error handling", "Normalised MySQL schema preventing data anomalies"],
-  "7": ["Autonomous multi-agent research pipeline with zero manual intervention", "Parallel sub-agents with isolated contexts prevent context bloat", "RAG-ready pgvector index for follow-up queries on research output", "Live streaming of agent progress via Next.js frontend"],
+  "5": ["Real-time lane detection on Raspberry Pi hardware", "Zero-ML obstacle avoidance using classical CV", "Bird's-eye lane tracking via perspective transformation"],
+  "6": ["Full stack web app with donor management dashboard", "Real-time blood type compatibility matching", "Normalised MySQL schema preventing data anomalies"],
 };
 
 /* ── Modal ─────────────────────────────────────────────────── */
@@ -305,9 +285,15 @@ function ProjectModal({ project, onClose }: { project: Project; onClose: () => v
           boxShadow: `0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px ${color}15`,
         }}
       >
-        {/* Thumbnail header */}
+        {/* Image header */}
         <div style={{ position: "relative", flexShrink: 0 }}>
-          <ProjectThumbnail projectId={project.id} compact={false} />
+          <ProjectImage src={project.image} alt={project.title} accent={color} height={200} />
+          {/* Gradient scrim for text legibility */}
+          <div aria-hidden style={{
+            position: "absolute", inset: 0,
+            background: "linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.15) 45%, transparent 70%)",
+            pointerEvents: "none",
+          }} />
           {/* Controls overlay */}
           <div style={{ position: "absolute", top: "0.9rem", right: "0.9rem", display: "flex", gap: "0.45rem", zIndex: 10 }}>
             <a
@@ -346,7 +332,7 @@ function ProjectModal({ project, onClose }: { project: Project; onClose: () => v
                 background: color, color: "#fff",
                 padding: "0.15rem 0.55rem", borderRadius: 6, fontSize: "0.7rem", fontWeight: 700,
               }}>
-                {projectYears[project.id] ?? "2024"}
+                {projectYears[project.id] ?? "2025"}
               </span>
               <span style={{
                 background: "rgba(0,0,0,0.4)", backdropFilter: "blur(4px)",
@@ -393,18 +379,16 @@ function ProjectModal({ project, onClose }: { project: Project; onClose: () => v
             {thesisLinks[project.id] ? (
               <a href={thesisLinks[project.id]} target="_blank" rel="noopener noreferrer"
                 style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", color: "var(--primary)", fontSize: "0.82rem", textDecoration: "none", fontWeight: 600 }}>
-                <FileText size={14} /> View Thesis
+                <Layers size={14} /> View Thesis
               </a>
             ) : (
-              <a href={project.github} target="_blank" rel="noopener noreferrer"
-                style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", color: "var(--primary)", fontSize: "0.82rem", textDecoration: "none", fontWeight: 600 }}>
-                <Github size={14} /> View Code
-              </a>
+              project.github && (
+                <a href={project.github} target="_blank" rel="noopener noreferrer"
+                  style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", color: "var(--primary)", fontSize: "0.82rem", textDecoration: "none", fontWeight: 600 }}>
+                  <Github size={14} /> View Code
+                </a>
+              )
             )}
-            <a href={project.github} target="_blank" rel="noopener noreferrer"
-              style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", color: "var(--foreground-muted)", fontSize: "0.82rem", textDecoration: "none" }}>
-              <ExternalLink size={13} /> GitHub
-            </a>
             {project.live && project.live !== project.github && (
               <a href={project.live} target="_blank" rel="noopener noreferrer"
                 style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", color, fontSize: "0.82rem", textDecoration: "none", fontWeight: 600 }}>
@@ -522,7 +506,7 @@ function ProjectCard({ project, index, onClick }: { project: Project; index: num
   const color = categoryColors[project.category] ?? "#4caf50";
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-60px" });
-  // Cursor-tracking glow position (CSS vars, updated on pointer move)
+  // Cursor-tracking glow position
   const glowRef = useRef<HTMLDivElement>(null);
 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -561,11 +545,17 @@ function ProjectCard({ project, index, onClick }: { project: Project; index: num
           transition: "opacity 0.3s ease",
         }}
       />
-      {/* Thumbnail */}
+      {/* Image thumbnail */}
       <div style={{ position: "relative", overflow: "hidden", flexShrink: 0 }} className="project-thumb-wrap">
         <div className="project-thumb-zoom" style={{ height: "100%" }}>
-          <ProjectThumbnail projectId={project.id} compact />
+          <ProjectImage src={project.image} alt={project.title} accent={color} height={160} />
         </div>
+        {/* Bottom scrim for depth */}
+        <div aria-hidden style={{
+          position: "absolute", inset: 0,
+          background: "linear-gradient(to top, rgba(0,0,0,0.35) 0%, transparent 40%)",
+          pointerEvents: "none",
+        }} />
         {/* Category badge */}
         <span style={{
           position: "absolute", top: "0.75rem", right: "0.75rem",
@@ -653,12 +643,12 @@ export function Projects() {
             What I&apos;ve <span className="gradient-text">Built</span>
           </h2>
           <p style={{ color: "var(--foreground-muted)", fontSize: "0.95rem", marginTop: "0.6rem", maxWidth: 520 }}>
-            A selection of projects spanning AI/ML, full-stack, and embedded systems.
-            Click any card to explore the problem, solution, and real-world impact.
+            Production voice AI, multi-agent systems, and applied ML — plus the full-stack work behind them.
+            Click any card for the problem, solution, and real-world impact.
           </p>
         </motion.div>
 
-        {/* Filters — animated highlight pill morphs between buttons */}
+        {/* Filters */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}

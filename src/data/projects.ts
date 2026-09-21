@@ -13,18 +13,60 @@ export interface Project {
 
 export const projects: Project[] = [
   {
+    id: "8",
+    title: "Urdu Conversational Voice Agent",
+    description:
+      "Production Urdu voice agent at Blue Group of Companies — local LLM response generation, Urdu TTS with Coqui, and STT integration for an end-to-end voice pipeline.",
+    longDescription:
+      "Developing components for an Urdu conversational voice agent in production at Blue Group of Companies. The pipeline spans local LLM response generation (Ollama-hosted models via OpenAI-compatible interfaces), Urdu text-to-speech with Coqui TTS fine-tuned on ElevenLabs audio data, and speech-to-text integration in progress for a complete end-to-end voice loop. Fine-tuned domain-specific LLMs with Hugging Face Transformers and PEFT/LoRA on English and Roman Urdu conversations, evaluating outputs for factual consistency, directness, and domain adherence. Built and tested RAG pipelines that retrieve knowledge-base context for grounded Urdu responses.",
+    image: "/projects/voice-agent.jpg",
+    tags: ["Python", "Coqui TTS", "PEFT/LoRA", "Ollama", "Hugging Face", "RAG", "FastAPI"],
+    category: "aiml",
+    github: "https://github.com/WahabSohail258",
+    live: "",
+    featured: true,
+  },
+  {
     id: "1",
-    title: "Phoneme Level Speech Recognition",
+    title: "SpeakWell — Urdu Phoneme Recognition",
     description:
       "Real-time Urdu phoneme recognizer deployed on Raspberry Pi 5 for speech rehabilitation — edge AI on constrained hardware.",
     longDescription:
-      "Final Year Project: A real-time Urdu phoneme recognition system deployed on Raspberry Pi 5 for speech rehabilitation. Designed an acoustic modelling pipeline with Kaldi, optimized inference latency using OpenBLAS and hardware-specific build configs. Used a cross-language learning approach (English & Persian) to overcome the lack of Urdu data. Built a cross-platform mobile UI with Kivy providing live visual feedback and progress tracking for end-users.",
+      "Final Year Project: Built a phoneme-level Urdu ASR pipeline from raw pediatric speech recordings to labelled datasets, addressing the shortage of annotated data for low-resource speech recognition. Reimplemented cross-lingual transfer learning using English and Persian acoustic models and designed controlled experiments to compare recognition performance across different training-data regimes. Deployed the recognizer on Raspberry Pi 5 using OpenBLAS and hardware-specific build configurations; developed a Kivy interface for live phoneme feedback and rehabilitation progress tracking.",
     image: "/projects/speech.jpg",
-    tags: ["Python", "C++", "Raspberry Pi", "Kaldi", "Linux", "Docker", "Kivy"],
+    tags: ["Python", "C++", "Kaldi", "HMM", "OpenBLAS", "Kivy", "Raspberry Pi 5"],
     category: "aiml",
     github: "https://github.com/WahabSohail258",
-    live: "https://github.com/WahabSohail258",
+    live: "",
     featured: true,
+  },
+  {
+    id: "7",
+    title: "OrgMind — Multi-Agent Research & QA",
+    description:
+      "LangGraph agent workflows for structured question answering over heterogeneous web data, grounded through a complete RAG pipeline with pgvector retrieval.",
+    longDescription:
+      "Orchestrated LangGraph agent workflows for structured question answering over heterogeneous web data, grounding LLM responses in retrieved source context through a complete RAG pipeline. Implemented sentence-transformer embeddings, document chunking, and pgvector retrieval behind a FastAPI backend; refined retrieval strategies to improve context relevance. Delivered the end-to-end application with a Next.js interface, deployed through Vercel and cloud infrastructure.",
+    image: "/projects/orgmind.jpg",
+    tags: ["LangGraph", "Groq", "SentenceTransformers", "pgvector", "FastAPI", "Next.js"],
+    category: "fullstack",
+    github: "https://github.com/WahabSohail258/OrgMind",
+    live: "https://companies-researcher.vercel.app/",
+    featured: true,
+  },
+  {
+    id: "9",
+    title: "Customer Support Ticket Resolution Agent",
+    description:
+      "LangGraph ticket-resolution workflow combining ticket triage, FAISS knowledge retrieval, and grounded LLM responses — containerized with Docker.",
+    longDescription:
+      "Built a LangGraph ticket-resolution workflow combining ticket triage, FAISS knowledge retrieval, and LLM-generated responses grounded in relevant support documentation. The agent classifies incoming tickets, retrieves the most relevant knowledge-base articles via embeddings, and drafts responses that cite the underlying documentation. Containerized the application with Docker to make the agent runtime and its dependencies reproducible across development and deployment environments.",
+    image: "/projects/ticket-agent.jpg",
+    tags: ["LangGraph", "FAISS", "RAG", "Docker", "Python"],
+    category: "aiml",
+    github: "https://github.com/WahabSohail258",
+    live: "",
+    featured: false,
   },
   {
     id: "2",
@@ -37,8 +79,8 @@ export const projects: Project[] = [
     tags: ["Next.js", "TypeScript", "Convex", "Vercel AI SDK", "Composio", "Jira"],
     category: "fullstack",
     github: "https://github.com/WahabSohail258",
-    live: "https://github.com/WahabSohail258",
-    featured: true,
+    live: "",
+    featured: false,
   },
   {
     id: "3",
@@ -51,8 +93,8 @@ export const projects: Project[] = [
     tags: ["Python", "OpenCV", "MediaPipe", "CNN", "LSTM", "Streamlit"],
     category: "aiml",
     github: "https://github.com/WahabSohail258",
-    live: "https://github.com/WahabSohail258",
-    featured: true,
+    live: "",
+    featured: false,
   },
   {
     id: "4",
@@ -65,7 +107,7 @@ export const projects: Project[] = [
     tags: ["Python", "LightGBM", "Naive Bayes", "PyTorch", "SHAP", "Scikit-learn"],
     category: "aiml",
     github: "https://github.com/WahabSohail258",
-    live: "https://github.com/WahabSohail258",
+    live: "",
     featured: false,
   },
   {
@@ -79,7 +121,7 @@ export const projects: Project[] = [
     tags: ["Python", "OpenCV", "Edge Detection", "Embedded Systems"],
     category: "aiml",
     github: "https://github.com/WahabSohail258/Self-Driving-Car",
-    live: "https://github.com/WahabSohail258/Self-Driving-Car",
+    live: "",
     featured: false,
   },
   {
@@ -93,21 +135,7 @@ export const projects: Project[] = [
     tags: ["Node.js", "Express.js", "MySQL", "REST API", "Full Stack"],
     category: "fullstack",
     github: "https://github.com/WahabSohail258/Blood-Managment-System",
-    live: "https://github.com/WahabSohail258/Blood-Managment-System",
+    live: "",
     featured: false,
-  },
-  {
-    id: "7",
-    title: "OrgMind — Autonomous Company Research",
-    description:
-      "AI-powered research agent that plans its own strategy, delegates parallel sub-agents across research categories, and produces a cited brief with a queryable knowledge base.",
-    longDescription:
-      "Built an autonomous organisation research agent. Given a company name or URL, OrgMind uses an LLM planner (Groq llama-3.3-70b via tool-calling) to draft its own research checklist, then fans out isolated sub-agents in parallel — one per category (overview, products & pricing, recent news, leadership, market & competitors). Large scraped content is offloaded to scratch memory so only compact summaries flow through the agent's working context. Findings are consolidated into a structured markdown brief and embedded into a pgvector index, turning the output into a queryable knowledge base rather than a static report. The full pipeline runs end-to-end with a Next.js frontend streaming live agent progress.",
-    image: "/projects/orgmind.jpg",
-    tags: ["Next.js", "FastAPI", "LangGraph", "Groq", "pgvector", "Supabase", "Tavily"],
-    category: "fullstack",
-    github: "https://github.com/WahabSohail258/OrgMind",
-    live: "https://companies-researcher.vercel.app/",
-    featured: true,
   },
 ];

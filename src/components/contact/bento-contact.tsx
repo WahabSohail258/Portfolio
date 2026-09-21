@@ -226,7 +226,7 @@ export function BentoContact() {
               whileHover={{ scale: 1.02 }}
             >
               <div style={{ fontWeight: 700, fontSize: "1rem", marginBottom: "0.2rem" }}>Wahab Sohail</div>
-              <div style={{ color: "var(--foreground-muted)", fontSize: "0.78rem", marginBottom: "0.5rem" }}>AI &amp; ML Engineer</div>
+              <div style={{ color: "var(--foreground-muted)", fontSize: "0.78rem", marginBottom: "0.5rem" }}>AI Engineer @ Blue Group</div>
               <div style={{ display: "flex", alignItems: "center", gap: "0.35rem" }}>
                 <span
                   className="animate-pulse-dot"

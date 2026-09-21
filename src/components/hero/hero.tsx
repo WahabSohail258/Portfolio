@@ -2,18 +2,18 @@
 
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { Download, BrainCircuit, Eye, TrendingUp, Cpu, Code2, Zap } from "lucide-react";
+import { Download, BrainCircuit, AudioWaveform, Bot, Cpu, Code2, Database } from "lucide-react";
 import { ParticleCanvas } from "./particle-canvas";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 const specialties = [
-  { icon: <BrainCircuit size={16} strokeWidth={1.6} />, label: "AI Engineer" },
-  { icon: <Eye size={16} strokeWidth={1.6} />, label: "Computer Vision" },
-  { icon: <TrendingUp size={16} strokeWidth={1.6} />, label: "Machine Learning" },
-  { icon: <Cpu size={16} strokeWidth={1.6} />, label: "Embedded Systems" },
+  { icon: <BrainCircuit size={16} strokeWidth={1.6} />, label: "Conversational AI" },
+  { icon: <AudioWaveform size={16} strokeWidth={1.6} />, label: "Voice Systems" },
+  { icon: <Bot size={16} strokeWidth={1.6} />, label: "LLMs & Agents" },
+  { icon: <Database size={16} strokeWidth={1.6} />, label: "RAG & Retrieval" },
   { icon: <Code2 size={16} strokeWidth={1.6} />, label: "Python Developer" },
-  { icon: <Zap size={16} strokeWidth={1.6} />, label: "Edge Computing" },
+  { icon: <Cpu size={16} strokeWidth={1.6} />, label: "Edge Deployment" },
 ];
 
 /** Splits a string into per-word spans for the stagger reveal. */
@@ -118,7 +118,7 @@ export function Hero() {
         >
           <StaggerWords text="Building intelligent" baseDelay={0.1} />
           <br />
-          <StaggerWords text="systems across" baseDelay={0.28} />
+          <StaggerWords text="voice and agent" baseDelay={0.28} />
         </h1>
 
         {/* Accent word — rises + unblurs */}
@@ -136,7 +136,7 @@ export function Hero() {
             marginBottom: "1.5rem",
           }}
         >
-          AI &amp; embedded
+          systems end&#8209;to&#8209;end
         </motion.div>
 
         {/* Sub-heading */}
@@ -152,10 +152,10 @@ export function Hero() {
             marginBottom: "2rem",
           }}
         >
-          I build intelligent systems that connect{" "}
-          <strong style={{ color: "var(--foreground)" }}>AI,</strong>{" "}
-          <strong style={{ color: "var(--foreground)" }}>hardware</strong> and{" "}
-          <strong style={{ color: "var(--foreground)" }}>product execution</strong>
+          I build conversational AI that connects{" "}
+          <strong style={{ color: "var(--foreground)" }}>voice,</strong>{" "}
+          <strong style={{ color: "var(--foreground)" }}>LLMs</strong> and{" "}
+          <strong style={{ color: "var(--foreground)" }}>real products</strong>
         </motion.p>
 
         {/* CTAs */}

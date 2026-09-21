@@ -8,21 +8,23 @@ import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
   title: {
-    default: "Wahab Sohail | Computer Engineer & AI Developer",
+    default: "Wahab Sohail | AI Engineer — Conversational AI & Voice Systems",
     template: "%s | Wahab Sohail",
   },
   description:
-    "Computer Engineering graduate from NUST specializing in AI, machine learning, computer vision, and edge computing on Linux-based embedded platforms. Building intelligent, real-time systems.",
+    "AI Engineer specializing in conversational AI, Urdu voice systems, LLM fine-tuning, and RAG. Building production voice agents, multi-agent research systems, and low-resource speech tools.",
   keywords: [
     "Wahab Sohail",
-    "Computer Engineer",
-    "AI Developer",
-    "Machine Learning Engineer",
-    "Computer Vision",
-    "Embedded Systems",
+    "AI Engineer",
+    "Conversational AI",
+    "Voice AI",
+    "LLM",
+    "LangGraph",
+    "RAG",
+    "Urdu ASR",
+    "TTS",
+    "Hugging Face",
     "Python Developer",
-    "Raspberry Pi",
-    "NUST Graduate",
     "Pakistan",
   ],
   authors: [{ name: "Wahab Sohail" }],
@@ -30,16 +32,16 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    title: "Wahab Sohail | Computer Engineer & AI Developer",
+    title: "Wahab Sohail | AI Engineer — Conversational AI & Voice Systems",
     description:
-      "Computer Engineering graduate from NUST specializing in AI, ML, computer vision, and edge computing.",
+      "AI Engineer specializing in conversational AI, Urdu voice systems, LLM fine-tuning, and RAG.",
     siteName: "Wahab Sohail Portfolio",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Wahab Sohail | Computer Engineer & AI Developer",
+    title: "Wahab Sohail | AI Engineer — Conversational AI & Voice Systems",
     description:
-      "Computer Engineering graduate from NUST. AI, ML, computer vision, and embedded systems.",
+      "AI Engineer specializing in conversational AI, Urdu voice systems, LLM fine-tuning, and RAG.",
   },
   robots: {
     index: true,
