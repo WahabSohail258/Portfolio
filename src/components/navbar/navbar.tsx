@@ -18,7 +18,7 @@ export function Navbar() {
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 30);
-    window.addEventListener("scroll", onScroll);
+    window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
@@ -46,7 +46,7 @@ export function Navbar() {
       <motion.header
         initial={{ y: -80, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         style={{
           position: "fixed",
           top: 0,
@@ -59,10 +59,11 @@ export function Navbar() {
           padding: "0.9rem 1.5rem",
           background: scrolled ? "var(--nav-bg)" : "transparent",
           backdropFilter: scrolled ? "blur(20px)" : "none",
+          WebkitBackdropFilter: scrolled ? "blur(20px)" : "none",
           transition: "background 0.3s ease",
         }}
       >
-        {/* ── Single pill container (matches reference exactly) ── */}
+        {/* ── Single pill container ── */}
         <div
           style={{
             display: "flex",
@@ -75,13 +76,18 @@ export function Navbar() {
             backdropFilter: "blur(12px)",
             width: "100%",
             maxWidth: 720,
-            boxShadow: "0 4px 24px rgba(0,0,0,0.18)",
+            boxShadow: scrolled
+              ? "0 8px 32px rgba(0,0,0,0.22)"
+              : "0 4px 24px rgba(0,0,0,0.18)",
+            transition: "box-shadow 0.3s ease",
           }}
         >
           {/* Logo */}
-          <a
+          <motion.a
             href="#hero"
             onClick={(e) => { e.preventDefault(); scrollTo("#hero"); }}
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.96 }}
             style={{
               fontFamily: "'Fira Code', monospace",
               fontWeight: 800,
@@ -97,7 +103,7 @@ export function Navbar() {
             <span style={{ color: "var(--foreground-muted)" }}>&lt;</span>
             <span style={{ color: "var(--primary)" }}>WAHAB</span>
             <span style={{ color: "var(--foreground-muted)" }}>&nbsp;/&gt;</span>
-          </a>
+          </motion.a>
 
           {/* Divider */}
           <div style={{ width: 1, height: 22, background: "var(--border)", flexShrink: 0 }} />
@@ -105,28 +111,48 @@ export function Navbar() {
           {/* Theme toggle */}
           <ThemeToggle />
 
-          {/* Nav links */}
-          <div className="nav-links" style={{ display: "flex", alignItems: "center", gap: "0.1rem", flex: 1 }}>
-            {links.map((l) => (
-              <a
-                key={l.href}
-                href={l.href}
-                onClick={(e) => { e.preventDefault(); scrollTo(l.href); }}
-                style={{
-                  padding: "0.35rem 0.75rem",
-                  borderRadius: 999,
-                  fontSize: "0.88rem",
-                  fontWeight: 500,
-                  color: active === l.href ? "var(--primary)" : "var(--foreground-muted)",
-                  background: active === l.href ? "var(--primary-muted)" : "transparent",
-                  textDecoration: "none",
-                  transition: "all 0.15s ease",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {l.label}
-              </a>
-            ))}
+          {/* Nav links — sliding highlight pill behind active link */}
+          <div
+            className="nav-links"
+            style={{ display: "flex", alignItems: "center", gap: "0.1rem", flex: 1 }}
+          >
+            {links.map((l) => {
+              const isActive = active === l.href;
+              return (
+                <a
+                  key={l.href}
+                  href={l.href}
+                  onClick={(e) => { e.preventDefault(); scrollTo(l.href); }}
+                  className="nav-link"
+                  style={{
+                    position: "relative",
+                    padding: "0.35rem 0.75rem",
+                    borderRadius: 999,
+                    fontSize: "0.88rem",
+                    fontWeight: 500,
+                    color: isActive ? "var(--primary)" : "var(--foreground-muted)",
+                    textDecoration: "none",
+                    whiteSpace: "nowrap",
+                    transition: "color 0.25s ease",
+                  }}
+                >
+                  {isActive && (
+                    <motion.span
+                      layoutId="nav-active-pill"
+                      transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                      style={{
+                        position: "absolute",
+                        inset: 0,
+                        borderRadius: 999,
+                        background: "var(--primary-muted)",
+                        zIndex: -1,
+                      }}
+                    />
+                  )}
+                  {l.label}
+                </a>
+              );
+            })}
           </div>
 
           {/* Divider */}
@@ -158,9 +184,11 @@ export function Navbar() {
             </a>
 
             {/* Let's Connect CTA */}
-            <a
+            <motion.a
               href="#contact"
               onClick={(e) => { e.preventDefault(); scrollTo("#contact"); }}
+              whileHover={{ scale: 1.04, y: -1 }}
+              whileTap={{ scale: 0.97 }}
               style={{
                 display: "inline-flex",
                 alignItems: "center",
@@ -172,27 +200,19 @@ export function Navbar() {
                 fontWeight: 700,
                 textDecoration: "none",
                 whiteSpace: "nowrap",
-                transition: "all 0.15s ease",
                 boxShadow: "0 2px 12px rgba(var(--primary-rgb), 0.35)",
                 letterSpacing: "0.01em",
               }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.opacity = "0.9";
-                e.currentTarget.style.boxShadow = "0 4px 20px rgba(var(--primary-rgb), 0.5)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.opacity = "1";
-                e.currentTarget.style.boxShadow = "0 2px 12px rgba(var(--primary-rgb), 0.35)";
-              }}
             >
               Let&apos;s Connect
-            </a>
+            </motion.a>
           </div>
 
           {/* Hamburger (mobile) */}
           <button
             onClick={() => setOpen(!open)}
             aria-label="Toggle menu"
+            aria-expanded={open}
             className="hamburger"
             style={{
               display: "none",
@@ -208,7 +228,18 @@ export function Navbar() {
               flexShrink: 0,
             }}
           >
-            {open ? <X size={16} /> : <Menu size={16} />}
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.span
+                key={open ? "x" : "menu"}
+                initial={{ rotate: -90, opacity: 0 }}
+                animate={{ rotate: 0, opacity: 1 }}
+                exit={{ rotate: 90, opacity: 0 }}
+                transition={{ duration: 0.18 }}
+                style={{ display: "flex" }}
+              >
+                {open ? <X size={16} /> : <Menu size={16} />}
+              </motion.span>
+            </AnimatePresence>
           </button>
         </div>
       </motion.header>
@@ -217,14 +248,16 @@ export function Navbar() {
       <AnimatePresence>
         {open && (
           <motion.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
+            initial={{ opacity: 0, y: -10, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8, scale: 0.98 }}
+            transition={{ type: "spring", stiffness: 320, damping: 28 }}
             style={{
               position: "fixed",
               top: 72,
               left: "1rem",
               right: "1rem",
+              transformOrigin: "top center",
               background: "var(--card)",
               border: "1px solid var(--border)",
               borderRadius: 16,
@@ -240,9 +273,10 @@ export function Navbar() {
               <motion.a
                 key={l.href}
                 href={l.href}
-                initial={{ opacity: 0, x: -8 }}
+                initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.04 }}
+                exit={{ opacity: 0, x: -6 }}
+                transition={{ delay: open ? i * 0.045 : 0 }}
                 onClick={(e) => { e.preventDefault(); scrollTo(l.href); }}
                 style={{
                   padding: "0.65rem 0.9rem",

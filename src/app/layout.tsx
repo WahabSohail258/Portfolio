@@ -3,6 +3,7 @@ import "./globals.css";
 import { CursorFollower } from "@/components/ui/cursor-follower";
 import { ScrollProgress } from "@/components/ui/scroll-progress";
 import { ThemeScript } from "@/components/ui/theme-script";
+import { MotionProvider } from "@/components/ui/motion-provider";
 import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
@@ -52,7 +53,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="scroll-smooth">
+    <html lang="en" className="scroll-smooth" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -67,10 +68,12 @@ export default function RootLayout({
         <ThemeScript />
       </head>
       <body>
-        <div className="noise-overlay" aria-hidden="true" />
-        <CursorFollower />
-        <ScrollProgress />
-        {children}
+        <MotionProvider>
+          <div className="noise-overlay" aria-hidden="true" />
+          <CursorFollower />
+          <ScrollProgress />
+          {children}
+        </MotionProvider>
         <Toaster
           position="bottom-right"
           toastOptions={{

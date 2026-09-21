@@ -1,7 +1,10 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { motion, useMotionValue, useSpring, useTransform, type Variants } from "framer-motion";
+import { TypeAnimation } from "react-type-animation";
+
+const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 // 3D tilt card wrapper — follows the cursor
 function TiltCard({ children }: { children: React.ReactNode }) {
@@ -11,8 +14,8 @@ function TiltCard({ children }: { children: React.ReactNode }) {
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
 
-  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [8, -8]), { stiffness: 120, damping: 20 });
-  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-8, 8]), { stiffness: 120, damping: 20 });
+  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [6, -6]), { stiffness: 140, damping: 18 });
+  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-6, 6]), { stiffness: 140, damping: 18 });
 
   function handleMouseMove(e: React.MouseEvent<HTMLDivElement>) {
     if (!ref.current) return;
@@ -21,7 +24,6 @@ function TiltCard({ children }: { children: React.ReactNode }) {
     const yFrac = (e.clientY - rect.top) / rect.height - 0.5;
     mouseX.set(xFrac);
     mouseY.set(yFrac);
-    // Pixel position for the glow (relative to card)
     setGlow({ x: e.clientX - rect.left, y: e.clientY - rect.top });
   }
 
@@ -55,7 +57,7 @@ function TiltCard({ children }: { children: React.ReactNode }) {
             borderRadius: 14,
             pointerEvents: "none",
             zIndex: 2,
-            background: `radial-gradient(circle 220px at ${glow.x}px ${glow.y}px, rgba(76,175,80,0.13) 0%, transparent 70%)`,
+            background: `radial-gradient(circle 240px at ${glow.x}px ${glow.y}px, rgba(76,175,80,0.14) 0%, transparent 70%)`,
           }}
         />
       )}
@@ -64,14 +66,65 @@ function TiltCard({ children }: { children: React.ReactNode }) {
   );
 }
 
+/** Divider line that draws itself horizontally when scrolled into view. */
+function DrawDivider({ delay = 0 }: { delay?: number }) {
+  return (
+    <motion.div
+      initial={{ scaleX: 0, opacity: 0 }}
+      whileInView={{ scaleX: 1, opacity: 1 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ duration: 0.6, delay, ease: EASE }}
+      style={{
+        borderTop: "1px solid rgba(255,255,255,0.07)",
+        margin: "1rem 0",
+        transformOrigin: "left",
+      }}
+    />
+  );
+}
+
+/** Section heading inside the terminal that types itself. */
+function TypedHeading() {
+  return (
+    <div style={{ color: "#4caf50", fontWeight: 600, fontSize: "0.78rem", letterSpacing: "0.1em", marginBottom: "0.4rem", minHeight: "1.2em" }}>
+      <span style={{ opacity: 0.7 }}>$&nbsp;</span>
+      <TypeAnimation
+        sequence={["whoami", 900, "whoami — from my pov", 0]}
+        wrapper="span"
+        speed={45}
+        cursor={true}
+        repeat={0}
+        style={{ display: "inline-block" }}
+      />
+    </div>
+  );
+}
+
+// Stagger variants for terminal blocks
+const termBlock: Variants = {
+  hidden: { opacity: 0, y: 14 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, delay: i * 0.09, ease: EASE },
+  }),
+};
+
 export function About() {
   return (
-    <section id="about" className="section-padding" style={{ background: "var(--surface)", borderTop: "1px solid var(--border)" }}>
-      <div className="section-container">
+    <section
+      id="about"
+      className="section-padding"
+      style={{ background: "var(--surface)", borderTop: "1px solid var(--border)", position: "relative", overflow: "hidden" }}
+    >
+      {/* Soft aurora in the section background */}
+      <div aria-hidden className="aurora aurora-b" style={{ opacity: 0.05 }} />
+
+      <div className="section-container" style={{ position: "relative" }}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.6, ease: EASE }}
           viewport={{ once: true, margin: "-80px" }}
           style={{ marginBottom: "2rem" }}
         >
@@ -82,9 +135,9 @@ export function About() {
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.15 }}
+          initial={{ opacity: 0, y: 34, scale: 0.98 }}
+          whileInView={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.7, delay: 0.12, ease: EASE }}
           viewport={{ once: true, margin: "-80px" }}
           style={{ maxWidth: 820, margin: "0 auto" }}
         >
@@ -103,83 +156,91 @@ export function About() {
                 <div style={{ width: 50 }} />
               </div>
 
-              {/* Terminal body */}
-              <div style={{ padding: "1.75rem", fontFamily: "'Fira Code', monospace", fontSize: "0.92rem", lineHeight: 1.85 }}>
-
-                {/* $ WHOAMI */}
-                <div style={{ color: "#4caf50", fontWeight: 600, fontSize: "0.78rem", letterSpacing: "0.1em", marginBottom: "0.4rem" }}>
-                  $ WHOAMI — FROM MY POV
-                </div>
-                <div style={{ color: "#cdd6f4", fontWeight: 600, fontSize: "1.1rem", marginBottom: "0.2rem" }}>
+              {/* Terminal body — blocks stagger in like a script executing */}
+              <motion.div
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-60px" }}
+                style={{ padding: "1.75rem", fontFamily: "'Fira Code', monospace", fontSize: "0.92rem", lineHeight: 1.85 }}
+              >
+                {/* $ WHOAMI — typed */}
+                <motion.div custom={0} variants={termBlock}>
+                  <TypedHeading />
+                </motion.div>
+                <motion.div
+                  custom={1}
+                  variants={termBlock}
+                  style={{ color: "#cdd6f4", fontWeight: 600, fontSize: "1.1rem", marginBottom: "0.2rem" }}
+                >
                   Wahab Sohail 🤚{" "}
                   <span style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400, color: "#a6b0c3", fontSize: "0.95rem" }}>
                     Coffee in one hand, keyboard in the other.
                   </span>
-                </div>
+                </motion.div>
 
-                <div style={{ borderTop: "1px solid rgba(255,255,255,0.07)", margin: "1rem 0" }} />
+                <DrawDivider delay={0.15} />
 
                 {/* AT A GLANCE */}
-                <div style={{ color: "#4caf50", fontWeight: 600, fontSize: "0.78rem", letterSpacing: "0.1em", marginBottom: "0.55rem" }}>
+                <motion.div custom={2} variants={termBlock} style={{ color: "#4caf50", fontWeight: 600, fontSize: "0.78rem", letterSpacing: "0.1em", marginBottom: "0.55rem" }}>
                   AT A GLANCE
-                </div>
-                <div style={{ color: "#cdd6f4", marginBottom: "0.25rem", fontSize: "0.92rem" }}>
+                </motion.div>
+                <motion.div custom={3} variants={termBlock} style={{ color: "#cdd6f4", marginBottom: "0.25rem", fontSize: "0.92rem" }}>
                   <span style={{ color: "#4caf50" }}>→</span>{" "}
                   Computer Engineering @ NUST — Class of 2026, Islamabad, Pakistan
-                </div>
-                <div style={{ color: "#cdd6f4", fontSize: "0.92rem" }}>
+                </motion.div>
+                <motion.div custom={4} variants={termBlock} style={{ color: "#cdd6f4", fontSize: "0.92rem" }}>
                   <span style={{ color: "#4caf50" }}>→</span>{" "}
                   Into{" "}
                   <span style={{ color: "#89dceb" }}>AI, machine learning, embedded systems</span>
                   <span style={{ fontFamily: "Poppins, sans-serif", color: "#a6b0c3" }}> — building things that ship in the real world.</span>
-                </div>
+                </motion.div>
 
-                <div style={{ borderTop: "1px solid rgba(255,255,255,0.07)", margin: "1rem 0" }} />
+                <DrawDivider delay={0.2} />
 
                 {/* EXPERIENCE */}
-                <div style={{ color: "#4caf50", fontWeight: 600, fontSize: "0.78rem", letterSpacing: "0.1em", marginBottom: "0.55rem" }}>
+                <motion.div custom={5} variants={termBlock} style={{ color: "#4caf50", fontWeight: 600, fontSize: "0.78rem", letterSpacing: "0.1em", marginBottom: "0.55rem" }}>
                   EXPERIENCE
-                </div>
-                <div style={{ color: "#cdd6f4", marginBottom: "0.2rem", fontWeight: 500, fontSize: "0.92rem" }}>
+                </motion.div>
+                <motion.div custom={6} variants={termBlock} style={{ color: "#cdd6f4", marginBottom: "0.2rem", fontWeight: 500, fontSize: "0.92rem" }}>
                   ML Intern @ RISETech Pvt. Ltd.{" "}
                   <span style={{ color: "#6c7086", fontWeight: 400 }}>· July – Aug 2025</span>
-                </div>
-                <div style={{ color: "#a6b0c3", paddingLeft: "0.85rem", marginBottom: "0.2rem", fontFamily: "Poppins, sans-serif", fontSize: "0.88rem" }}>
+                </motion.div>
+                <motion.div custom={6} variants={termBlock} style={{ color: "#a6b0c3", paddingLeft: "0.85rem", marginBottom: "0.2rem", fontFamily: "Poppins, sans-serif", fontSize: "0.88rem" }}>
                   <span style={{ color: "#6c7086" }}>—</span>{" "}
                   AI &amp; data-driven research: preprocessing, model training, deep learning pipelines
-                </div>
-                <div style={{ color: "#a6b0c3", paddingLeft: "0.85rem", marginBottom: "0.75rem", fontFamily: "Poppins, sans-serif", fontSize: "0.88rem" }}>
+                </motion.div>
+                <motion.div custom={6} variants={termBlock} style={{ color: "#a6b0c3", paddingLeft: "0.85rem", marginBottom: "0.75rem", fontFamily: "Poppins, sans-serif", fontSize: "0.88rem" }}>
                   <span style={{ color: "#6c7086" }}>—</span>{" "}
                   Healthcare &amp; biomedical AI solutions using TensorFlow, PyTorch, Scikit-learn
-                </div>
-                <div style={{ color: "#cdd6f4", marginBottom: "0.2rem", fontWeight: 500, fontSize: "0.92rem" }}>
+                </motion.div>
+                <motion.div custom={7} variants={termBlock} style={{ color: "#cdd6f4", marginBottom: "0.2rem", fontWeight: 500, fontSize: "0.92rem" }}>
                   Intern @ NCRA (National Centre of Robotics &amp; Automation){" "}
                   <span style={{ color: "#6c7086", fontWeight: 400 }}>· Aug – Sep 2024</span>
-                </div>
-                <div style={{ color: "#a6b0c3", paddingLeft: "0.85rem", fontFamily: "Poppins, sans-serif", fontSize: "0.88rem" }}>
+                </motion.div>
+                <motion.div custom={7} variants={termBlock} style={{ color: "#a6b0c3", paddingLeft: "0.85rem", fontFamily: "Poppins, sans-serif", fontSize: "0.88rem" }}>
                   <span style={{ color: "#6c7086" }}>—</span>{" "}
                   Edge AI on Raspberry Pi &amp; Jetson Nano, CUDA, Linux DevOps, Docker
-                </div>
+                </motion.div>
 
-                <div style={{ borderTop: "1px solid rgba(255,255,255,0.07)", margin: "1rem 0" }} />
+                <DrawDivider delay={0.2} />
 
                 {/* ALSO BUILDING */}
-                <div style={{ color: "#4caf50", fontWeight: 600, fontSize: "0.78rem", letterSpacing: "0.1em", marginBottom: "0.55rem" }}>
+                <motion.div custom={8} variants={termBlock} style={{ color: "#4caf50", fontWeight: 600, fontSize: "0.78rem", letterSpacing: "0.1em", marginBottom: "0.55rem" }}>
                   ALSO BUILDING
-                </div>
-                <div style={{ color: "#a6b0c3", fontFamily: "Poppins, sans-serif", fontSize: "0.9rem", lineHeight: 1.7 }}>
+                </motion.div>
+                <motion.div custom={9} variants={termBlock} style={{ color: "#a6b0c3", fontFamily: "Poppins, sans-serif", fontSize: "0.9rem", lineHeight: 1.7 }}>
                   Side projects spanning computer vision, autonomous systems, and full-stack AI apps.
                   Comfortable in{" "}
                   <span style={{ color: "#89dceb", fontFamily: "'Fira Code', monospace" }}>Python, C++,</span>
                   {" "}and{" "}
                   <span style={{ color: "#89dceb", fontFamily: "'Fira Code', monospace" }}>common ML stacks</span>
                   {" "}— always curious what&apos;s next.
-                </div>
+                </motion.div>
 
-                <div style={{ borderTop: "1px solid rgba(255,255,255,0.07)", margin: "1rem 0" }} />
+                <DrawDivider delay={0.15} />
 
                 {/* Footer quote */}
-                <div style={{ color: "#a6b0c3", fontFamily: "Poppins, sans-serif", fontSize: "0.88rem", lineHeight: 1.7 }}>
+                <motion.div custom={10} variants={termBlock} style={{ color: "#a6b0c3", fontFamily: "Poppins, sans-serif", fontSize: "0.88rem", lineHeight: 1.7 }}>
                   Debugging mindset:{" "}
                   <span style={{ color: "#cdd6f4", fontFamily: "'Fira Code', monospace" }}>House MD</span>
                   {" "}· shipping like{" "}
@@ -187,19 +248,25 @@ export function About() {
                   {" "}· midnight commits with{" "}
                   <span style={{ color: "#cdd6f4", fontFamily: "'Fira Code', monospace" }}>Walter White</span>
                   {" "}energy 🧠
-                </div>
-                <div style={{ color: "#a6b0c3", fontFamily: "Poppins, sans-serif", fontSize: "0.88rem", marginTop: "0.45rem" }}>
+                </motion.div>
+                <motion.div custom={10} variants={termBlock} style={{ color: "#a6b0c3", fontFamily: "Poppins, sans-serif", fontSize: "0.88rem", marginTop: "0.45rem" }}>
                   I like products that{" "}
                   <span style={{ color: "#cdd6f4", fontFamily: "'Fira Code', monospace" }}>tell a story</span>
                   , fix a real problem, and feel a bit more human. 🌐
-                </div>
+                </motion.div>
 
                 {/* Me in a nutshell */}
-                <div style={{ textAlign: "right", marginTop: "1.25rem", color: "#6c7086", fontSize: "0.75rem" }}>
+                <motion.div
+                  initial={{ opacity: 0, x: 16 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: 0.9, ease: EASE }}
+                  style={{ textAlign: "right", marginTop: "1.25rem", color: "#6c7086", fontSize: "0.75rem" }}
+                >
                   Me in a nutshell<br />
                   <span style={{ color: "#4caf50" }}>Code. Coffee. Ship.</span>
-                </div>
-              </div>
+                </motion.div>
+              </motion.div>
             </div>
           </TiltCard>
         </motion.div>

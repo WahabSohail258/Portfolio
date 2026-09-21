@@ -1,8 +1,11 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useRef } from "react";
+import { motion, useScroll, useSpring } from "framer-motion";
 import { Briefcase, GraduationCap, Star, MapPin, Calendar } from "lucide-react";
 import { experiences } from "@/data/experience";
+
+const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 const typeConfig = {
   work: { icon: <Briefcase size={12} />, color: "var(--primary)", bg: "var(--primary-muted)", label: "Work" },
@@ -11,6 +14,15 @@ const typeConfig = {
 };
 
 export function Timeline() {
+  const listRef = useRef<HTMLDivElement>(null);
+
+  // Scroll-linked line growth: 0 → 1 as the timeline scrolls through the viewport
+  const { scrollYProgress } = useScroll({
+    target: listRef,
+    offset: ["start 80%", "end 55%"],
+  });
+  const lineScale = useSpring(scrollYProgress, { stiffness: 90, damping: 25 });
+
   return (
     <section
       id="experience"
@@ -21,7 +33,7 @@ export function Timeline() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.6, ease: EASE }}
           viewport={{ once: true, margin: "-80px" }}
           style={{ marginBottom: "3rem" }}
         >
@@ -34,17 +46,33 @@ export function Timeline() {
           </p>
         </motion.div>
 
-        <div style={{ position: "relative", paddingLeft: "2rem" }}>
-          {/* Vertical line */}
+        <div style={{ position: "relative", paddingLeft: "2rem" }} ref={listRef}>
+          {/* Track (static, faint) */}
           <div
+            aria-hidden
             style={{
               position: "absolute",
               left: 5,
               top: 12,
               bottom: 12,
               width: 2,
-              background: "linear-gradient(to bottom, var(--primary), transparent)",
+              background: "var(--border)",
               borderRadius: 2,
+            }}
+          />
+          {/* Progress line that grows with scroll */}
+          <motion.div
+            aria-hidden
+            style={{
+              position: "absolute",
+              left: 5,
+              top: 12,
+              bottom: 12,
+              width: 2,
+              background: "linear-gradient(to bottom, var(--primary), var(--accent), transparent)",
+              borderRadius: 2,
+              transformOrigin: "top",
+              scaleY: lineScale,
             }}
           />
 
@@ -54,13 +82,13 @@ export function Timeline() {
               return (
                 <motion.div
                   key={exp.id}
-                  initial={{ opacity: 0, x: -20 }}
+                  initial={{ opacity: 0, x: -24 }}
                   whileInView={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.5, delay: i * 0.06 }}
+                  transition={{ type: "spring", stiffness: 120, damping: 18, delay: i * 0.05 }}
                   viewport={{ once: true, margin: "-60px" }}
                   style={{ position: "relative" }}
                 >
-                  {/* Timeline dot */}
+                  {/* Timeline dot with pulsing halo */}
                   <div
                     style={{
                       position: "absolute",
@@ -72,10 +100,23 @@ export function Timeline() {
                       background: cfg.color,
                       border: "2px solid var(--background)",
                       boxShadow: `0 0 0 3px ${cfg.bg}`,
+                      zIndex: 1,
                     }}
-                  />
+                  >
+                    <span
+                      className="animate-ping-slow"
+                      style={{
+                        position: "absolute", inset: 0, borderRadius: "50%",
+                        background: cfg.color, opacity: 0.45,
+                      }}
+                    />
+                  </div>
 
-                  <div className="card" style={{ padding: "1.1rem 1.3rem" }}>
+                  <motion.div
+                    className="card"
+                    whileHover={{ y: -3, transition: { duration: 0.2 } }}
+                    style={{ padding: "1.1rem 1.3rem" }}
+                  >
                     {/* Top */}
                     <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "0.75rem", marginBottom: "0.5rem" }}>
                       <div>
@@ -140,7 +181,7 @@ export function Timeline() {
                         <span key={t} className="tech-tag">{t}</span>
                       ))}
                     </div>
-                  </div>
+                  </motion.div>
                 </motion.div>
               );
             })}

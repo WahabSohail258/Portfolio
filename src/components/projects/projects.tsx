@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import {
   Github, X, AlertCircle, Lightbulb, Target,
@@ -138,14 +138,16 @@ function ProjectThumbnail({ projectId, compact = false }: { projectId: string; c
         <rect width="100%" height="100%" fill={`url(#dots-${projectId})`} />
       </svg>
 
-      {/* Main icon */}
+      {/* Main icon — gentle float */}
       <div style={{
         color: cfg.accentColor,
         marginBottom: "0.75rem",
         filter: `drop-shadow(0 0 12px ${cfg.accentColor}60)`,
         position: "relative", zIndex: 1,
       }}>
-        {cfg.icon}
+        <div className="animate-float" style={{ display: "flex" }}>
+          {cfg.icon}
+        </div>
       </div>
 
       {/* Devicons row */}
@@ -254,6 +256,20 @@ function ProjectModal({ project, onClose }: { project: Project; onClose: () => v
   const [tab, setTab] = useState<"summary" | "impact">("summary");
   const color = categoryColors[project.category] ?? "#4caf50";
 
+  // ESC to close + scroll lock while modal is open
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [onClose]);
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -275,6 +291,9 @@ function ProjectModal({ project, onClose }: { project: Project; onClose: () => v
         exit={{ x: "100%", opacity: 0 }}
         transition={{ type: "spring", damping: 30, stiffness: 280 }}
         onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-label={project.title}
         style={{
           width: "min(540px, 96vw)",
           height: "calc(100vh - 2rem)",
@@ -305,13 +324,17 @@ function ProjectModal({ project, onClose }: { project: Project; onClose: () => v
             </a>
             <button
               onClick={onClose}
+              aria-label="Close project details"
               style={{
                 width: 36, height: 36, borderRadius: 10,
                 background: "rgba(0,0,0,0.45)", backdropFilter: "blur(8px)",
                 border: "1px solid rgba(255,255,255,0.15)",
                 cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
                 color: "#fff",
+                transition: "transform 0.2s ease",
               }}
+              onMouseEnter={(e) => (e.currentTarget.style.transform = "rotate(90deg)")}
+              onMouseLeave={(e) => (e.currentTarget.style.transform = "rotate(0deg)")}
             >
               <X size={15} />
             </button>
@@ -347,15 +370,21 @@ function ProjectModal({ project, onClose }: { project: Project; onClose: () => v
         <div style={{ flex: 1, overflowY: "auto", padding: "1.25rem" }}>
           {/* Tags */}
           <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem", marginBottom: "1rem" }}>
-            {project.tags.map((tag) => (
-              <span key={tag} style={{
-                padding: "0.2rem 0.65rem",
-                border: `1px solid ${color}40`, color: color,
-                borderRadius: 6, fontSize: "0.72rem",
-                fontFamily: "'Fira Code', monospace", background: `${color}08`,
-              }}>
+            {project.tags.map((tag, i) => (
+              <motion.span
+                key={tag}
+                initial={{ opacity: 0, scale: 0.85 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3, delay: 0.05 + i * 0.035 }}
+                style={{
+                  padding: "0.2rem 0.65rem",
+                  border: `1px solid ${color}40`, color: color,
+                  borderRadius: 6, fontSize: "0.72rem",
+                  fontFamily: "'Fira Code', monospace", background: `${color}08`,
+                }}
+              >
                 {tag}
-              </span>
+              </motion.span>
             ))}
           </div>
 
@@ -429,10 +458,16 @@ function ProjectModal({ project, onClose }: { project: Project; onClose: () => v
               </div>
               <ul style={{ listStyle: "none", padding: 0, display: "flex", flexDirection: "column", gap: "0.5rem" }}>
                 {keyOutcomes[project.id].map((item, i) => (
-                  <li key={i} style={{ display: "flex", gap: "0.5rem", alignItems: "flex-start", fontSize: "0.84rem", color: "var(--foreground-muted)", lineHeight: 1.65 }}>
+                  <motion.li
+                    key={i}
+                    initial={{ opacity: 0, x: -8 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.3, delay: 0.1 + i * 0.05 }}
+                    style={{ display: "flex", gap: "0.5rem", alignItems: "flex-start", fontSize: "0.84rem", color: "var(--foreground-muted)", lineHeight: 1.65 }}
+                  >
                     <span style={{ color: "var(--primary)", flexShrink: 0, marginTop: "0.15rem" }}>▸</span>
                     {item}
-                  </li>
+                  </motion.li>
                 ))}
               </ul>
             </div>
@@ -487,6 +522,19 @@ function ProjectCard({ project, index, onClick }: { project: Project; index: num
   const color = categoryColors[project.category] ?? "#4caf50";
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-60px" });
+  // Cursor-tracking glow position (CSS vars, updated on pointer move)
+  const glowRef = useRef<HTMLDivElement>(null);
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const el = glowRef.current;
+    if (!el) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    el.style.opacity = "1";
+    el.style.background = `radial-gradient(circle 260px at ${e.clientX - rect.left}px ${e.clientY - rect.top}px, ${color}14 0%, transparent 70%)`;
+  };
+  const handlePointerLeave = () => {
+    if (glowRef.current) glowRef.current.style.opacity = "0";
+  };
 
   return (
     <motion.div
@@ -495,15 +543,29 @@ function ProjectCard({ project, index, onClick }: { project: Project; index: num
       initial={{ opacity: 0, y: 40 }}
       animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
       exit={{ opacity: 0, scale: 0.94 }}
-      transition={{ duration: 0.5, delay: index * 0.08, ease: [0.25, 0.46, 0.45, 0.94] }}
+      transition={{ duration: 0.5, delay: index * 0.08, ease: [0.22, 1, 0.36, 1] }}
       className="card project-card"
-      style={{ cursor: "pointer", display: "flex", flexDirection: "column", overflow: "hidden" }}
+      style={{ cursor: "pointer", display: "flex", flexDirection: "column", overflow: "hidden", position: "relative" }}
       onClick={onClick}
       whileHover={{ y: -6, transition: { duration: 0.22 } }}
+      onPointerMove={handlePointerMove}
+      onPointerLeave={handlePointerLeave}
     >
+      {/* Cursor-tracking sheen */}
+      <div
+        ref={glowRef}
+        aria-hidden
+        style={{
+          position: "absolute", inset: 0, borderRadius: 16,
+          pointerEvents: "none", zIndex: 3, opacity: 0,
+          transition: "opacity 0.3s ease",
+        }}
+      />
       {/* Thumbnail */}
       <div style={{ position: "relative", overflow: "hidden", flexShrink: 0 }} className="project-thumb-wrap">
-        <ProjectThumbnail projectId={project.id} compact />
+        <div className="project-thumb-zoom" style={{ height: "100%" }}>
+          <ProjectThumbnail projectId={project.id} compact />
+        </div>
         {/* Category badge */}
         <span style={{
           position: "absolute", top: "0.75rem", right: "0.75rem",
@@ -528,7 +590,7 @@ function ProjectCard({ project, index, onClick }: { project: Project; index: num
       </div>
 
       {/* Content */}
-      <div style={{ padding: "1.1rem", display: "flex", flexDirection: "column", gap: "0.6rem", flex: 1 }}>
+      <div style={{ padding: "1.1rem", display: "flex", flexDirection: "column", gap: "0.6rem", flex: 1, position: "relative", zIndex: 1 }}>
         <h3 style={{ fontSize: "0.95rem", fontWeight: 700, color: "var(--foreground)", lineHeight: 1.3 }}>
           {project.title}
         </h3>
@@ -554,7 +616,7 @@ function ProjectCard({ project, index, onClick }: { project: Project; index: num
         }}>
           <Sparkles size={12} />
           View project details
-          <ChevronRight size={13} style={{ marginLeft: "auto" }} />
+          <ChevronRight size={13} className="project-cta-arrow" style={{ marginLeft: "auto" }} />
         </div>
       </div>
     </motion.div>
@@ -582,7 +644,7 @@ export function Projects() {
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.65, ease: [0.25, 0.46, 0.45, 0.94] }}
+          transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
           viewport={{ once: true, margin: "-80px" }}
           style={{ marginBottom: "2.5rem" }}
         >
@@ -596,7 +658,7 @@ export function Projects() {
           </p>
         </motion.div>
 
-        {/* Filters */}
+        {/* Filters — animated highlight pill morphs between buttons */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -604,31 +666,35 @@ export function Projects() {
           viewport={{ once: true }}
           style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginBottom: "2.5rem" }}
         >
-          {filterButtons.map((f) => (
-            <button
-              key={f.key}
-              onClick={() => setFilter(f.key as typeof filter)}
-              style={{
-                padding: "0.4rem 1rem", borderRadius: 10, border: "1.5px solid",
-                borderColor: filter === f.key ? "var(--primary)" : "var(--border)",
-                background: filter === f.key ? "var(--primary-muted)" : "var(--card)",
-                color: filter === f.key ? "var(--primary)" : "var(--foreground-muted)",
-                fontSize: "0.82rem", fontWeight: 600, cursor: "pointer",
-                transition: "all 0.2s ease", fontFamily: "Poppins, sans-serif",
-                display: "flex", alignItems: "center", gap: "0.4rem",
-              }}
-            >
-              {f.label}
-              <span style={{
-                fontSize: "0.68rem", fontWeight: 700,
-                background: filter === f.key ? "var(--primary)" : "var(--border)",
-                color: filter === f.key ? "#fff" : "var(--foreground-muted)",
-                borderRadius: 4, padding: "0.05rem 0.35rem", lineHeight: 1.5,
-              }}>
-                {f.count}
-              </span>
-            </button>
-          ))}
+          {filterButtons.map((f) => {
+            const isActive = filter === f.key;
+            return (
+              <button
+                key={f.key}
+                onClick={() => setFilter(f.key as typeof filter)}
+                style={{
+                  position: "relative",
+                  padding: "0.4rem 1rem", borderRadius: 10, border: "1.5px solid",
+                  borderColor: isActive ? "var(--primary)" : "var(--border)",
+                  background: isActive ? "var(--primary-muted)" : "var(--card)",
+                  color: isActive ? "var(--primary)" : "var(--foreground-muted)",
+                  fontSize: "0.82rem", fontWeight: 600, cursor: "pointer",
+                  fontFamily: "Poppins, sans-serif",
+                  display: "flex", alignItems: "center", gap: "0.4rem",
+                }}
+              >
+                {f.label}
+                <span style={{
+                  fontSize: "0.68rem", fontWeight: 700,
+                  background: isActive ? "var(--primary)" : "var(--border)",
+                  color: isActive ? "#fff" : "var(--foreground-muted)",
+                  borderRadius: 4, padding: "0.05rem 0.35rem", lineHeight: 1.5,
+                }}>
+                  {f.count}
+                </span>
+              </button>
+            );
+          })}
         </motion.div>
 
         {/* Grid */}
@@ -651,7 +717,7 @@ export function Projects() {
       <style jsx>{`
         @media (max-width: 900px) { .projects-grid { grid-template-columns: repeat(2, 1fr) !important; } }
         @media (max-width: 600px) { .projects-grid { grid-template-columns: 1fr !important; } }
-        .project-card:hover .project-thumb-wrap > div { transform: scale(1.04); transition: transform 0.45s ease; }
+        .project-card:hover .project-thumb-wrap .project-thumb-zoom > div { transform: scale(1.04); transition: transform 0.45s ease; }
       `}</style>
     </section>
   );

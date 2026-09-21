@@ -185,16 +185,23 @@ export function BentoContact() {
               href="https://github.com/WahabSohail258"
               target="_blank" rel="noopener noreferrer"
               custom={0} variants={cardVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}
-              className="bento-card"
+              className="bento-card shine"
               style={{
                 background: "linear-gradient(135deg, #e91e8c 0%, #c2185b 100%)",
                 color: "#fff", minHeight: 130,
                 textDecoration: "none", display: "flex", flexDirection: "column", cursor: "pointer",
               }}
-              whileHover={{ scale: 1.03, boxShadow: "0 12px 40px rgba(233,30,140,0.35)" }}
+              whileHover={{ scale: 1.03, y: -3, boxShadow: "0 12px 40px rgba(233,30,140,0.35)" }}
+              whileTap={{ scale: 0.98 }}
             >
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "auto" }}>
-                <Github size={24} />
+                <motion.span
+                  animate={{ y: [0, -3, 0] }}
+                  transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
+                  style={{ display: "inline-flex" }}
+                >
+                  <Github size={24} />
+                </motion.span>
                 <ArrowUpRight size={14} opacity={0.7} />
               </div>
               <div style={{ marginTop: "1rem" }}>
@@ -237,9 +244,16 @@ export function BentoContact() {
               whileHover={{ scale: 1.02 }}
             >
               <div>
-                <div style={{ fontWeight: 800, fontSize: "1.15rem", lineHeight: 1.2, color: "var(--foreground)" }}>Build.</div>
-                <div className="gradient-text" style={{ fontWeight: 800, fontSize: "1.15rem", lineHeight: 1.2 }}>Ship.</div>
-                <div style={{ fontWeight: 800, fontSize: "1.15rem", lineHeight: 1.2, color: "var(--foreground)" }}>Iterate.</div>
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  transition={{ staggerChildren: 0.35, delayChildren: 0.3 }}
+                  style={{ fontWeight: 800, fontSize: "1.15rem", lineHeight: 1.35 }}
+                >
+                  <motion.div variants={{ hidden: { opacity: 0, y: 6 }, visible: { opacity: 1, y: 0 } }} style={{ fontWeight: 800, fontSize: "1.15rem", lineHeight: 1.2, color: "var(--foreground)" }}>Build.</motion.div>
+                  <motion.div variants={{ hidden: { opacity: 0, y: 6 }, visible: { opacity: 1, y: 0 } }} className="gradient-text" style={{ fontWeight: 800, fontSize: "1.15rem", lineHeight: 1.2 }}>Ship.</motion.div>
+                  <motion.div variants={{ hidden: { opacity: 0, y: 6 }, visible: { opacity: 1, y: 0 } }} style={{ fontWeight: 800, fontSize: "1.15rem", lineHeight: 1.2, color: "var(--foreground)" }}>Iterate.</motion.div>
+                </motion.div>
               </div>
             </motion.div>
 
@@ -282,9 +296,9 @@ export function BentoContact() {
             {/* Quote */}
             <motion.div
               custom={5} variants={cardVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}
-              className="bento-card"
+              className="bento-card shine"
               style={{ background: "linear-gradient(135deg, #f2c94c 0%, #f2994a 100%)", color: "#1a1a0a" }}
-              whileHover={{ scale: 1.02 }}
+              whileHover={{ scale: 1.02, y: -2 }}
             >
               <div style={{ fontSize: "0.72rem", fontWeight: 700, marginBottom: "0.4rem" }}>📁 Notes</div>
               <p style={{ fontSize: "0.75rem", lineHeight: 1.55, fontStyle: "italic" }}>
