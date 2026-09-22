@@ -4,6 +4,7 @@ import { CursorFollower } from "@/components/ui/cursor-follower";
 import { ScrollProgress } from "@/components/ui/scroll-progress";
 import { ThemeScript } from "@/components/ui/theme-script";
 import { MotionProvider } from "@/components/ui/motion-provider";
+import { AgentWidget } from "@/components/agent/agent-widget";
 import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
@@ -75,6 +76,7 @@ export default function RootLayout({
           <CursorFollower />
           <ScrollProgress />
           {children}
+          <AgentWidget />
         </MotionProvider>
         <Toaster
           position="bottom-right"

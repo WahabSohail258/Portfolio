@@ -35,7 +35,7 @@ export function BackToTop() {
             position: "fixed",
             bottom: "1.5rem",
             right: "1.5rem",
-            zIndex: 50,
+            zIndex: 55,
             width: 44,
             height: 44,
             borderRadius: 12,
