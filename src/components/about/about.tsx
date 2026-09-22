@@ -57,7 +57,7 @@ function TiltCard({ children }: { children: React.ReactNode }) {
             borderRadius: 14,
             pointerEvents: "none",
             zIndex: 2,
-            background: `radial-gradient(circle 240px at ${glow.x}px ${glow.y}px, rgba(76,175,80,0.14) 0%, transparent 70%)`,
+            background: `radial-gradient(circle 240px at ${glow.x}px ${glow.y}px, rgba(var(--primary-rgb), 0.12) 0%, transparent 70%)`,
           }}
         />
       )}

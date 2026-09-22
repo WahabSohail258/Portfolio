@@ -8,6 +8,12 @@ export interface Experience {
   description: string[];
   tech: string[];
   type: "work" | "education" | "leadership";
+  /** 1–2 char monogram shown in the timeline avatar */
+  monogram: string;
+  /** Per-item accent hue (hex) used for avatar, dot and glow */
+  accent: string;
+  /** One-line summary shown under the role */
+  highlight: string;
 }
 
 export const experiences: Experience[] = [
@@ -18,12 +24,13 @@ export const experiences: Experience[] = [
     startDate: "2025",
     endDate: "Present",
     location: "Rawalpindi, Pakistan",
+    monogram: "AI",
+    accent: "#4caf50",
+    highlight: "Production Urdu voice agent — local LLMs, TTS & RAG",
     description: [
-      "Developing components for an Urdu conversational voice agent, spanning local LLM response generation and text-to-speech, with speech-to-text integration in progress for an end-to-end voice pipeline.",
-      "Applying Coqui TTS with ElevenLabs audio data to Urdu speech synthesis and investigating natural, practical voice output for domain-specific conversational use cases.",
-      "Fine-tuning domain-specific LLMs with Hugging Face Transformers and PEFT/LoRA on English and Roman Urdu conversations; testing generated outputs for factual consistency, directness, and domain adherence.",
-      "Integrating Ollama-hosted LLMs and local embedding models through OpenAI-compatible interfaces, resolving backend, agent-configuration, and retrieval integration issues.",
-      "Building and testing RAG pipelines that retrieve relevant knowledge-base context for grounded Urdu responses.",
+      "Building an Urdu conversational voice agent: local LLM generation, Coqui TTS, with STT in progress",
+      "Fine-tuned domain LLMs with Hugging Face + PEFT/LoRA on English & Roman Urdu",
+      "Shipped RAG pipelines that ground every Urdu response in knowledge-base context",
     ],
     tech: ["Coqui TTS", "Hugging Face", "PEFT/LoRA", "Ollama", "RAG", "FastAPI"],
     type: "work",
@@ -32,30 +39,34 @@ export const experiences: Experience[] = [
     id: "1",
     company: "RISETech Pvt. Ltd.",
     role: "Machine Learning Intern",
-    startDate: "July 2025",
+    startDate: "Jul 2025",
     endDate: "Aug 2025",
     location: "Pakistan",
+    monogram: "ML",
+    accent: "#3b82f6",
+    highlight: "Deep learning research for healthcare AI",
     description: [
-      "Worked on AI and data-driven research projects involving data preprocessing, model training, and performance evaluation using ML and deep learning frameworks.",
-      "Supported development of intelligent healthcare and biomedical solutions; gained hands-on experience with supervised/unsupervised learning, neural networks, and data visualization.",
+      "Trained and evaluated models on preprocessing → training → benchmarking pipelines",
+      "Applied supervised/unsupervised learning and neural networks to biomedical data",
     ],
-    tech: ["Python", "TensorFlow", "PyTorch", "Scikit-learn", "Deep Learning"],
+    tech: ["Python", "TensorFlow", "PyTorch", "Scikit-learn"],
     type: "work",
   },
   {
     id: "2",
-    company: "National Centre of Robotics and Automation (NCRA)",
-    role: "Intern",
+    company: "NCRA — National Centre of Robotics & Automation",
+    role: "Engineering Intern",
     startDate: "Aug 2024",
-    endDate: "Sept 2024",
+    endDate: "Sep 2024",
     location: "Pakistan",
+    monogram: "R",
+    accent: "#f59e0b",
+    highlight: "Edge AI deployment on constrained hardware",
     description: [
-      "Assisted in setting up and configuring development environments on Linux-based systems.",
-      "Deployed applications on edge devices (Raspberry Pi, Jetson Nano) and optimized performance.",
-      "Worked with GPU-based systems (CUDA) and managed system resources for compute-heavy tasks.",
-      "Collaborated in testing, debugging, and improving system reliability across hardware setups.",
+      "Deployed and optimised CV apps on Raspberry Pi & Jetson Nano",
+      "Worked with CUDA GPU systems, Linux environments and Docker",
     ],
-    tech: ["Linux", "Raspberry Pi", "Jetson Nano", "CUDA", "Python", "Docker"],
+    tech: ["Linux", "Raspberry Pi", "Jetson Nano", "CUDA", "Docker"],
     type: "work",
   },
   {
@@ -65,28 +76,31 @@ export const experiences: Experience[] = [
     startDate: "2025",
     endDate: "2026",
     location: "Islamabad, Pakistan",
+    monogram: "C",
+    accent: "#8b5cf6",
+    highlight: "Led a national computing event with 900+ participants",
     description: [
-      "Led the planning and delivery of a national-level computing event with more than 900 participants.",
-      "Coordinated cross-functional teams, secured corporate sponsorships, and managed budgeting and logistics.",
-      "Oversaw promotional campaigns to ensure successful delivery.",
+      "Led planning and delivery of a national-level computing event with 900+ participants",
+      "Secured corporate sponsorships and managed cross-functional teams & budget",
     ],
-    tech: ["Leadership", "Event Management", "Sponsorships", "Team Coordination"],
+    tech: ["Leadership", "Sponsorships", "Event Management"],
     type: "leadership",
   },
   {
     id: "6",
-    company: "National University of Sciences and Technology (NUST)",
+    company: "NUST",
     role: "B.E. Computer Engineering",
     startDate: "2022",
     endDate: "2026",
     location: "Islamabad, Pakistan",
+    monogram: "N",
+    accent: "#06b6d4",
+    highlight: "FYP: SpeakWell — Urdu phoneme ASR on Raspberry Pi 5",
     description: [
-      "Bachelor of Engineering in Computer Engineering — Class of 2026.",
-      "Relevant coursework: Large Language Models, Deep Learning, Machine Learning, Deep Generative Models, Computer Vision, Digital Signal Processing.",
-      "Final Year Project: SpeakWell — phoneme-level Urdu speech recognition with error analysis for speech rehabilitation on Raspberry Pi 5.",
-      "President of COMPPEC, the university's flagship computing society.",
+      "Coursework: LLMs, Deep Learning, Computer Vision, Deep Generative Models, DSP",
+      "Final Year Project: phoneme-level Urdu speech recognition for speech rehabilitation",
     ],
-    tech: ["Large Language Models", "Deep Learning", "Computer Vision", "DSP"],
+    tech: ["LLMs", "Deep Learning", "Computer Vision", "DSP"],
     type: "education",
   },
 ];

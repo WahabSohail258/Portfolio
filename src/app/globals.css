@@ -418,6 +418,20 @@ body {
 /* ── Timeline line grow ───────────────────────────────── */
 @keyframes line-grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
 
+/* ── Experience timeline — responsive (global so child components are covered) ── */
+@media (max-width: 820px) {
+  .timeline-row { justify-content: flex-start !important; padding-left: 3.4rem !important; }
+  .timeline-card { width: 100% !important; }
+  .timeline-node { left: 0 !important; transform: none !important; }
+  .timeline-rail { left: 22px !important; transform: none !important; }
+}
+
+/* ── Project card cover hover (global so child components are covered) ── */
+.project-card:hover .project-thumb-zoom { transform: scale(1.05); }
+.project-card:hover .project-icon-ring { transform: scale(1.12) translateY(-2px); }
+@media (max-width: 900px) { .projects-grid { grid-template-columns: repeat(2, 1fr) !important; } }
+@media (max-width: 600px) { .projects-grid { grid-template-columns: 1fr !important; } }
+
 /* ── View project CTA arrow slide ─────────────────────── */
 .project-cta-arrow { transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); }
 .project-card:hover .project-cta-arrow { transform: translateX(4px); }

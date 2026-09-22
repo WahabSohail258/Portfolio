@@ -207,22 +207,22 @@ export function Hero() {
                 gap: "0.45rem",
                 padding: "0.45rem 0.95rem",
                 borderRadius: 999,
-                border: "1.5px solid rgba(76,175,80,0.4)",
-                background: "rgba(76,175,80,0.06)",
+                border: "1.5px solid rgba(var(--primary-rgb), 0.35)",
+                background: "rgba(var(--primary-rgb), 0.06)",
                 fontSize: "0.85rem",
                 fontWeight: 600,
                 color: "var(--primary)",
                 cursor: "default",
                 letterSpacing: "0.01em",
-                transition: "background 0.2s, border-color 0.2s",
+                transition: "background 0.3s ease, border-color 0.3s ease, transform 0.3s cubic-bezier(0.22, 1, 0.36, 1)",
               }}
               onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.background = "rgba(76,175,80,0.12)";
-                (e.currentTarget as HTMLElement).style.borderColor = "rgba(76,175,80,0.65)";
+                (e.currentTarget as HTMLElement).style.background = "rgba(var(--primary-rgb), 0.12)";
+                (e.currentTarget as HTMLElement).style.borderColor = "rgba(var(--primary-rgb), 0.6)";
               }}
               onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.background = "rgba(76,175,80,0.06)";
-                (e.currentTarget as HTMLElement).style.borderColor = "rgba(76,175,80,0.4)";
+                (e.currentTarget as HTMLElement).style.background = "rgba(var(--primary-rgb), 0.06)";
+                (e.currentTarget as HTMLElement).style.borderColor = "rgba(var(--primary-rgb), 0.35)";
               }}
             >
               {s.icon}

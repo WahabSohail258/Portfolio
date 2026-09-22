@@ -92,45 +92,72 @@ const thumbnailConfig: Record<string, {
   },
 };
 
-/* ── Image with graceful gradient fallback ───────────────── */
+/* ── Designed cover: gradient + pattern + icon per project ── */
 function ProjectImage({ src, alt, accent, height }: { src: string; alt: string; accent: string; height: number }) {
-  const [failed, setFailed] = useState(false);
-
-  if (failed) {
-    return (
-      <div
-        role="img"
-        aria-label={alt}
-        style={{
-          height, width: "100%", position: "relative",
-          background: "var(--surface)",
-          display: "flex", flexDirection: "column",
-          alignItems: "center", justifyContent: "center",
-          overflow: "hidden", flexShrink: 0,
-        }}
-      >
-        <div aria-hidden style={{
-          position: "absolute", inset: 0,
-          background: `radial-gradient(circle 300px at 30% 20%, ${accent}22 0%, transparent 70%), radial-gradient(circle 260px at 80% 90%, ${accent}18 0%, transparent 70%)`,
-        }} />
-        <div style={{ color: accent, filter: `drop-shadow(0 0 14px ${accent}55)`, position: "relative", zIndex: 1 }} className="animate-float">
-          {thumbnailConfig[altToId(alt)]?.icon}
-        </div>
-      </div>
-    );
-  }
+  const cfg = thumbnailConfig[altToId(alt)];
+  const gradient = cfg?.gradient ?? `linear-gradient(135deg, #0d1a12 0%, #14301f 50%, #081109 100%)`;
 
   return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={src}
-      alt={alt}
-      onError={() => setFailed(true)}
+    <div
+      role="img"
+      aria-label={alt}
       style={{
-        height, width: "100%", objectFit: "cover",
-        display: "block", flexShrink: 0,
+        height, width: "100%", position: "relative",
+        background: gradient,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        overflow: "hidden", flexShrink: 0,
       }}
-    />
+    >
+      {/* Dot-grid pattern */}
+      <div aria-hidden style={{
+        position: "absolute", inset: 0, opacity: 0.5,
+        backgroundImage: `radial-gradient(${accent}26 1px, transparent 1px)`,
+        backgroundSize: "18px 18px",
+        maskImage: "radial-gradient(ellipse 80% 90% at 50% 50%, black 30%, transparent 80%)",
+        WebkitMaskImage: "radial-gradient(ellipse 80% 90% at 50% 50%, black 30%, transparent 80%)",
+      }} />
+      {/* Soft accent orbs */}
+      <div aria-hidden style={{
+        position: "absolute", width: 220, height: 220, borderRadius: "50%",
+        background: `radial-gradient(circle, ${accent}30 0%, transparent 70%)`,
+        top: -60, right: -40, filter: "blur(10px)",
+      }} />
+      <div aria-hidden style={{
+        position: "absolute", width: 180, height: 180, borderRadius: "50%",
+        background: `radial-gradient(circle, ${accent}20 0%, transparent 70%)`,
+        bottom: -60, left: -30, filter: "blur(10px)",
+      }} />
+      {/* Corner brackets frame */}
+      <div aria-hidden style={{ position: "absolute", inset: 12, pointerEvents: "none" }}>
+        {[
+          { top: 0, left: 0, borderRight: "none", borderBottom: "none" },
+          { top: 0, right: 0, borderLeft: "none", borderBottom: "none" },
+          { bottom: 0, left: 0, borderRight: "none", borderTop: "none" },
+          { bottom: 0, right: 0, borderLeft: "none", borderTop: "none" },
+        ].map((pos, i) => (
+          <div key={i} style={{
+            position: "absolute", width: 14, height: 14,
+            borderTop: `1.5px solid ${accent}55`, borderBottom: pos.borderBottom,
+            borderLeft: pos.borderLeft, borderRight: pos.borderRight,
+            ...pos,
+          }} />
+        ))}
+      </div>
+      {/* Centred icon in a glass ring */}
+      <div style={{
+        position: "relative", zIndex: 1,
+        width: 64, height: 64, borderRadius: 18,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        background: `linear-gradient(135deg, ${accent}22 0%, ${accent}0d 100%)`,
+        border: `1px solid ${accent}45`,
+        color: accent,
+        filter: `drop-shadow(0 0 18px ${accent}44)`,
+        boxShadow: `inset 0 1px 0 ${accent}30`,
+        transition: "transform 0.45s cubic-bezier(0.22, 1, 0.36, 1)",
+      }} className="project-icon-ring">
+        {cfg?.icon}
+      </div>
+    </div>
   );
 }
 
@@ -625,7 +652,7 @@ export function Projects() {
     { key: "aiml",      label: "AI & ML",      count: projects.filter(p => p.category === "aiml").length },
     { key: "fullstack", label: "Full Stack",   count: projects.filter(p => p.category === "fullstack").length },
     { key: "backend",   label: "Backend",      count: projects.filter(p => p.category === "backend").length },
-  ];
+  ].filter((f) => f.count > 0);
 
   return (
     <section id="projects" className="section-padding" style={{ background: "var(--surface)", borderTop: "1px solid var(--border)" }}>
@@ -703,12 +730,6 @@ export function Projects() {
       <AnimatePresence>
         {selected && <ProjectModal project={selected} onClose={() => setSelected(null)} />}
       </AnimatePresence>
-
-      <style jsx>{`
-        @media (max-width: 900px) { .projects-grid { grid-template-columns: repeat(2, 1fr) !important; } }
-        @media (max-width: 600px) { .projects-grid { grid-template-columns: 1fr !important; } }
-        .project-card:hover .project-thumb-wrap .project-thumb-zoom > div { transform: scale(1.04); transition: transform 0.45s ease; }
-      `}</style>
     </section>
   );
 }
