@@ -10,8 +10,6 @@ export interface Experience {
   type: "work" | "education" | "leadership";
   /** 1–2 char monogram shown in the timeline avatar */
   monogram: string;
-  /** Per-item accent hue (hex) used for avatar, dot and glow */
-  accent: string;
   /** One-line summary shown under the role */
   highlight: string;
 }
@@ -25,10 +23,9 @@ export const experiences: Experience[] = [
     endDate: "Present",
     location: "Rawalpindi, Pakistan",
     monogram: "AI",
-    accent: "#4caf50",
     highlight: "Production Urdu voice agent — local LLMs, TTS & RAG",
     description: [
-      "Building an Urdu conversational voice agent: local LLM generation, Coqui TTS, with STT in progress",
+      "Building an Urdu conversational voice agent: local LLM generation, Coqui TTS, STT in progress",
       "Fine-tuned domain LLMs with Hugging Face + PEFT/LoRA on English & Roman Urdu",
       "Shipped RAG pipelines that ground every Urdu response in knowledge-base context",
     ],
@@ -43,10 +40,9 @@ export const experiences: Experience[] = [
     endDate: "Aug 2025",
     location: "Pakistan",
     monogram: "ML",
-    accent: "#3b82f6",
     highlight: "Deep learning research for healthcare AI",
     description: [
-      "Trained and evaluated models on preprocessing → training → benchmarking pipelines",
+      "Trained and evaluated models across preprocessing → training → benchmarking pipelines",
       "Applied supervised/unsupervised learning and neural networks to biomedical data",
     ],
     tech: ["Python", "TensorFlow", "PyTorch", "Scikit-learn"],
@@ -60,7 +56,6 @@ export const experiences: Experience[] = [
     endDate: "Sep 2024",
     location: "Pakistan",
     monogram: "R",
-    accent: "#f59e0b",
     highlight: "Edge AI deployment on constrained hardware",
     description: [
       "Deployed and optimised CV apps on Raspberry Pi & Jetson Nano",
@@ -77,11 +72,10 @@ export const experiences: Experience[] = [
     endDate: "2026",
     location: "Islamabad, Pakistan",
     monogram: "C",
-    accent: "#8b5cf6",
     highlight: "Led a national computing event with 900+ participants",
     description: [
-      "Led planning and delivery of a national-level computing event with 900+ participants",
-      "Secured corporate sponsorships and managed cross-functional teams & budget",
+      "Coordinated cross-functional teams, corporate sponsorships, budgeting and logistics",
+      "Oversaw promotional campaigns through to event delivery",
     ],
     tech: ["Leadership", "Sponsorships", "Event Management"],
     type: "leadership",
@@ -94,11 +88,10 @@ export const experiences: Experience[] = [
     endDate: "2026",
     location: "Islamabad, Pakistan",
     monogram: "N",
-    accent: "#06b6d4",
     highlight: "FYP: SpeakWell — Urdu phoneme ASR on Raspberry Pi 5",
     description: [
-      "Coursework: LLMs, Deep Learning, Computer Vision, Deep Generative Models, DSP",
-      "Final Year Project: phoneme-level Urdu speech recognition for speech rehabilitation",
+      "Relevant coursework: LLMs, Deep Learning, Computer Vision, Deep Generative Models, DSP",
+      "Thesis: cross-lingual transfer learning for low-resource Urdu speech",
     ],
     tech: ["LLMs", "Deep Learning", "Computer Vision", "DSP"],
     type: "education",

@@ -7,14 +7,15 @@ import { experiences, Experience } from "@/data/experience";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
+/* Small icon per entry type — the only place colour varies, everything else stays on-theme */
 const typeConfig = {
-  work: { icon: <Briefcase size={11} />, label: "Work" },
-  education: { icon: <GraduationCap size={11} />, label: "Education" },
-  leadership: { icon: <Star size={11} />, label: "Leadership" },
+  work: { icon: <Briefcase size={12} strokeWidth={2.2} />, label: "Work" },
+  education: { icon: <GraduationCap size={12} strokeWidth={2.2} />, label: "Education" },
+  leadership: { icon: <Star size={12} strokeWidth={2.2} />, label: "Leadership" },
 };
 
 /* ── One timeline entry ─────────────────────────────────── */
-function TimelineEntry({ exp, index, lineScale }: { exp: Experience; index: number; lineScale: any }) {
+function TimelineEntry({ exp, index }: { exp: Experience; index: number }) {
   const [expanded, setExpanded] = useState(false);
   const cfg = typeConfig[exp.type];
   const isLeft = index % 2 === 0;
@@ -29,7 +30,7 @@ function TimelineEntry({ exp, index, lineScale }: { exp: Experience; index: numb
       }}
       className="timeline-row"
     >
-      {/* Center node — monogram avatar sits on the rail */}
+      {/* Center node — on-theme monogram avatar on the rail */}
       <motion.div
         initial={{ scale: 0, opacity: 0 }}
         whileInView={{ scale: 1, opacity: 1 }}
@@ -44,11 +45,12 @@ function TimelineEntry({ exp, index, lineScale }: { exp: Experience; index: numb
           width: 46,
           height: 46,
           borderRadius: 14,
-          background: `linear-gradient(135deg, ${exp.accent}, ${exp.accent}b0)`,
+          background: "var(--card)",
+          border: "1.5px solid rgba(var(--primary-rgb), 0.4)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          boxShadow: `0 0 0 5px var(--background), 0 8px 24px ${exp.accent}55`,
+          boxShadow: "0 0 0 6px var(--background), 0 6px 20px rgba(var(--primary-rgb), 0.18)",
           zIndex: 2,
         }}
       >
@@ -56,8 +58,8 @@ function TimelineEntry({ exp, index, lineScale }: { exp: Experience; index: numb
           style={{
             fontFamily: "'Fira Code', monospace",
             fontWeight: 700,
-            fontSize: "0.95rem",
-            color: "#fff",
+            fontSize: "0.92rem",
+            color: "var(--primary)",
             letterSpacing: "-0.02em",
           }}
         >
@@ -74,7 +76,7 @@ function TimelineEntry({ exp, index, lineScale }: { exp: Experience; index: numb
         className="timeline-card card"
         style={{ width: "calc(50% - 3rem)", position: "relative", zIndex: 1, overflow: "hidden" }}
       >
-        {/* Accent top edge */}
+        {/* On-theme top edge */}
         <div
           aria-hidden
           style={{
@@ -82,22 +84,9 @@ function TimelineEntry({ exp, index, lineScale }: { exp: Experience; index: numb
             top: 0,
             left: 0,
             right: 0,
-            height: 3,
-            background: `linear-gradient(90deg, ${exp.accent}, transparent)`,
-            opacity: 0.9,
-          }}
-        />
-        {/* Hover accent glow */}
-        <div
-          aria-hidden
-          className="timeline-card-glow"
-          style={{
-            position: "absolute",
-            inset: 0,
-            pointerEvents: "none",
-            opacity: 0,
-            transition: "opacity 0.35s ease",
-            background: `radial-gradient(circle 300px at 80% 0%, ${exp.accent}14 0%, transparent 70%)`,
+            height: 2,
+            background: "linear-gradient(90deg, var(--primary), transparent)",
+            opacity: 0.65,
           }}
         />
 
@@ -114,9 +103,9 @@ function TimelineEntry({ exp, index, lineScale }: { exp: Experience; index: numb
                 fontSize: "0.64rem",
                 fontWeight: 700,
                 fontFamily: "'Fira Code', monospace",
-                background: `${exp.accent}18`,
-                color: exp.accent,
-                border: `1px solid ${exp.accent}40`,
+                background: "var(--primary-muted)",
+                color: "var(--primary)",
+                border: "1px solid rgba(var(--primary-rgb), 0.25)",
               }}
             >
               {cfg.icon} {cfg.label}
@@ -136,7 +125,7 @@ function TimelineEntry({ exp, index, lineScale }: { exp: Experience; index: numb
                   width: 6,
                   height: 6,
                   borderRadius: "50%",
-                  background: exp.endDate === "Present" ? "#4caf50" : exp.accent,
+                  background: exp.endDate === "Present" ? "var(--green)" : "var(--border)",
                   display: "inline-block",
                 }}
               />
@@ -161,6 +150,7 @@ function TimelineEntry({ exp, index, lineScale }: { exp: Experience; index: numb
               display: "flex",
               alignItems: "center",
               gap: "0.55rem",
+              flexWrap: "wrap",
               fontSize: "0.83rem",
               fontWeight: 600,
               color: "var(--primary)",
@@ -198,38 +188,40 @@ function TimelineEntry({ exp, index, lineScale }: { exp: Experience; index: numb
                 transition={{ duration: 0.38, ease: EASE }}
                 style={{ overflow: "hidden" }}
               >
-                <div
+                <ul
                   style={{
+                    listStyle: "none",
                     background: "var(--surface)",
                     border: "1px solid var(--border)",
                     borderRadius: 12,
                     padding: "0.85rem 1rem",
-                    marginBottom: "0.75rem",
+                    margin: "0 0 0.75rem",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "0.45rem",
                   }}
                 >
-                  <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "0.45rem" }}>
-                    {exp.description.map((d, di) => (
-                      <li
-                        key={di}
-                        style={{
-                          fontSize: "0.8rem",
-                          color: "var(--foreground-muted)",
-                          lineHeight: 1.6,
-                          display: "flex",
-                          gap: "0.45rem",
-                        }}
-                      >
-                        <span style={{ color: exp.accent, flexShrink: 0, fontWeight: 700 }}>▸</span>
-                        {d}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                  {exp.description.map((d, di) => (
+                    <li
+                      key={di}
+                      style={{
+                        fontSize: "0.8rem",
+                        color: "var(--foreground-muted)",
+                        lineHeight: 1.6,
+                        display: "flex",
+                        gap: "0.45rem",
+                      }}
+                    >
+                      <span style={{ color: "var(--primary)", flexShrink: 0, fontWeight: 700 }}>▸</span>
+                      {d}
+                    </li>
+                  ))}
+                </ul>
               </motion.div>
             )}
           </AnimatePresence>
 
-          {/* Tech tags — always visible */}
+          {/* Tech tags — capped at 4 until expanded */}
           <div style={{ display: "flex", flexWrap: "wrap", gap: "0.32rem", marginBottom: "0.65rem" }}>
             {exp.tech.slice(0, expanded ? undefined : 4).map((t) => (
               <span key={t} className="tech-tag" style={{ fontSize: "0.68rem" }}>
@@ -343,7 +335,7 @@ export function Timeline() {
 
           <div>
             {experiences.map((exp, i) => (
-              <TimelineEntry key={exp.id} exp={exp} index={i} lineScale={lineScale} />
+              <TimelineEntry key={exp.id} exp={exp} index={i} />
             ))}
           </div>
         </div>
