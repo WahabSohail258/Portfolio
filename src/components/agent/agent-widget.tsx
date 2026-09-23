@@ -41,6 +41,7 @@ export function AgentWidget() {
   ]);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const lastTopicRef = useRef<string | undefined>(undefined);
 
   // Autoscroll while messages arrive or text streams in
   useEffect(() => {
@@ -63,7 +64,8 @@ export function AgentWidget() {
     setTyping(true);
     // Small "thinking" beat keeps the interaction from feeling like an if-statement
     setTimeout(() => {
-      const reply: AgentReply = askAgent(text);
+      const reply: AgentReply = askAgent(text, lastTopicRef.current);
+      if (reply.topicId) lastTopicRef.current = reply.topicId;
       setTyping(false);
       setMsgs((m) => [...m, { role: "agent", text: reply.answer, suggestions: reply.suggestions }]);
     }, 550);
