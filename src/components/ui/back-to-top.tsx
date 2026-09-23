@@ -11,10 +11,30 @@ export function BackToTop() {
   const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 28 });
 
   useEffect(() => {
-    const onScroll = () => setShow(window.scrollY > 400);
+    // rAF-throttled: coalesces bursty scroll events to one check per display frame
+    let ticking = false;
+    const update = () => {
+      ticking = false;
+      setShow(window.scrollY > 400);
+    };
+    const onScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(update);
+      }
+    };
+    update(); // sync initial state without waiting for a scroll
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (ticking) ticking = false;
+    };
   }, []);
+
+  const scrollTop = () => {
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
+  };
 
   const r = 20; // svg circle radius (viewBox 44)
   const circ = 2 * Math.PI * r;
@@ -29,7 +49,7 @@ export function BackToTop() {
           whileHover={{ scale: 1.08, y: -2 }}
           whileTap={{ scale: 0.94 }}
           transition={{ type: "spring", stiffness: 320, damping: 22 }}
-          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          onClick={scrollTop}
           aria-label="Back to top"
           style={{
             position: "fixed",
@@ -47,6 +67,8 @@ export function BackToTop() {
             border: "1px solid var(--border)",
             cursor: "pointer",
             boxShadow: "0 4px 20px rgba(0,0,0,0.18)",
+            // Promote while animating in/out only (AnimatePresence unmounts after exit)
+            willChange: "transform, opacity",
           }}
         >
           {/* Scroll progress ring */}

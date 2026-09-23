@@ -325,6 +325,9 @@ body {
   width: 7px; height: 7px; background: var(--primary); border-radius: 50%;
   position: fixed; top: 0; left: 0; pointer-events: none;
   z-index: 99999; transform: translate(-50%, -50%);
+  /* Framer sets x/y via transform on every mousemove — skip layout/paint work */
+  will-change: transform;
+  contain: layout style;
 }
 .cursor-ring {
   width: 30px; height: 30px;
@@ -332,6 +335,8 @@ body {
   border-radius: 50%;
   position: fixed; top: 0; left: 0; pointer-events: none;
   z-index: 99998; transform: translate(-50%, -50%);
+  will-change: transform;
+  contain: layout style;
 }
 
 /* ── Animations ───────────────────────────────────────── */
@@ -371,10 +376,15 @@ body {
 .shine:hover::after { animation: shine 0.9s ease; }
 
 /* ── Aurora background orbs ───────────────────────────── */
+/* Always-running ambient layers: promote to their own compositor layer so
+   their repaints never touch the main page. (Entrance animations keep
+   will-change off — framer promotes them for the duration automatically.) */
 .aurora {
   position: absolute; border-radius: 50%; filter: blur(70px);
   pointer-events: none; animation: aurora-drift 18s ease-in-out infinite;
+  will-change: transform;
 }
+.marquee-left, .marquee-right { will-change: transform; }
 .aurora-a { top: -10%; left: -8%; width: 520px; height: 520px; opacity: 0.13; background: radial-gradient(circle, var(--primary), transparent 65%); }
 .aurora-b { top: 30%; right: -12%; width: 460px; height: 460px; opacity: 0.10; background: radial-gradient(circle, var(--accent), transparent 65%); animation-delay: -6s; }
 .aurora-c { bottom: -18%; left: 28%; width: 420px; height: 420px; opacity: 0.08; background: radial-gradient(circle, var(--primary), transparent 65%); animation-delay: -12s; }

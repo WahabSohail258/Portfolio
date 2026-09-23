@@ -17,9 +17,24 @@ export function Navbar() {
   const [active, setActive] = useState("");
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 30);
+    // rAF-throttled: coalesces bursty scroll events to one check per display frame
+    let ticking = false;
+    const update = () => {
+      ticking = false;
+      setScrolled(window.scrollY > 30);
+    };
+    const onScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(update);
+      }
+    };
+    onScroll(); // sync initial state without waiting for a scroll
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (ticking) ticking = false;
+    };
   }, []);
 
   useEffect(() => {

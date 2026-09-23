@@ -1,13 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronRight, ChevronDown, Folder, FolderOpen } from "lucide-react";
 import { skillTree, SkillFile, SkillFolder } from "@/data/skills";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
-function FileTreeItem({ file, index }: { file: SkillFile; index: number }) {
+// Memoized: folder open/close re-renders shouldn't re-run entrance
+// transitions on unchanged sibling files.
+const FileTreeItem = memo(function FileTreeItem({ file, index }: { file: SkillFile; index: number }) {
   return (
     <motion.div
       className="file-tree-item"
@@ -26,9 +28,9 @@ function FileTreeItem({ file, index }: { file: SkillFile; index: number }) {
       <span style={{ color: file.color }}>{file.ext}</span>
     </motion.div>
   );
-}
+});
 
-function FolderTreeItem({ folder, folderIndex }: { folder: SkillFolder; folderIndex: number }) {
+const FolderTreeItem = memo(function FolderTreeItem({ folder, folderIndex }: { folder: SkillFolder; folderIndex: number }) {
   const [open, setOpen] = useState(true);
   return (
     <motion.div
@@ -89,7 +91,7 @@ function FolderTreeItem({ folder, folderIndex }: { folder: SkillFolder; folderIn
       </AnimatePresence>
     </motion.div>
   );
-}
+});
 
 export function Skills() {
   return (

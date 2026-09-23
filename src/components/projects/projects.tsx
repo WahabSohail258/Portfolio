@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback, memo } from "react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import {
   Github, X, AlertCircle, Lightbulb, Target,
@@ -93,7 +93,9 @@ const thumbnailConfig: Record<string, {
 };
 
 /* ── Designed cover: gradient + pattern + icon per project ── */
-function ProjectImage({ src, alt, accent, height }: { src: string; alt: string; accent: string; height: number }) {
+// Memoized: the cover is pure markup per project, so filter/hover state changes
+// higher in the tree never re-render the (expensive, blurred) cover layers.
+const ProjectImage = memo(function ProjectImage({ src, alt, accent, height }: { src: string; alt: string; accent: string; height: number }) {
   const cfg = thumbnailConfig[altToId(alt)];
   const gradient = cfg?.gradient ?? `linear-gradient(135deg, #0d1a12 0%, #14301f 50%, #081109 100%)`;
 
@@ -159,7 +161,7 @@ function ProjectImage({ src, alt, accent, height }: { src: string; alt: string; 
       </div>
     </div>
   );
-}
+});
 
 // helper: map alt text back to project id for the fallback icon
 function altToId(alt: string): string {
@@ -529,7 +531,9 @@ function ProjectModal({ project, onClose }: { project: Project; onClose: () => v
 }
 
 /* ── Project Card ─────────────────────────────────────────── */
-function ProjectCard({ project, index, onClick }: { project: Project; index: number; onClick: () => void }) {
+// Memoized: with a stable onSelect callback, typing in a sibling input or
+// toggling filter state never re-renders unaffected cards in the grid.
+const ProjectCard = memo(function ProjectCard({ project, index, onSelect }: { project: Project; index: number; onSelect: (p: Project) => void }) {
   const color = categoryColors[project.category] ?? "#4caf50";
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-60px" });
@@ -557,7 +561,7 @@ function ProjectCard({ project, index, onClick }: { project: Project; index: num
       transition={{ duration: 0.5, delay: index * 0.08, ease: [0.22, 1, 0.36, 1] }}
       className="card project-card"
       style={{ cursor: "pointer", display: "flex", flexDirection: "column", overflow: "hidden", position: "relative" }}
-      onClick={onClick}
+      onClick={() => onSelect(project)}
       whileHover={{ y: -6, transition: { duration: 0.22 } }}
       onPointerMove={handlePointerMove}
       onPointerLeave={handlePointerLeave}
@@ -638,12 +642,15 @@ function ProjectCard({ project, index, onClick }: { project: Project; index: num
       </div>
     </motion.div>
   );
-}
+});
 
 /* ── Main Section ─────────────────────────────────────────── */
 export function Projects() {
   const [filter, setFilter] = useState<"all" | "aiml" | "fullstack" | "backend">("all");
   const [selected, setSelected] = useState<Project | null>(null);
+
+  // Stable identity so memoized ProjectCards skip re-renders entirely.
+  const onSelect = useCallback((p: Project) => setSelected(p), []);
 
   const filtered = filter === "all" ? projects : projects.filter((p) => p.category === filter);
 
@@ -721,7 +728,7 @@ export function Projects() {
         >
           <AnimatePresence mode="popLayout">
             {filtered.map((p, i) => (
-              <ProjectCard key={p.id} project={p} index={i} onClick={() => setSelected(p)} />
+              <ProjectCard key={p.id} project={p} index={i} onSelect={onSelect} />
             ))}
           </AnimatePresence>
         </div>

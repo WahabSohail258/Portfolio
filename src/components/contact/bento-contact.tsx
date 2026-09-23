@@ -23,22 +23,36 @@ function emailjsConfigured() {
 /* ── Clock Widget ────────────────────────────────────────── */
 function ClockWidget() {
   const [mounted, setMounted] = useState(false);
-  const [now, setNow] = useState(new Date());
+  const [now, setNow] = useState<Date | null>(null);
 
   useEffect(() => {
     setMounted(true);
-    const t = setInterval(() => setNow(new Date()), 1000);
-    return () => clearInterval(t);
+    setNow(new Date());
+    // Re-render only when the displayed minute changes (not every second).
+    // Self-scheduling rAF-timeout: pauses automatically in hidden tabs and
+    // stays drift-free via the minute-rollover check.
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const tick = () => {
+      setNow((prev) => {
+        const d = new Date();
+        return prev && prev.getHours() === d.getHours() && prev.getMinutes() === d.getMinutes() ? prev : d;
+      });
+      timer = setTimeout(tick, 1000);
+    };
+    timer = setTimeout(tick, 1000);
+    return () => clearTimeout(timer);
   }, []);
 
-  if (!mounted) {
+  // SSR-safe placeholder: same footprint as the real clock (80px disc + text),
+  // so the bento card never shifts or flashes a broken state.
+  if (!mounted || !now) {
     return (
       <div style={{ display: "flex", alignItems: "center", gap: "0.85rem" }}>
         <div style={{ width: 80, height: 80, borderRadius: "50%", border: "5px solid var(--card-border)", flexShrink: 0 }} />
         <div>
-          <div style={{ fontSize: "0.65rem", color: "var(--foreground-muted)", marginBottom: "0.1rem" }}>--</div>
-          <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "var(--foreground)" }}>Loading...</div>
-          <div style={{ fontFamily: "'Fira Code', monospace", fontSize: "1.15rem", fontWeight: 700, color: "var(--primary)", lineHeight: 1 }}>--:--</div>
+          <div style={{ fontSize: "0.65rem", color: "var(--foreground-muted)", marginBottom: "0.1rem", minHeight: "1em" }}>--</div>
+          <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "var(--foreground)", minHeight: "1.2em" }}>&nbsp;</div>
+          <div style={{ fontFamily: "'Fira Code', monospace", fontSize: "1.15rem", fontWeight: 700, color: "var(--primary)", lineHeight: 1, minHeight: "1.15em" }}>&nbsp;</div>
         </div>
       </div>
     );

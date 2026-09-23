@@ -13,20 +13,34 @@ interface Msg {
   suggestions?: string[];
 }
 
-/** Types out agent text char-by-char for a natural, responsive feel. */
+/**
+ * Types out agent text char-by-char for a natural, responsive feel.
+ * rAF-driven instead of setInterval: aligns with display frames, auto-pauses
+ * when the tab is hidden, and cancels cleanly on unmount/unmount-race.
+ */
 function TypedText({ text, onTick }: { text: string; onTick?: () => void }) {
   const [shown, setShown] = useState("");
+  const onTickRef = useRef(onTick);
+  onTickRef.current = onTick;
+
   useEffect(() => {
-    setShown("");
+    let raf = 0;
     let i = 0;
-    const step = Math.max(1, Math.round(text.length / 90)); // ~90 frames total
-    const t = setInterval(() => {
-      i += step;
-      setShown(text.slice(0, i));
-      onTick?.();
-      if (i >= text.length) clearInterval(t);
-    }, 16);
-    return () => clearInterval(t);
+    let lastFrame = performance.now();
+    // Same pacing as before: full text in ~1.44s (~90 frames)
+    const charsPerMs = Math.max(text.length / 1440, 0.02);
+    const step = (now: number) => {
+      i = Math.min(text.length, i + Math.ceil((now - lastFrame) * charsPerMs));
+      lastFrame = now;
+      setShown((prev) => {
+        const next = text.slice(0, i);
+        return next === prev ? prev : next; // skip re-renders when nothing changed
+      });
+      onTickRef.current?.();
+      if (i < text.length) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [text]);
   return <>{shown}<span className="terminal-caret" style={{ width: 6, height: "0.9em" }} /></>;
