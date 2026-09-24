@@ -11,6 +11,8 @@ interface Msg {
   role: "user" | "agent";
   text: string;
   suggestions?: string[];
+  /** "llm" = Groq model reply, "kb" = local keyword fallback */
+  mode?: "llm" | "kb";
 }
 
 /**
@@ -56,6 +58,8 @@ export function AgentWidget() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const lastTopicRef = useRef<string | undefined>(undefined);
+  const msgsRef = useRef<Msg[]>([]);
+  msgsRef.current = msgs;
 
   // Autoscroll while messages arrive or text streams in
   useEffect(() => {
@@ -74,15 +78,48 @@ export function AgentWidget() {
     const text = (raw ?? input).trim();
     if (!text || typing) return;
     setInput("");
+    const history = msgsRef.current
+      .filter((m) => m.role === "user" || (m.role === "agent" && m.text !== AGENT_GREETING.answer))
+      .slice(-8)
+      .map((m) => ({ role: m.role === "user" ? "user" : "assistant", content: m.text }) as const);
     setMsgs((m) => [...m, { role: "user", text }]);
     setTyping(true);
-    // Small "thinking" beat keeps the interaction from feeling like an if-statement
-    setTimeout(() => {
-      const reply: AgentReply = askAgent(text, lastTopicRef.current);
-      if (reply.topicId) lastTopicRef.current = reply.topicId;
+    const t0 = Date.now();
+
+    (async () => {
+      let agentText = "";
+      let suggestions: string[] = ["Show me his projects", "Check his availability", "How can I contact him?"];
+      let mode: "llm" | "kb" = "kb";
+      let topicId: string | undefined;
+      try {
+        const res = await fetch("/api/agent", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-last-topic": lastTopicRef.current ?? "",
+          },
+          body: JSON.stringify({ messages: [...history, { role: "user", content: text }] }),
+        });
+        if (!res.ok) throw new Error(String(res.status));
+        const data = await res.json();
+        agentText = data.reply.answer;
+        suggestions = data.reply.suggestions ?? suggestions;
+        mode = data.mode === "llm" ? "llm" : "kb";
+        topicId = data.reply.topicId;
+      } catch {
+        // API unreachable (static export / offline) → local KB
+        const reply: AgentReply = askAgent(text, lastTopicRef.current);
+        agentText = reply.answer;
+        suggestions = reply.suggestions;
+        topicId = reply.topicId;
+        mode = "kb";
+      }
+      if (topicId) lastTopicRef.current = topicId;
+      // Brief beat so even instant answers don't feel like an if-statement
+      await new Promise((r) => setTimeout(r, Math.max(0, 550 - (Date.now() - t0))));
       setTyping(false);
-      setMsgs((m) => [...m, { role: "agent", text: reply.answer, suggestions: reply.suggestions }]);
-    }, 550);
+      setMsgs((m) => [...m, { role: "agent", text: agentText, suggestions, mode }]);
+    })();
   };
 
   return (
@@ -198,7 +235,7 @@ export function AgentWidget() {
                 </div>
                 <div style={{ fontSize: "0.66rem", color: "var(--green)", fontWeight: 600, display: "flex", alignItems: "center", gap: "0.3rem" }}>
                   <span className="animate-pulse-dot" style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--green)", display: "inline-block" }} />
-                  Ask me about Wahab
+                  Ask me anything — or book a call
                 </div>
               </div>
               <Sparkles size={14} style={{ color: "var(--primary)", opacity: 0.6 }} />
