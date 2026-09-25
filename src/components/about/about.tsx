@@ -3,7 +3,6 @@
 import { useRef, useState } from "react";
 import { motion, useMotionValue, useSpring, useTransform, type Variants } from "framer-motion";
 import { TypeAnimation } from "react-type-animation";
-import { BinaryPortrait } from "./binary-portrait";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -140,11 +139,9 @@ export function About() {
           whileInView={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.7, delay: 0.12, ease: EASE }}
           viewport={{ once: true, margin: "-80px" }}
-          style={{ maxWidth: 1160, margin: "0 auto" }}
+          style={{ maxWidth: 820, margin: "0 auto" }}
         >
-          <div style={{ display: "flex", gap: "1.5rem", alignItems: "stretch", flexWrap: "wrap" }}>
-            <div style={{ flex: "1 1 540px", minWidth: 0 }}>
-              <TiltCard>
+          <TiltCard>
             <div className="terminal-window">
               {/* Title bar */}
               <div className="terminal-titlebar">
@@ -170,18 +167,8 @@ export function About() {
                 <motion.div custom={0} variants={termBlock}>
                   <TypedHeading />
                 </motion.div>
-                <motion.div
-                  custom={1}
-                  variants={termBlock}
-                  style={{ color: "#cdd6f4", fontWeight: 600, fontSize: "1.1rem", marginBottom: "0.2rem" }}
-                >
-                  Wahab Sohail 🤚{" "}
-                  <span style={{ fontFamily: "Poppins, sans-serif", fontWeight: 400, color: "#a6b0c3", fontSize: "0.95rem" }}>
-                    Making machines speak Urdu.
-                  </span>
-                </motion.div>
 
-                <DrawDivider delay={0.15} />
+                <DrawDivider delay={0.1} />
 
                 {/* AT A GLANCE */}
                 <motion.div custom={2} variants={termBlock} style={{ color: "#4caf50", fontWeight: 600, fontSize: "0.78rem", letterSpacing: "0.1em", marginBottom: "0.55rem" }}>
@@ -284,38 +271,6 @@ export function About() {
               </motion.div>
             </div>
           </TiltCard>
-            </div>
-
-            {/* Binary terminal-video portrait */}
-            <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.7, delay: 0.3, ease: EASE }}
-              style={{
-                flex: "0 1 330px",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "0.6rem",
-                minWidth: 260,
-              }}
-            >
-              <BinaryPortrait src="/me.jpg" alt="Wahab Sohail" width={330} />
-              <div
-                aria-hidden
-                style={{
-                  fontFamily: "'Fira Code', monospace",
-                  fontSize: "0.68rem",
-                  color: "#6c7086",
-                  letterSpacing: "0.06em",
-                }}
-              >
-                <span style={{ color: "#4caf50" }}>$</span> cat whoami.jpg <span style={{ opacity: 0.6 }}>— 01010110</span>
-              </div>
-            </motion.div>
-          </div>
         </motion.div>
       </div>
     </section>
