@@ -539,16 +539,71 @@ const ProjectCard = memo(function ProjectCard({ project, index, onSelect }: { pr
   const isInView = useInView(ref, { once: true, margin: "-60px" });
   // Cursor-tracking glow position
   const glowRef = useRef<HTMLDivElement>(null);
+  // 3D tilt state (transform-only — no layout, no re-render per move)
+  const tiltRef = useRef<HTMLDivElement>(null);
+  const rafRef = useRef(0);
+  const targetTilt = useRef({ rx: 0, ry: 0, gx: 50, gy: 50 });
 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    // Touch drags should scroll, not tilt the card
+    if (e.pointerType !== "mouse") return;
     const el = glowRef.current;
-    if (!el) return;
     const rect = e.currentTarget.getBoundingClientRect();
-    el.style.opacity = "1";
-    el.style.background = `radial-gradient(circle 260px at ${e.clientX - rect.left}px ${e.clientY - rect.top}px, ${color}14 0%, transparent 70%)`;
+    const px = e.clientX - rect.left;
+    const py = e.clientY - rect.top;
+    // Radial glow follows the cursor
+    if (el) {
+      el.style.opacity = "1";
+      el.style.background = `radial-gradient(circle 260px at ${px}px ${py}px, ${color}14 0%, transparent 70%)`;
+    }
+    // Tilt targets — applied on the next rAF (coalesces rapid pointermove)
+    targetTilt.current = {
+      rx: -(py / rect.height - 0.5) * 7,
+      ry: (px / rect.width - 0.5) * 9,
+      gx: (px / rect.width) * 100,
+      gy: (py / rect.height) * 100,
+    };
+    if (!rafRef.current) {
+      rafRef.current = requestAnimationFrame(applyTilt);
+    }
   };
+
+  // rAF loop while hovering: eases the card toward the pointer tilt and
+  // sweeps a specular glare across the surface. Cancels on leave.
+  const applyTilt = () => {
+    rafRef.current = 0;
+    const el = tiltRef.current;
+    if (!el) return;
+    const t = targetTilt.current;
+    el.style.transform = `perspective(900px) rotateX(${t.rx.toFixed(2)}deg) rotateY(${t.ry.toFixed(2)}deg) translateZ(0)`;
+    const glare = el.querySelector<HTMLElement>(".project-glare");
+    if (glare) {
+      glare.style.opacity = "1";
+      glare.style.background = `linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.08) ${t.gx * 0.5}%, rgba(255,255,255,0.16) ${t.gx}%, rgba(255,255,255,0.08) ${Math.min(100, t.gx + (100 - t.gx) * 0.5)}%, transparent 60%)`;
+    }
+  };
+
   const handlePointerLeave = () => {
     if (glowRef.current) glowRef.current.style.opacity = "0";
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = 0;
+    }
+    const el = tiltRef.current;
+    if (el) {
+      el.style.transition = "transform 0.5s cubic-bezier(0.22, 1, 0.36, 1)";
+      el.style.transform = "perspective(900px) rotateX(0deg) rotateY(0deg) translateZ(0)";
+    }
+    const glare = tiltRef.current?.querySelector<HTMLElement>(".project-glare");
+    if (glare) {
+      glare.style.transition = "opacity 0.4s ease";
+      glare.style.opacity = "0";
+    }
+  };
+
+  const handlePointerEnter = () => {
+    const el = tiltRef.current;
+    if (el) el.style.transition = "transform 0.12s ease-out";
   };
 
   return (
@@ -564,8 +619,20 @@ const ProjectCard = memo(function ProjectCard({ project, index, onSelect }: { pr
       onClick={() => onSelect(project)}
       whileHover={{ y: -6, transition: { duration: 0.22 } }}
       onPointerMove={handlePointerMove}
+      onPointerEnter={handlePointerEnter}
       onPointerLeave={handlePointerLeave}
     >
+      {/* 3D tilt layer — inner wrapper so framer's y-hover doesn't fight the tilt transform */}
+      <div ref={tiltRef} style={{ display: "flex", flexDirection: "column", flex: 1, transformStyle: "preserve-3d", willChange: "transform" }}>
+      {/* Specular glare sweep */}
+      <div
+        aria-hidden
+        className="project-glare"
+        style={{
+          position: "absolute", inset: 0, borderRadius: 16,
+          pointerEvents: "none", zIndex: 4, opacity: 0,
+        }}
+      />
       {/* Cursor-tracking sheen */}
       <div
         ref={glowRef}
@@ -639,6 +706,7 @@ const ProjectCard = memo(function ProjectCard({ project, index, onSelect }: { pr
           View project details
           <ChevronRight size={13} className="project-cta-arrow" style={{ marginLeft: "auto" }} />
         </div>
+      </div>
       </div>
     </motion.div>
   );

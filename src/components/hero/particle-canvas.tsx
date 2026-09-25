@@ -4,6 +4,7 @@ import { useEffect, useRef, useMemo, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Points, PointMaterial } from "@react-three/drei";
 import * as THREE from "three";
+import { HeroCrystal } from "./hero-crystal";
 
 function ParticleField() {
   const ref = useRef<THREE.Points>(null!);
@@ -41,7 +42,7 @@ function ParticleField() {
   );
 }
 
-export function ParticleCanvas() {
+export function ParticleCanvas({ scrollProgressRef }: { scrollProgressRef?: React.MutableRefObject<number> }) {
   const hostRef = useRef<HTMLDivElement>(null);
   // Default true (fail-safe): if IntersectionObserver is unavailable or the
   // tab is hidden, the canvas mounts exactly like the old always-on behavior.
@@ -83,9 +84,21 @@ export function ParticleCanvas() {
   }, []);
 
   // Mount the Canvas only after first paint so it never competes with LCP.
+  // setTimeout fallback so hostile/occluded rAF environments still mount.
   useEffect(() => {
-    const id = requestAnimationFrame(() => setRender(true));
-    return () => cancelAnimationFrame(id);
+    let done = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const go = () => {
+      if (done) return;
+      done = true;
+      setRender(true);
+    };
+    const rafId = requestAnimationFrame(go);
+    timer = setTimeout(go, 300);
+    return () => {
+      cancelAnimationFrame(rafId);
+      clearTimeout(timer);
+    };
   }, []);
 
   // Freeze the loop while the tab is hidden (r3f keeps driving frames when
@@ -114,6 +127,9 @@ export function ParticleCanvas() {
           frameloop={reducedMotion ? "demand" : tabVisible ? "always" : "never"}
         >
           <ParticleField />
+          {scrollProgressRef && (
+            <HeroCrystal progressRef={scrollProgressRef} reducedMotion={!!reducedMotion} />
+          )}
         </Canvas>
       )}
     </div>

@@ -4,6 +4,7 @@ import { useState, memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronRight, ChevronDown, Folder, FolderOpen } from "lucide-react";
 import { skillTree, SkillFile, SkillFolder } from "@/data/skills";
+import { SkillConstellation } from "./skill-constellation";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -139,14 +140,27 @@ export function Skills() {
           </p>
         </motion.div>
 
-        {/* File tree terminal window */}
+        {/* Interactive skill constellation + file tree */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "minmax(0, 5fr) minmax(0, 4fr)",
+            gap: "1.5rem",
+            alignItems: "stretch",
+            marginBottom: "2rem",
+          }}
+          className="skills-duo-grid"
+        >
+          <SkillConstellation />
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            {/* File tree terminal window */}
         <motion.div
           initial={{ opacity: 0, y: 34, scale: 0.98 }}
           whileInView={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.7, delay: 0.12, ease: EASE }}
           viewport={{ once: true, margin: "-80px" }}
           className="terminal-window"
-          style={{ maxWidth: 680, margin: "0 auto" }}
+          style={{ flex: 1, display: "flex", flexDirection: "column" }}
         >
           {/* Titlebar */}
           <div className="terminal-titlebar">
@@ -161,8 +175,8 @@ export function Skills() {
             <div style={{ width: 50 }} />
           </div>
 
-          {/* File tree body */}
-          <div style={{ padding: "1rem 0.5rem" }} className="file-tree">
+            {/* File tree body */}
+            <div style={{ padding: "1rem 0.5rem", flex: 1 }} className="file-tree">
             {/* Root */}
             <motion.div
               className="file-tree-item"
@@ -187,6 +201,8 @@ export function Skills() {
             </div>
           </div>
         </motion.div>
+          </div>
+        </div>
       </div>
     </section>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Download, BrainCircuit, AudioWaveform, Bot, Cpu, Code2, Database } from "lucide-react";
 import { ParticleCanvas } from "./particle-canvas";
@@ -50,6 +50,9 @@ function StaggerWords({
 
 export function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
+  // 0..1 hero scroll progress, read inside the r3f render loop via ref
+  // (no React re-renders per scroll tick)
+  const scrollProgressRef = useRef(0);
 
   // Parallax: content drifts up + fades slightly as you scroll away
   const { scrollYProgress } = useScroll({
@@ -58,6 +61,14 @@ export function Hero() {
   });
   const contentY = useTransform(scrollYProgress, [0, 1], [0, -80]);
   const contentOpacity = useTransform(scrollYProgress, [0, 0.75], [1, 0]);
+
+  // Feed the crystal without re-rendering React on every scroll frame
+  useEffect(() => {
+    const unsub = scrollYProgress.on("change", (v) => {
+      scrollProgressRef.current = v;
+    });
+    return unsub;
+  }, [scrollYProgress]);
 
   const scrollToAbout = () => {
     document.querySelector("#about")?.scrollIntoView({ behavior: "smooth" });
@@ -77,9 +88,9 @@ export function Hero() {
         overflow: "hidden",
       }}
     >
-      {/* Layer 1 — particle depth field (bottom) */}
+      {/* Layer 1 — particle depth field + scroll-morphing crystal (bottom) */}
       <div aria-hidden style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none", opacity: 0.5 }}>
-        <ParticleCanvas />
+        <ParticleCanvas scrollProgressRef={scrollProgressRef} />
       </div>
 
       {/* Layer 2 — drifting aurora orbs */}
