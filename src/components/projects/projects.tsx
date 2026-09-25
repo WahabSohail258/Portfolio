@@ -569,7 +569,7 @@ const ProjectCard = memo(function ProjectCard({ project, index, onSelect }: { pr
   };
 
   // rAF loop while hovering: eases the card toward the pointer tilt and
-  // sweeps a specular glare across the surface. Cancels on leave.
+  // brightens a soft radial glow at the cursor. Cancels on leave.
   const applyTilt = () => {
     rafRef.current = 0;
     const el = tiltRef.current;
@@ -579,7 +579,7 @@ const ProjectCard = memo(function ProjectCard({ project, index, onSelect }: { pr
     const glare = el.querySelector<HTMLElement>(".project-glare");
     if (glare) {
       glare.style.opacity = "1";
-      glare.style.background = `linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.08) ${t.gx * 0.5}%, rgba(255,255,255,0.16) ${t.gx}%, rgba(255,255,255,0.08) ${Math.min(100, t.gx + (100 - t.gx) * 0.5)}%, transparent 60%)`;
+      glare.style.background = `radial-gradient(circle 300px at ${t.gx}% ${t.gy}%, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.025) 45%, transparent 70%)`;
     }
   };
 
@@ -624,13 +624,14 @@ const ProjectCard = memo(function ProjectCard({ project, index, onSelect }: { pr
     >
       {/* 3D tilt layer — inner wrapper so framer's y-hover doesn't fight the tilt transform */}
       <div ref={tiltRef} style={{ display: "flex", flexDirection: "column", flex: 1, transformStyle: "preserve-3d", willChange: "transform" }}>
-      {/* Specular glare sweep */}
+      {/* Cursor-following soft glow */}
       <div
         aria-hidden
         className="project-glare"
         style={{
           position: "absolute", inset: 0, borderRadius: 16,
           pointerEvents: "none", zIndex: 4, opacity: 0,
+          transition: "opacity 0.35s ease",
         }}
       />
       {/* Cursor-tracking sheen */}

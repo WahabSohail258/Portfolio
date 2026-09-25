@@ -7,52 +7,48 @@ import * as THREE from "three";
 import { skillTree } from "@/data/skills";
 
 /**
- * SkillConstellation — the "skills constellation" visualization.
+ * SkillConstellation — the "skills constellation" visualization (v2).
  *
- * Each folder in `skills.ts` becomes an orbiting hub (octahedron crystal);
- * every skill inside it becomes a leaf node connected by a glowing edge.
- * Hovering a hub highlights its whole cluster. Idle motion is a slow orbit;
- * the camera parallaxes with the pointer. Everything animates via transforms
- * in the render loop (no React state per frame), the frameloop stops when
- * the canvas is offscreen or the tab is hidden, DPR is capped, and
- * prefers-reduced-motion renders one static frame.
+ * Design language: monochrome terminal-green, a precise ring of 8 category
+ * hubs around a central core, tight leaf clusters, thin edges. One hue keeps
+ * it professional; hierarchy comes from brightness, not a rainbow. Hovering
+ * a hub highlights its cluster and dims the rest.
+ *
+ * Geometry is sized so nodes + labels always sit inside the frame (no edge
+ * clipping): hub ring R=1.78, camera distance ≥5.9 on a 42° FOV keeps the
+ * outermost label ≥0.4 world-units from the frame edge.
  */
 
-const CATEGORY_COLORS = ["#4caf50", "#89dceb", "#f59e0b", "#ba68c8", "#42a5f5", "#14b8a6", "#e8a838", "#f55036"];
+const GREEN = "#4caf50";
+const GREEN_SOFT = "#8ff0a4";
 
 interface ClusterSpec {
   name: string;
-  color: string;
   hub: THREE.Vector3;
   leaves: { name: string; pos: THREE.Vector3 }[];
 }
 
 function buildClusters(): ClusterSpec[] {
-  const R = 2.15;
+  const R = 1.78;
   return skillTree.map((folder, i) => {
-    const angle = (i / skillTree.length) * Math.PI * 2;
-    const hub = new THREE.Vector3(
-      Math.cos(angle) * R,
-      Math.sin(angle * 2) * 0.42,
-      Math.sin(angle) * R
-    );
+    const angle = (i / skillTree.length) * Math.PI * 2 - Math.PI / 2;
+    const hub = new THREE.Vector3(Math.cos(angle) * R, Math.sin(angle) * R * 0.62, Math.sin(angle * 2) * 0.25);
     const leaves = folder.files.map((file, j) => {
       const count = folder.files.length;
-      const a = (j / count) * Math.PI * 2 + i * 0.8;
-      const lr = count > 6 ? 0.68 : 0.58;
+      const a = (j / count) * Math.PI * 2 + i * 1.3;
+      const lr = 0.44 + (j % 2) * 0.1;
       return {
         name: file.name,
         pos: hub
           .clone()
-          .add(new THREE.Vector3(Math.cos(a) * lr, Math.sin(a * 1.7) * 0.26, Math.sin(a) * lr)),
+          .add(new THREE.Vector3(Math.cos(a) * lr, Math.sin(a * 1.9) * 0.2, Math.sin(a) * lr * 0.7)),
       };
     });
-    return { name: folder.name, color: CATEGORY_COLORS[i % CATEGORY_COLORS.length], hub, leaves };
+    return { name: folder.name, hub, leaves };
   });
 }
 
 function Constellation({ reduced }: { reduced: boolean }) {
-  const { mouse, camera } = useThree();
   const clusters = useMemo(buildClusters, []);
   const orbitRef = useRef<THREE.Group>(null);
   const coreRef = useRef<THREE.Group>(null);
@@ -60,170 +56,151 @@ function Constellation({ reduced }: { reduced: boolean }) {
   const hoveredRef = useRef<number | null>(null);
   hoveredRef.current = hovered;
   const growRef = useRef(reduced ? 1 : 0);
-
-  // Entrance growth trigger is owned by the parent (inView); ease toward 1.
+  const camera = useThree(({ camera }) => camera);
   useFrame((state, dt) => {
     const t = reduced ? 0 : state.clock.elapsedTime;
     const clampedDt = Math.min(dt, 0.05);
 
-    // Ease the reveal
     if (!reduced) growRef.current = Math.min(1, growRef.current + clampedDt / 1.1);
-    const g = growRef.current;
-    const eased = 1 - Math.pow(1 - g, 3);
+    const eased = 1 - Math.pow(1 - growRef.current, 3);
 
     if (orbitRef.current) {
-      orbitRef.current.rotation.y = t * 0.07;
+      orbitRef.current.rotation.z = t * 0.05;
       orbitRef.current.scale.setScalar(0.001 + eased * 0.999);
-      // Gentle pointer parallax (added to orbit, doesn't fight hover)
-      orbitRef.current.rotation.x = THREE.MathUtils.lerp(orbitRef.current.rotation.x, mouse.y * 0.12, 0.04);
+      const pointer = state.pointer;
+      orbitRef.current.rotation.x = THREE.MathUtils.lerp(orbitRef.current.rotation.x, -0.18 + pointer.y * 0.06, 0.03);
     }
     if (coreRef.current) {
-      coreRef.current.rotation.y = -t * 0.11;
-      coreRef.current.rotation.z = t * 0.05;
-      const pulse = reduced ? 1 : 1 + Math.sin(t * 1.4) * 0.04;
+      coreRef.current.rotation.y = t * 0.16;
+      coreRef.current.rotation.x = -t * 0.07;
+      const pulse = reduced ? 1 : 1 + Math.sin(t * 1.5) * 0.05;
       coreRef.current.scale.setScalar(eased * pulse);
     }
 
-    // Fit the graph inside the frame: portrait hosts (mobile) sit farther back
+    // Fit the graph inside the frame: portrait hosts sit farther back
     const el = state.gl.domElement;
     const aspect = el.clientWidth / Math.max(1, el.clientHeight);
-    const dist = aspect < 0.9 ? 6.3 : 5.7;
+    const dist = aspect < 0.9 ? 6.5 : 5.9;
     if (Math.abs(camera.position.z - dist) > 0.01) {
       camera.position.z += (dist - camera.position.z) * 0.08;
-    }
-    // Hub crystals spin individually + cluster response on hover
-    if (orbitRef.current) {
-      orbitRef.current.children.forEach((child) => {
-        const cluster = child.userData.clusterIndex as number | undefined;
-        if (cluster !== undefined) {
-          const target = hoveredRef.current === cluster ? 1.18 : 1;
-          child.scale.lerp(new THREE.Vector3(target, target, target), 0.12);
-        }
-      });
     }
   });
 
   return (
     <>
-      {/* Camera parallax is handled by orbit tilt; keep camera fixed */}
-      {/* Core — the "you" at the center */}
+      {/* Core — the engineer at the center */}
       <group ref={coreRef}>
         <mesh>
-          <icosahedronGeometry args={[0.34, 0]} />
-          <meshBasicMaterial color="#4caf50" wireframe transparent opacity={0.9} />
+          <icosahedronGeometry args={[0.24, 0]} />
+          <meshBasicMaterial color={GREEN} wireframe transparent opacity={0.85} />
         </mesh>
         <mesh>
-          <sphereGeometry args={[0.13, 16, 16]} />
-          <meshBasicMaterial color="#8ff0a4" />
+          <sphereGeometry args={[0.075, 14, 14]} />
+          <meshBasicMaterial color={GREEN_SOFT} />
         </mesh>
       </group>
 
-      {/* Star backdrop */}
-      <Points />
+      {/* Sparse star backdrop */}
+      <Stars />
 
       <group ref={orbitRef}>
-        {clusters.map((cluster, ci) => (
-          <group key={cluster.name} userData={{ clusterIndex: ci }}>
-            {/* Hub crystal */}
-            <mesh
-              position={cluster.hub}
-              onPointerOver={(e) => {
-                e.stopPropagation();
-                setHovered(ci);
-              }}
-              onPointerOut={() => setHovered((h) => (h === ci ? null : h))}
-            >
-              <octahedronGeometry args={[0.17, 0]} />
-              <meshBasicMaterial color={cluster.color} />
-            </mesh>
-            {/* Hub glow halo */}
-            <mesh position={cluster.hub}>
-              <sphereGeometry args={[0.28, 12, 12]} />
-              <meshBasicMaterial color={cluster.color} transparent opacity={hovered === ci ? 0.16 : 0.07} depthWrite={false} />
-            </mesh>
-            {/* Hub label (DOM overlay, crisp text) */}
-            <Html position={cluster.hub} center style={{ pointerEvents: "none" }} zIndexRange={[10, 0]}>
-              <div
-                style={{
-                  fontFamily: "'Fira Code', monospace",
-                  fontSize: 10,
-                  letterSpacing: "0.04em",
-                  color: hovered === ci ? "#fff" : cluster.color,
-                  background: "rgba(5, 8, 7, 0.55)",
-                  border: `1px solid ${hovered === ci ? cluster.color : "rgba(255,255,255,0.08)"}`,
-                  borderRadius: 4,
-                  padding: "1px 6px",
-                  whiteSpace: "nowrap",
-                  transition: "color 0.2s, border-color 0.2s",
+        {clusters.map((cluster, ci) => {
+          const active = hovered === ci;
+          const dimmed = hovered !== null && !active;
+          return (
+            <group key={cluster.name}>
+              {/* Hub node */}
+              <mesh
+                position={cluster.hub}
+                onPointerOver={(e) => {
+                  e.stopPropagation();
+                  setHovered(ci);
                 }}
+                onPointerOut={() => setHovered((h) => (h === ci ? null : h))}
               >
-                {cluster.name}
-              </div>
-            </Html>
-
-            {/* Edges: core → hub, hub → leaves */}
-            <Line
-              points={[[0, 0, 0], cluster.hub]}
-              color={cluster.color}
-              transparent
-              opacity={hovered === ci ? 0.75 : 0.32}
-              lineWidth={hovered === ci ? 1.6 : 1}
-            />
-            {cluster.leaves.map((leaf) => (
-              <Line
-                key={leaf.name + "-edge"}
-                points={[cluster.hub, leaf.pos]}
-                color={cluster.color}
-                transparent
-                opacity={hovered === ci ? 0.55 : 0.18}
-                lineWidth={1}
-              />
-            ))}
-
-            {/* Leaf nodes */}
-            {cluster.leaves.map((leaf) => (
-              <mesh key={leaf.name} position={leaf.pos}>
-                <sphereGeometry args={[0.045, 8, 8]} />
-                <meshBasicMaterial color={hovered === ci ? "#ffffff" : cluster.color} transparent opacity={hovered === ci ? 0.95 : 0.7} />
+                <octahedronGeometry args={[0.13, 0]} />
+                <meshBasicMaterial color={active ? "#ffffff" : GREEN} transparent opacity={dimmed ? 0.35 : 1} />
               </mesh>
-            ))}
-          </group>
-        ))}
-      </group>
 
-      {/* Subtle floor ring for grounding */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.35, 0]}>
-        <ringGeometry args={[2.5, 2.54, 64]} />
-        <meshBasicMaterial color="#4caf50" transparent opacity={0.14} side={THREE.DoubleSide} />
-      </mesh>
+              {/* Hub label — dim by default, brightens on hover */}
+              <Html position={cluster.hub} center style={{ pointerEvents: "none" }} zIndexRange={[10, 0]}>
+                <div
+                  style={{
+                    fontFamily: "'Fira Code', monospace",
+                    fontSize: 9,
+                    letterSpacing: "0.05em",
+                    whiteSpace: "nowrap",
+                    color: active ? "#ffffff" : "rgba(220, 235, 225, 0.5)",
+                    textShadow: "0 1px 4px rgba(0,0,0,0.9)",
+                    transition: "color 0.25s",
+                  }}
+                >
+                  {cluster.name}
+                </div>
+              </Html>
+
+              {/* Spine: core → hub */}
+              <Line
+                points={[[0, 0, 0], cluster.hub]}
+                color={GREEN}
+                transparent
+                opacity={active ? 0.8 : dimmed ? 0.07 : 0.28}
+                lineWidth={active ? 1.5 : 1}
+              />
+
+              {/* Leaves */}
+              {cluster.leaves.map((leaf) => (
+                <Line
+                  key={leaf.name + "-e"}
+                  points={[cluster.hub, leaf.pos]}
+                  color={GREEN}
+                  transparent
+                  opacity={active ? 0.5 : dimmed ? 0.04 : 0.14}
+                  lineWidth={1}
+                />
+              ))}
+              {cluster.leaves.map((leaf) => (
+                <mesh key={leaf.name} position={leaf.pos}>
+                  <sphereGeometry args={[0.032, 8, 8]} />
+                  <meshBasicMaterial
+                    color={active ? "#ffffff" : GREEN_SOFT}
+                    transparent
+                    opacity={active ? 0.95 : dimmed ? 0.2 : 0.5}
+                  />
+                </mesh>
+              ))}
+            </group>
+          );
+        })}
+      </group>
     </>
   );
 }
 
-function Points() {
+function Stars() {
   const positions = useMemo(() => {
-    const N = 140;
+    const N = 110;
     const arr = new Float32Array(N * 3);
     for (let i = 0; i < N; i++) {
-      const r = 3 + Math.random() * 2.5;
+      const r = 3.4 + Math.random() * 2.2;
       const theta = Math.random() * Math.PI * 2;
       const phi = Math.acos(2 * Math.random() - 1);
       arr[i * 3] = r * Math.sin(phi) * Math.cos(theta);
-      arr[i * 3 + 1] = r * Math.cos(phi) * 0.55;
+      arr[i * 3 + 1] = r * Math.cos(phi) * 0.6;
       arr[i * 3 + 2] = r * Math.sin(phi) * Math.sin(theta);
     }
     return arr;
   }, []);
   const ref = useRef<THREE.Points>(null!);
   useFrame((state) => {
-    if (ref.current) ref.current.rotation.y = state.clock.elapsedTime * 0.015;
+    if (ref.current) ref.current.rotation.y = state.clock.elapsedTime * 0.012;
   });
   return (
     <points ref={ref}>
       <bufferGeometry>
         <bufferAttribute attach="attributes-position" args={[positions, 3]} />
       </bufferGeometry>
-      <pointsMaterial size={0.02} color="#89dceb" transparent opacity={0.4} sizeAttenuation depthWrite={false} />
+      <pointsMaterial size={0.018} color={GREEN_SOFT} transparent opacity={0.3} sizeAttenuation depthWrite={false} />
     </points>
   );
 }
@@ -264,13 +241,21 @@ export function SkillConstellation() {
   }, []);
 
   useEffect(() => {
-    const onVis = () => setTabVisible(!document.hidden);
+    const onVis = () => {
+      setTabVisible(!document.hidden);
+      // IO callbacks can be starved while the tab is hidden — re-sync the
+      // onscreen state once when the tab becomes visible again.
+      if (!document.hidden && hostRef.current) {
+        const r = hostRef.current.getBoundingClientRect();
+        setOnScreen(r.width > 0 && r.bottom > -100 && r.top < window.innerHeight + 100);
+      }
+    };
     document.addEventListener("visibilitychange", onVis);
     return () => document.removeEventListener("visibilitychange", onVis);
   }, []);
 
-  // Mount after first paint so it never competes with LCP.
-  // setTimeout fallback so hostile/occluded rAF environments still mount.
+  // Mount after first paint (LCP-safe), with a setTimeout fallback for
+  // occluded/rAF-hostile environments.
   useEffect(() => {
     let done = false;
     let timer: ReturnType<typeof setTimeout> | undefined;
@@ -292,6 +277,7 @@ export function SkillConstellation() {
       ref={hostRef}
       role="img"
       aria-label="Interactive 3D constellation of skills — hover a hub to highlight its cluster"
+      className="skill-constellation-host"
       style={{
         position: "relative",
         width: "100%",
@@ -302,7 +288,7 @@ export function SkillConstellation() {
         justifySelf: "center",
         borderRadius: 16,
         overflow: "hidden",
-        background: "radial-gradient(ellipse 80% 65% at 50% 42%, #0d1512 0%, #070b09 68%)",
+        background: "radial-gradient(ellipse 78% 62% at 50% 44%, #0c1410 0%, #070b09 70%)",
         border: "1px solid rgba(var(--primary-rgb), 0.16)",
         boxShadow: "inset 0 0 60px rgba(0, 0, 0, 0.45)",
         opacity: reducedMotion ? 0.9 : 1,
@@ -338,12 +324,12 @@ export function SkillConstellation() {
           color: "rgba(255,255,255,0.45)", letterSpacing: "0.08em", pointerEvents: "none",
         }}
       >
-        <span style={{ color: "#4caf50", fontWeight: 700 }}>$</span> skill-graph --interactive · hover a hub
+        <span style={{ color: GREEN, fontWeight: 700 }}>$</span> skill-graph --interactive · hover a hub
       </div>
 
       {render && onScreen && (
         <Canvas
-          camera={{ position: [0, 0.4, 6.4], fov: 42 }}
+          camera={{ position: [0, 0, 5.9], fov: 42 }}
           style={{ position: "absolute", inset: 0 }}
           gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
           dpr={[1, 1.75]}
