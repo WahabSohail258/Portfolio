@@ -446,12 +446,6 @@ body {
 .project-cta-arrow { transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); }
 .project-card:hover .project-cta-arrow { transform: translateX(4px); }
 
-/* ── Skills duo grid (constellation + file tree) ──────── */
-@media (max-width: 900px) {
-  .skills-duo-grid { grid-template-columns: 1fr !important; }
-  .skills-duo-grid > div[role="img"] { max-width: 520px; margin: 0 auto; width: 100%; }
-}
-
 /* ── Focus visibility for a11y ────────────────────────── */
 :focus-visible {
   outline: 2px solid rgba(var(--primary-rgb), 0.7);
