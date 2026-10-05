@@ -6,10 +6,9 @@ import { Menu, X, Download } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 const links = [
-  { href: "#projects", label: "Work" },
   { href: "#about", label: "About" },
   { href: "#skills", label: "Skills" },
-  { href: "#experience", label: "Journey" },
+  { href: "#projects", label: "Projects" },
 ];
 
 export function Navbar() {
@@ -91,7 +90,7 @@ export function Navbar() {
             background: "var(--card)",
             backdropFilter: "blur(12px)",
             width: "100%",
-            maxWidth: 960,
+            maxWidth: 720,
             boxShadow: scrolled
               ? "0 8px 32px rgba(0,0,0,0.22)"
               : "0 4px 24px rgba(0,0,0,0.18)",
@@ -285,7 +284,7 @@ export function Navbar() {
               boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
             }}
           >
-            {[...links, { href: "#contact", label: "Contact" }].map((l, i) => (
+            {[...links, { href: "#experience", label: "Experience" }, { href: "#contact", label: "Contact" }].map((l, i) => (
               <motion.a
                 key={l.href}
                 href={l.href}

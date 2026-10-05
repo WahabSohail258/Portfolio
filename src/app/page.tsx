@@ -13,16 +13,22 @@ export default function Home() {
     <main id="main-content" className="relative">
       <Navbar />
 
+      {/* 1. Big landing hero */}
       <Hero />
 
-      <Projects />
-
+      {/* 2. Who am I — terminal whoami */}
       <About />
 
+      {/* 3. Technical toolbox — file tree */}
       <Skills />
 
+      {/* 4. Featured projects */}
+      <Projects />
+
+      {/* 5. Experience timeline */}
       <Timeline />
 
+      {/* 6. Bento contact grid — at the very end */}
       <BentoContact />
 
       <Footer />

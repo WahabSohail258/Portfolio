@@ -52,6 +52,7 @@ export function AgentWidget() {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [typing, setTyping] = useState(false);
+  const pendingRef = useRef(false);
   const [msgs, setMsgs] = useState<Msg[]>([
     { role: "agent", text: AGENT_GREETING.answer, suggestions: AGENT_GREETING.suggestions },
   ]);
@@ -76,7 +77,8 @@ export function AgentWidget() {
 
   const send = (raw?: string) => {
     const text = (raw ?? input).trim();
-    if (!text || typing) return;
+    if (!text || pendingRef.current) return;
+    pendingRef.current = true;
     setInput("");
     const history = msgsRef.current
       .filter((m) => m.role === "user" || (m.role === "agent" && m.text !== AGENT_GREETING.answer))
@@ -88,7 +90,7 @@ export function AgentWidget() {
 
     (async () => {
       let agentText = "";
-      let suggestions: string[] = ["Show me his projects", "Check his availability", "How can I contact him?"];
+      let suggestions: string[] = ["Show me his projects", "What is his experience?", "How can I contact him?"];
       let mode: "llm" | "kb" = "kb";
       let topicId: string | undefined;
       try {
@@ -99,9 +101,14 @@ export function AgentWidget() {
             "x-last-topic": lastTopicRef.current ?? "",
           },
           body: JSON.stringify({ messages: [...history, { role: "user", content: text }] }),
+          signal: AbortSignal.timeout(25000),
         });
-        if (!res.ok) throw new Error(String(res.status));
         const data = await res.json();
+        if (!res.ok) {
+          agentText = data.error || "The assistant is temporarily unavailable. Please try again.";
+          suggestions = [];
+          return;
+        }
         agentText = data.reply.answer;
         suggestions = data.reply.suggestions ?? suggestions;
         mode = data.mode === "llm" ? "llm" : "kb";
@@ -113,12 +120,13 @@ export function AgentWidget() {
         suggestions = reply.suggestions;
         topicId = reply.topicId;
         mode = "kb";
+      } finally {
+        if (topicId) lastTopicRef.current = topicId;
+        await new Promise((r) => setTimeout(r, Math.max(0, 350 - (Date.now() - t0))));
+        pendingRef.current = false;
+        setTyping(false);
+        setMsgs((m) => [...m, { role: "agent", text: agentText, suggestions, mode }]);
       }
-      if (topicId) lastTopicRef.current = topicId;
-      // Brief beat so even instant answers don't feel like an if-statement
-      await new Promise((r) => setTimeout(r, Math.max(0, 550 - (Date.now() - t0))));
-      setTyping(false);
-      setMsgs((m) => [...m, { role: "agent", text: agentText, suggestions, mode }]);
     })();
   };
 
@@ -235,7 +243,7 @@ export function AgentWidget() {
                 </div>
                 <div style={{ fontSize: "0.66rem", color: "var(--green)", fontWeight: 600, display: "flex", alignItems: "center", gap: "0.3rem" }}>
                   <span className="animate-pulse-dot" style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--green)", display: "inline-block" }} />
-                  Ask me anything — or book a call
+                  Ask about experience, projects, and skills
                 </div>
               </div>
               <Sparkles size={14} style={{ color: "var(--primary)", opacity: 0.6 }} />

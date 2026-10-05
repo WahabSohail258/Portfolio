@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { CursorFollower } from "@/components/ui/cursor-follower";
 import { ScrollProgress } from "@/components/ui/scroll-progress";
 import { ThemeScript } from "@/components/ui/theme-script";
 import { MotionProvider } from "@/components/ui/motion-provider";
@@ -73,6 +74,7 @@ export default function RootLayout({
         <a className="skip-link" href="#main-content">Skip to content</a>
         <MotionProvider>
           <div className="noise-overlay" aria-hidden="true" />
+          <CursorFollower />
           <ScrollProgress />
           {children}
           <AgentWidget />

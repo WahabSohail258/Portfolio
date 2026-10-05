@@ -10,7 +10,7 @@ function ParticleField() {
   const ref = useRef<THREE.Points>(null!);
   const { mouse } = useThree();
 
-  const count = 3000;
+  const count = 1600;
   const positions = useMemo(() => {
     const arr = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {

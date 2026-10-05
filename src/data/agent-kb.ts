@@ -56,7 +56,7 @@ const TOPICS: Topic[] = [
     answer:
       "Wahab Sohail — AI Engineer at Blue Group of Companies and Computer Engineering student at NUST (Class of 2026). He builds conversational AI: Urdu voice agents, LLM fine-tuning, and RAG systems — grounded, evaluated, and shipped to real users.",
     followUp:
-      "A bit more: he started with edge AI and computer vision (NCRA, Raspberry Pi & Jetson Nano), moved through deep-learning research for healthcare (RISETech), and now specializes in production conversational AI — the full stack from fine-tuning to TTS to retrieval. He also led COMPPEC, NUST's flagship computing society, as President.",
+      "A bit more: he started with edge AI and computer vision (NCRA, Raspberry Pi & Jetson Nano), moved through deep-learning research for healthcare (RISETech), and now specializes in production conversational AI — the full stack from fine-tuning to TTS to retrieval. He also led COMPPEC at NUST as President.",
     suggestions: ["What is he working on now?", "Show me his projects", "How can I contact him?"],
   },
   {
@@ -124,7 +124,7 @@ const TOPICS: Topic[] = [
     keys: ["urdu voice", "voice agent", "voice ai", "tts", "speech", "asr", "text to speech", "conversational agent", "coqui", "elevenlabs"],
     prompt: "What is the Urdu voice agent?",
     answer:
-      "The Urdu Conversational Voice Agent is his production work at Blue Group: local LLM response generation (Ollama), Urdu TTS with Coqui adapted on ElevenLabs audio, and STT integration in progress — all grounded through RAG pipelines. It's one of the few production Urdu voice systems out there.",
+      "The Urdu Conversational Voice Agent is his production work at Blue Group: local LLM response generation (Ollama), Urdu TTS with Coqui adapted on ElevenLabs audio, and STT integration in progress — all grounded through RAG pipelines.",
     followUp: current
       ? `Under the hood:\n${current.description.map((d) => `• ${d}`).join("\n")}`
       : "",
@@ -216,7 +216,7 @@ const TOPICS: Topic[] = [
     answer:
       "His strongest area is the intersection of voice + LLMs: production Urdu conversational AI, speech pipeline engineering (TTS/ASR), and retrieval-grounded agent systems. Comfortable anywhere from fine-tuning to edge deployment on Raspberry Pi.",
     followUp:
-      "The rare combination: most engineers pick voice OR LLMs. He ships both ends — custom TTS data pipelines, Kaldi-level ASR internals, LoRA fine-tuning, RAG infrastructure, and the edge deployment story to run it all on constrained hardware.",
+      "His projects cover voice and LLM systems — custom TTS data pipelines, Kaldi-level ASR internals, LoRA fine-tuning, RAG infrastructure, and the edge deployment story to run it all on constrained hardware.",
     suggestions: ["Show me his projects", "What tech does he use?"],
   },
   {
@@ -241,7 +241,7 @@ const TOPICS: Topic[] = [
 
 /* ── Text utilities ──────────────────────────────────────── */
 function normalize(s: string): string {
-  return s.toLowerCase().replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ").trim();
+  return s.toLowerCase().replace(/c\+\+/g, "cpp").replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ").trim();
 }
 
 const STOPWORDS = new Set([
@@ -306,7 +306,7 @@ const PROJECT_ALIASES: Record<string, string[]> = {
   "1": ["speakwell", "phoneme", "kaldi", "final year"],
   "7": ["orgmind", "org mind", "research agent", "company research"],
   "9": ["ticket", "support agent", "ticket resolution"],
-  "2": ["tool insights", "toolchat", "gmail", "slack", "jira"],
+  "2": ["orbi", "tool insights", "toolchat", "gmail", "slack", "jira", "composio"],
   "3": ["sign language", "gesture", "hand gesture"],
   "4": ["santander", "transaction prediction", "tabular"],
   "5": ["self driving", "self-driving", "autonomous", "lane detection", "autonav"],
@@ -314,14 +314,15 @@ const PROJECT_ALIASES: Record<string, string[]> = {
 };
 
 function findProject(q: string) {
-  for (const p of projects) {
+  const terms = new Set(q.split(" "));
+  const generic = new Set(["agent", "system", "recognition", "urdu", "research", "language", "prediction", "customer", "support"]);
+  const ranked = projects.map((p) => {
     const aliases = PROJECT_ALIASES[p.id] ?? [];
-    const titleWords = normalize(p.title).split(" ").filter((w) => w.length > 3);
-    if (aliases.some((a) => q.includes(a)) || titleWords.some((w) => q.includes(w))) {
-      return p;
-    }
-  }
-  return null;
+    const aliasScore = aliases.filter((a) => ` ${q} `.includes(` ${normalize(a)} `)).reduce((n, a) => n + a.length + 10, 0);
+    const titleScore = normalize(p.title).split(" ").filter((w) => w.length > 3 && !generic.has(w) && terms.has(w)).length * 4;
+    return { project: p, score: aliasScore + titleScore };
+  }).sort((a, b) => b.score - a.score);
+  return ranked[0]?.score > 0 ? ranked[0].project : null;
 }
 
 /* ── Intent handlers ─────────────────────────────────────── */
@@ -331,13 +332,10 @@ function tenureAnswer(q: string): string | null {
   const aboutCareer = /career|experience|working|industry|field|ai/.test(q);
 
   if (aboutBlue && current) {
-    const startYear = parseInt(current.startDate, 10);
-    const nowYear = new Date().getFullYear();
-    const years = Math.max(1, nowYear - startYear);
-    return `He's been the ${current.role} at ${current.company} since ${current.startDate} — roughly ${years} year${years > 1 ? "s" : ""} in the role, and ${years + 1}+ years total in AI roles if you count his internships.`;
+    return `His ${current.role} role at ${current.company} is listed as ${current.startDate}–Present. The exact start month isn't recorded, so I can't give a precise duration.`;
   }
   if (aboutCareer || /how long/.test(q)) {
-    return "He's been shipping AI work since mid-2024: the NCRA edge-AI internship (Aug–Sep 2024), the RISETech ML internship (Jul–Aug 2025), and the Blue Group AI Engineer role since 2025 — so about 2 years of hands-on experience.";
+    return "His recorded AI experience includes NCRA (Aug–Sep 2024), RISETech (Jul–Aug 2025), and Blue Group (2025–Present). These include internships, so I don't count them as continuous years of full-time employment.";
   }
   return null;
 }
@@ -346,14 +344,14 @@ function countAnswer(q: string): string | null {
   if (!/how many/.test(q)) return null;
   if (/project/.test(q)) {
     const aiml = projects.filter((p) => p.category === "aiml").length;
-    return `${projects.length} featured projects on the site — ${aiml} in AI/ML, the rest full-stack. Highlights: ${projectTitles.slice(0, 3).join(", ")}.`;
+    return `${projects.length} projects on the site — ${aiml} in AI/ML, the rest full-stack. Highlights: ${projectTitles.slice(0, 3).join(", ")}.`;
   }
   if (/skill|tech|tool|language/.test(q)) {
     const files = skillTree.reduce((n, f) => n + f.files.length, 0);
     return `${skillTree.length} skill domains covering ${files} tools — the biggest are llms-and-agents, rag-and-retrieval and ml-and-deep-learning.`;
   }
   if (/year|experience/.test(q)) {
-    return "About 2 years of hands-on AI experience: NCRA (2024), RISETech (2025), and Blue Group since 2025.";
+    return "His listed roles are NCRA (Aug–Sep 2024), RISETech (Jul–Aug 2025), and Blue Group (2025–Present). The portfolio doesn't establish an exact total of full-time years.";
   }
   return null;
 }
@@ -420,7 +418,7 @@ function projectDetail(q: string): { answer: string; topicId: string } | null {
   const titleHit = normalize(p.title).split(" ").filter((w) => w.length > 3).some((w) => q.includes(w));
   if (!aliases && !titleHit) return null;
   return {
-    answer: `${p.title} — ${p.description}${p.live ? `\nLive: ${p.live}` : ""}`,
+    answer: `${p.title} — ${/more|details|architecture|how.*work|integrations/.test(q) ? p.longDescription : p.description}${p.live ? `\nLive: ${p.live}` : ""}`,
     topicId: `project:${p.id}`,
   };
 }
@@ -443,7 +441,7 @@ function scoreTopics(q: string): Array<{ topic: Topic; score: number }> {
   const scored = TOPICS.map((topic) => {
     let score = 0;
     for (const key of topic.keys) {
-      if (q.includes(key)) score += key.includes(" ") ? 5 : 3;
+      if (` ${q} `.includes(` ${normalize(key)} `)) score += key.includes(" ") ? 5 : 3;
       const keyTokens = key.split(" ").map(stem);
       for (const kt of keyTokens) {
         if (qStems.has(kt)) score += 2;
@@ -487,8 +485,16 @@ export function askAgent(question: string, lastTopicId?: string): AgentReply {
     };
   }
 
+  if (/\b(book|booking|appointment|appoinment|schedule|meeting)\b/.test(q)) {
+    return { answer: "This assistant answers questions about Wahab's work. It cannot schedule meetings or send messages. Please use the Contact section to reach him directly.", suggestions: ["What is his experience?", "Show me his projects"], topicId: "contact" };
+  }
+
   // 1. Follow-up continuation ("tell me more", "what else") → deeper answer
   if (lastTopicId && isFollowUp(q)) {
+    if (lastTopicId.startsWith("project:")) {
+      const project = projects.find((p) => p.id === lastTopicId.slice(8));
+      if (project) return { answer: project.longDescription, suggestions: [`What is ${project.cardTitle} built with?`, "What is his experience?"], topicId: lastTopicId };
+    }
     const baseId = lastTopicId.startsWith("project:") ? "projects" : lastTopicId;
     const topic = TOPICS.find((t) => t.id === baseId);
     if (topic) {
@@ -497,6 +503,9 @@ export function askAgent(question: string, lastTopicId?: string): AgentReply {
   }
 
   // 2. Structured intents
+  if (/salary|hourly rate|how much.*(?:charge|earn)|age|phone number|home address|accuracy|graduated|graduation status/.test(q)) {
+    return { answer: `That information isn't confirmed in Wahab's portfolio. You can ask him at ${CONTACT.email}.`, suggestions: ["What is his experience?", "What is his experience?"] };
+  }
   const intents: Array<{ answer: string; topicId: string }> = [];
   const t = tenureAnswer(q); if (t) intents.push({ answer: t, topicId: "experience" });
   const c = countAnswer(q); if (c) intents.push({ answer: c, topicId: "projects" });
@@ -509,6 +518,9 @@ export function askAgent(question: string, lastTopicId?: string): AgentReply {
       suggestions: ["Tell me more", "Show me his projects", "How can I contact him?"],
       topicId: intents[0].topicId,
     };
+  }
+  if (/does he know|is he familiar with|has he used|has he worked with|does he have experience with/.test(q)) {
+    return { answer: "I don't see that technology in his documented skills, projects, or work experience, so I can't confirm it. His listed strengths include Python, voice AI, RAG, and agent systems.", suggestions: ["What are his skills?", "What is his experience?"], topicId: "skills" };
   }
 
   // 3. Project detail (specific project named)
@@ -569,5 +581,5 @@ export function askAgent(question: string, lastTopicId?: string): AgentReply {
 export const AGENT_GREETING: AgentReply = {
   answer:
     "Hi! I'm Wahab's portfolio assistant — ask me anything about his experience, projects, skills, or how to reach him.",
-  suggestions: ["What is he working on now?", "Show me his projects", "What are his skills?", "How can I contact him?"],
+  suggestions: ["What is his experience?", "Show me his projects", "What is his experience?"],
 };

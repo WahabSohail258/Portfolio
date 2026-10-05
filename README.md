@@ -10,7 +10,7 @@
 - **Dark / Light theme** — forest-green dark mode by default, smooth transitions
 - **Animated hero** — bold typography with italic green accent word
 - **Interactive terminal** — "Who Am I" card with 3D cursor-tracking tilt effect
-- **Technical Toolbox** — animated marquee of skills and technologies
+- **Technical Toolbox** — expandable file tree of skills and technologies
 - **Featured Projects** — filterable project cards with GitHub links
 - **Experience Timeline** — internships, education, and leadership
 - **Bento contact grid** — iOS-style widgets + live clock + contact form
@@ -40,7 +40,7 @@
 ```
 Portfolio/
 ├── public/
-│   ├── projects/          # Project screenshot images
+│   ├── projects/          # Project cover photographs
 │   └── Wahab_Resume.pdf   # Downloadable resume
 │
 ├── src/
@@ -53,7 +53,7 @@ Portfolio/
 │   │   ├── hero/          # Hero section with specialty pills
 │   │   ├── navbar/        # Single-pill navbar with theme toggle
 │   │   ├── about/         # "Who Am I" terminal with 3D tilt
-│   │   ├── skills/        # Tech toolbox marquee
+│   │   ├── skills/        # Tech toolbox file tree
 │   │   ├── projects/      # Project cards with filters
 │   │   ├── timeline/      # Experience & education timeline
 │   │   ├── contact/       # Bento grid + contact form
@@ -64,7 +64,7 @@ Portfolio/
 │       ├── projects.ts    # Project data
 │       └── experience.ts  # Work, education, leadership data
 │
-├── .env.local.example     # Environment variable template
+├── .env.example     # Environment variable template
 ├── next.config.mjs
 ├── tailwind.config.ts
 └── tsconfig.json
@@ -90,10 +90,10 @@ npm install
 ### 3. Set up environment variables
 
 ```bash
-cp .env.local.example .env.local
+cp .env.example .env.local
 ```
 
-Open `.env.local` and fill in your [EmailJS](https://emailjs.com) credentials:
+Open `.env.local` and add your Groq API key for the assistant. See [AGENT_SETUP.md](AGENT_SETUP.md). EmailJS is optional and used only by the separate contact form:
 
 ```env
 NEXT_PUBLIC_EMAILJS_SERVICE_ID=your_service_id
@@ -153,3 +153,9 @@ The "Resume" button in the navbar and hero will automatically download it.
 ## 📝 License
 
 MIT — feel free to use as a template. A credit link is appreciated but not required.
+
+## Portfolio assistant
+
+The assistant uses Groq for conversational answers grounded in the complete project, experience, and skills data. It supports follow-up questions and falls back to the local portfolio knowledge base when Groq is unavailable. It does not send email or handle appointment bookings.
+
+See [AGENT_SETUP.md](AGENT_SETUP.md) for the Groq setup. Run `npm run test:agent` for the factual-answer and API checks; the model provider is mocked.

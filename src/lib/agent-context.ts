@@ -30,6 +30,7 @@ function projectToText(p: Project): string {
   return [
     `- ${p.title} [${p.category}${p.featured ? ", featured" : ""}]`,
     `  ${p.description}`,
+    `  Details: ${p.longDescription}`,
     `  Tech: ${p.tags.join(", ")}`,
     p.live ? `  Live: ${p.live}` : "",
     `  Code: ${p.github}`,
