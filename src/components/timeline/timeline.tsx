@@ -291,7 +291,7 @@ export function Timeline() {
           viewport={{ once: true, margin: "-80px" }}
           style={{ marginBottom: "3rem", textAlign: "center" }}
         >
-          <span className="section-tag">// experience</span>
+          <span className="section-tag">04 / THE JOURNEY</span>
           <h2 className="section-title">
             My <span className="gradient-text">Journey</span>
           </h2>

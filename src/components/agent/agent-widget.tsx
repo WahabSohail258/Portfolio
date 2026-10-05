@@ -255,7 +255,7 @@ export function AgentWidget() {
                       borderRadius: m.role === "user" ? "14px 14px 4px 14px" : "14px 14px 14px 4px",
                       background: m.role === "user" ? "var(--primary)" : "var(--surface)",
                       border: m.role === "user" ? "none" : "1px solid var(--card-border)",
-                      color: m.role === "user" ? "#fff" : "var(--foreground)",
+                      color: m.role === "user" ? "var(--background)" : "var(--foreground)",
                       fontSize: "0.82rem",
                       lineHeight: 1.55,
                       whiteSpace: "pre-wrap",
@@ -381,7 +381,7 @@ export function AgentWidget() {
                   borderRadius: 10,
                   border: "none",
                   background: "var(--primary)",
-                  color: "#fff",
+                  color: "var(--background)",
                   cursor: input.trim() && !typing ? "pointer" : "default",
                   display: "flex",
                   alignItems: "center",
@@ -405,6 +405,7 @@ export function AgentWidget() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -8, scale: 0.95 }}
             transition={{ delay: 2, duration: 0.4, ease: EASE }}
+            className="assistant-hint"
             onClick={() => setOpen(true)}
             style={{
               position: "fixed",

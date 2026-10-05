@@ -4,8 +4,7 @@ export function ThemeScript() {
     (function() {
       try {
         var saved = localStorage.getItem('theme');
-        var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        var theme = saved || (prefersDark ? 'dark' : 'dark'); // default dark
+        var theme = saved === 'light' ? 'light' : 'dark';
         document.documentElement.setAttribute('data-theme', theme);
       } catch(e) {}
     })();

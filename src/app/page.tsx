@@ -10,25 +10,19 @@ import { BackToTop } from "@/components/ui/back-to-top";
 
 export default function Home() {
   return (
-    <main className="relative">
+    <main id="main-content" className="relative">
       <Navbar />
 
-      {/* 1. Big landing hero */}
       <Hero />
 
-      {/* 2. Who am I — terminal whoami */}
-      <About />
-
-      {/* 3. Technical toolbox — file tree */}
-      <Skills />
-
-      {/* 4. Featured projects */}
       <Projects />
 
-      {/* 5. Experience timeline */}
+      <About />
+
+      <Skills />
+
       <Timeline />
 
-      {/* 6. Bento contact grid — at the very end */}
       <BentoContact />
 
       <Footer />

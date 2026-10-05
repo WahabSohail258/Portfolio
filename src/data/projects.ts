@@ -16,7 +16,7 @@ export const projects: Project[] = [
     id: "8",
     title: "Urdu Conversational Voice Agent",
     description:
-      "Production Urdu voice agent at Blue Group of Companies — local LLM response generation, Urdu TTS with Coqui, and STT integration for an end-to-end voice pipeline.",
+      "An Urdu conversational AI pipeline at Blue Group of Companies, combining local language models, fine-tuned Coqui TTS, and grounded retrieval. Speech-to-text integration is in progress.",
     longDescription:
       "Developing components for an Urdu conversational voice agent in production at Blue Group of Companies. The pipeline spans local LLM response generation (Ollama-hosted models via OpenAI-compatible interfaces), Urdu text-to-speech with Coqui TTS fine-tuned on ElevenLabs audio data, and speech-to-text integration in progress for a complete end-to-end voice loop. Fine-tuned domain-specific LLMs with Hugging Face Transformers and PEFT/LoRA on English and Roman Urdu conversations, evaluating outputs for factual consistency, directness, and domain adherence. Built and tested RAG pipelines that retrieve knowledge-base context for grounded Urdu responses.",
     image: "/projects/voice-agent.jpg",
@@ -44,10 +44,10 @@ export const projects: Project[] = [
     id: "7",
     title: "OrgMind — Multi-Agent Research & QA",
     description:
-      "LangGraph agent workflows for structured question answering over heterogeneous web data, grounded through a complete RAG pipeline with pgvector retrieval.",
+      "A research assistant that turns web data into grounded answers, connecting LangGraph agents, pgvector retrieval, and a Next.js interface.",
     longDescription:
       "Orchestrated LangGraph agent workflows for structured question answering over heterogeneous web data, grounding LLM responses in retrieved source context through a complete RAG pipeline. Implemented sentence-transformer embeddings, document chunking, and pgvector retrieval behind a FastAPI backend; refined retrieval strategies to improve context relevance. Delivered the end-to-end application with a Next.js interface, deployed through Vercel and cloud infrastructure.",
-    image: "/projects/orgmind.jpg",
+    image: "/projects/orgmind-live.png",
     tags: ["LangGraph", "Groq", "SentenceTransformers", "pgvector", "FastAPI", "Next.js"],
     category: "fullstack",
     github: "https://github.com/WahabSohail258/OrgMind",
