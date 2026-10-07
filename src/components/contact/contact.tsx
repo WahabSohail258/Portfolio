@@ -4,10 +4,12 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Mail, Github, Linkedin, Send, CheckCircle, AlertCircle, Terminal } from "lucide-react";
 import emailjs from "@emailjs/browser";
+import { getEmailJsConfig } from "@/lib/env";
 
 export function Contact() {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+  const { isConfigured, serviceId, templateId, publicKey } = getEmailJsConfig();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
@@ -15,13 +17,19 @@ export function Contact() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!isConfigured) {
+      setStatus("error");
+      return;
+    }
+
     setStatus("sending");
     try {
       await emailjs.send(
-        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
-        process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!,
+        serviceId,
+        templateId,
         { from_name: form.name, from_email: form.email, message: form.message },
-        process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!
+        publicKey
       );
       setStatus("success");
       setForm({ name: "", email: "", message: "" });
@@ -53,6 +61,8 @@ export function Contact() {
     letterSpacing: "0.05em",
   };
 
+  const isSubmitDisabled = status === "sending" || !isConfigured;
+
   return (
     <section
       id="contact"
@@ -81,14 +91,12 @@ export function Contact() {
           style={{ display: "grid", gridTemplateColumns: "1fr 1.2fr", gap: "2.5rem", alignItems: "start" }}
           className="contact-grid"
         >
-          {/* Left — terminal-style contact info */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
             viewport={{ once: true, margin: "-80px" }}
           >
-            {/* Terminal contact window */}
             <div className="terminal-window">
               <div className="terminal-titlebar">
                 <div className="terminal-dots">
@@ -147,7 +155,6 @@ export function Contact() {
               </div>
             </div>
 
-            {/* Availability pill */}
             <div
               style={{
                 marginTop: "1rem",
@@ -169,7 +176,6 @@ export function Contact() {
             </div>
           </motion.div>
 
-          {/* Right — form */}
           <motion.form
             initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -228,16 +234,35 @@ export function Contact() {
 
             <button
               type="submit"
-              disabled={status === "sending"}
+              disabled={isSubmitDisabled}
               className="btn-primary"
-              style={{ justifyContent: "center", opacity: status === "sending" ? 0.7 : 1 }}
+              style={{ justifyContent: "center", opacity: isSubmitDisabled ? 0.7 : 1 }}
             >
-              {status === "sending" ? (
-                "Sending..."
-              ) : (
+              {!isConfigured ? "EmailJS not configured" : status === "sending" ? "Sending..." : (
                 <><Send size={14} /> Send Message</>
               )}
             </button>
+
+            {!isConfigured && (
+              <motion.div
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  padding: "0.7rem 0.9rem",
+                  borderRadius: 8,
+                  background: "rgba(245,158,11,0.08)",
+                  border: "1px solid rgba(245,158,11,0.2)",
+                  color: "#d97706",
+                  fontSize: "0.84rem",
+                  fontWeight: 500,
+                }}
+              >
+                <AlertCircle size={15} /> EmailJS is not configured yet. Please email sohailwahab27@gmail.com directly.
+              </motion.div>
+            )}
 
             {status === "success" && (
               <motion.div
@@ -254,7 +279,7 @@ export function Contact() {
               </motion.div>
             )}
 
-            {status === "error" && (
+            {status === "error" && isConfigured && (
               <motion.div
                 initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
